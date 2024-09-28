@@ -8,7 +8,7 @@ import jakarta.ws.rs.core.Response;
 import java.net.URI;
 import java.util.List;
 
-@Path("/persons_deprecated")
+//@Path("/persons_deprecated")
 @Transactional
 public class PersonResource_deprecated {
 

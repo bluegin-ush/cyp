@@ -13,7 +13,7 @@ import java.util.List;
 //@Produces(MediaType.APPLICATION_JSON)
 //@Consumes(MediaType.APPLICATION_JSON)
 //@Path("/persons")
-public interface PersonResource extends PanacheRepositoryResource<PersonRepository,Person, Long> {
+public interface PersonResource{ // extends PanacheRepositoryResource<PersonRepository,Person, Long> {
     @GET
     @Path("{id}/primos")
     default public List<Person> getPrimos(@PathParam("id") Long id){

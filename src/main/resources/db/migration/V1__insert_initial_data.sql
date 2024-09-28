@@ -1,15 +1,3 @@
--- This file allow to write SQL commands that will be emitted in test and dev.
--- The commands are commented as their support depends of the database
--- insert into myentity (id, field) values(1, 'field-1');
--- insert into myentity (id, field) values(2, 'field-2');
--- insert into myentity (id, field) values(3, 'field-3');
--- alter sequence myentity_seq restart with 4;
---insert into person (name,birth) values('Dany','2022-03-10');
---insert into person (name,status) values('Otro dany',0);
---INSERT INTO person (id, birth, name, status) VALUES (1, '1995-09-12', 'Emily Brown', 0);
---ALTER SEQUENCE person_seq RESTART WITH 2;
-
---
 INSERT INTO servicio (id, codigo, descripcion, costo) VALUES
 (1, '205', 'Parador - (viernes, sábado, domingo y feriados)', 0),
 (2, '2050', 'Parador - (lunes, martes, miércoles y jueves)', 0),
