@@ -4,3 +4,7 @@
 -- insert into myentity (id, field) values(2, 'field-2');
 -- insert into myentity (id, field) values(3, 'field-3');
 -- alter sequence myentity_seq restart with 4;
+--insert into person (name,birth) values('Dany','2022-03-10');
+--insert into person (name,status) values('Otro dany',0);
+--INSERT INTO person (id, birth, name, status) VALUES (1, '1995-09-12', 'Emily Brown', 0);
+--ALTER SEQUENCE person_seq RESTART WITH 2;
