@@ -77,7 +77,7 @@
 #   accessed directly. (example: "foo.example.com,bar.example.com")
 #
 ###
-FROM registry.access.redhat.com/ubi8/openjdk-21:1.20 as build
+FROM registry.access.redhat.com/ubi8/openjdk-21:1.20 AS build
 
 ENV LANGUAGE='en_US:en'
 
