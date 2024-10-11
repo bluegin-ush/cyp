@@ -41,10 +41,11 @@ public class SocioResource {// implements PanacheRepositoryResource<SocioReposit
     }
 
     @GET
-    @Path("{idSocio}")
-    public Socio getSocio(@PathParam("idSocio")Long idSocio){
-        return socioRepository.findById(idSocio);
+    @Path("{socioId}")
+    public Socio getSocio(@PathParam("socioId")Long socioId){
+        return socioRepository.findById(socioId);
     }
+
     @POST
     @Transactional
     public Response createSocio(Socio socio){
@@ -53,7 +54,7 @@ public class SocioResource {// implements PanacheRepositoryResource<SocioReposit
             return Response.status(Response.Status.BAD_REQUEST).entity("El nombre del socio es obligatorio").build();
         }else if (socio.tipoDoc == null || socio.tipoDoc.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity("El tipo de documento del socio es obligatorio").build();
-        }else if (socio.numDoc == null || socio.numDoc.isEmpty()) {
+        }else if (socio.numDoc == null || socio.numDoc==0L) {
             return Response.status(Response.Status.BAD_REQUEST).entity("El número de documento del socio es obligatorio").build();
         }
 
@@ -169,6 +170,41 @@ public class SocioResource {// implements PanacheRepositoryResource<SocioReposit
 
         // Persistencia del socio
         socio.activo = false;
+        socio.agregarRegistro(registro);
+        socio.persist();
+
+
+        // Construcción de la respuesta
+        return Response.ok(socio).status(Response.Status.ACCEPTED).build();
+    }
+
+    @PUT
+    @Path("{socioId}/alta")
+    @Transactional
+    public Response altaSocio(@PathParam("socioId") Long socioId, String motivo){
+
+        Socio socio = socioRepository.findById(socioId);
+
+        // Validaciones
+        if (socio == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity("Socio no encontrado").build();
+        }  else if (socio.activo) {
+            return Response.status(Response.Status.CONFLICT).entity("El socio ya esta habilitado").build();
+        }
+
+
+        // Registramos el alta del socio
+
+        Registro registro = new Registro();
+        registro.fecha = LocalDate.now();
+        registro.tipo = Registro.Tipo.ALTA;
+        registro.motivo = (motivo!=null && !motivo.isEmpty() ? motivo : "rehabilitación del socio");
+        registro.setSocio(socio);
+
+        registro.persist();
+
+        // Persistencia del socio
+        socio.activo = true;
         socio.agregarRegistro(registro);
         socio.persist();
 

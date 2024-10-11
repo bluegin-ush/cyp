@@ -11,8 +11,10 @@ import java.util.List;
 public class Socio extends PanacheEntity {
 
     public String nombre;
+
+    public String apellido;
     public String tipoDoc; // Tipo de documento
-    public String numDoc; // Número de documento
+    public Long numDoc; // Número de documento
     public String correo;
 
     @ManyToOne
@@ -21,7 +23,7 @@ public class Socio extends PanacheEntity {
     public Boolean activo;
     public BigDecimal ctacte; // Cuenta corriente
 
-    @OneToMany(mappedBy = "socio")
+    @OneToMany(mappedBy = "socio", fetch = FetchType.EAGER)
     private List<Registro> registros; // Relación con Registro
 
     @ManyToMany(fetch = FetchType.EAGER)
