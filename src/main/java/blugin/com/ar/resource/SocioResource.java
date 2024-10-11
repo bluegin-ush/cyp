@@ -1,9 +1,7 @@
 package blugin.com.ar.resource;
 
-import blugin.com.ar.cyp.model.Registro;
-import blugin.com.ar.cyp.model.Servicio;
-import blugin.com.ar.cyp.model.Socio;
-import blugin.com.ar.cyp.model.SocioServicio;
+import blugin.com.ar.cyp.model.*;
+import blugin.com.ar.repository.EntidadCrediticiaRepository;
 import blugin.com.ar.repository.ServicioRepository;
 import blugin.com.ar.repository.SocioRepository;
 import blugin.com.ar.repository.SocioServicioRepository;
@@ -34,6 +32,9 @@ public class SocioResource {// implements PanacheRepositoryResource<SocioReposit
 
     @Inject
     ServicioRepository servicioRepository;
+
+    @Inject
+    EntidadCrediticiaRepository entidadRepository;
 
     @GET
     public List<Socio> getAllSocios(){
@@ -113,6 +114,7 @@ public class SocioResource {// implements PanacheRepositoryResource<SocioReposit
         //
         return Response.status(Response.Status.CREATED).build();
     }
+
     @DELETE
     @Path("/{socioId}/servicio/{servicioId}")
     @Transactional
@@ -211,5 +213,88 @@ public class SocioResource {// implements PanacheRepositoryResource<SocioReposit
 
         // Construcción de la respuesta
         return Response.ok(socio).status(Response.Status.ACCEPTED).build();
+    }
+
+    @PUT
+    @Path("{socioId}")
+    @Transactional
+    public Response modificarSocio(@PathParam("socioId") Long socioId, Socio socioNew) {
+
+        Socio socio = socioRepository.findById(socioId);
+
+        // Validaciones
+        if (socio == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity("Socio no encontrado").build();
+        }
+
+        if (socioNew.numDoc != null) {
+            socio.numDoc = socioNew.numDoc;
+        }
+
+        if (socioNew.tipoDoc != null) {
+            socio.tipoDoc = socioNew.tipoDoc;
+        }
+
+        if (socioNew.apellido != null) {
+            socio.apellido = socioNew.apellido;
+        }
+
+        if (socioNew.nombre != null) {
+            socio.nombre = socioNew.nombre;
+        }
+
+        socio.persist();
+
+        // Construcción de la respuesta
+        return Response.ok(socio).status(Response.Status.ACCEPTED).build();
+    }
+
+    @POST
+    @Path("/{socioId}/entidad/{entidadId}")
+    @Transactional
+    public Response addEntidadASocioPorId(Long socioId, Long entidadId) {
+        Socio socio = socioRepository.findById(socioId);
+        EntidadCrediticia entidad = entidadRepository.findById(entidadId);
+
+        // Validaciones
+        if (socio == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity("Socio no encontrado").build();
+        }
+        if (entidad == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity("Entidad no encontrada").build();
+        }
+        if (socio.entidadCrediticia != null) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Ya se encuentra vinculado con una entidad").build();
+        }
+
+        //
+        socio.entidadCrediticia = entidad;
+        socio.persist();
+
+        //
+        return Response.status(Response.Status.CREATED).build();
+    }
+
+    @DELETE
+    @Path("/{socioId}/entidad")
+    @Transactional
+    public Response removeEntidadASocioPorId(Long socioId, Long entidadId) {
+        Socio socio = socioRepository.findById(socioId);
+
+        // Validaciones
+        if (socio == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity("Socio no encontrado").build();
+        }
+
+        if (socio.entidadCrediticia == null) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("No se encuentra vinculado con alguna entidad").build();
+        }
+
+        //
+        socio.entidadCrediticia = null;
+        socio.persist();
+
+        //
+        return Response.status(Response.Status.ACCEPTED).build();
     }
 }
