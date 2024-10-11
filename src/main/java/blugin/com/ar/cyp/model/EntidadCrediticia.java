@@ -13,4 +13,5 @@ public class EntidadCrediticia extends PanacheEntity {
     public Boolean archivo;
     public Long cuit;
     public String contacto;
+
 }

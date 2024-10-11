@@ -297,4 +297,36 @@ public class SocioResource {// implements PanacheRepositoryResource<SocioReposit
         //
         return Response.status(Response.Status.ACCEPTED).build();
     }
+
+    @GET
+    @Path("/entidad/{entidadId}")
+    public Response getSociosByEntidad(@PathParam("entidadId") Long entidadId) {
+
+        List<Socio> socios = socioRepository.find("entidadCrediticia.id = ?1", entidadId).list();
+
+        //
+        if (socios==null || socios.isEmpty()){
+            return Response.status(Response.Status.NO_CONTENT).build();
+        }else {
+
+            return Response.status(Response.Status.OK).entity(socios).build();
+
+        }
+    }
+
+    @GET
+    @Path("/sin-entidad")
+    public Response getSociosSinEntidad() {
+
+        List<Socio> socios = socioRepository.find("entidadCrediticia is null").list();
+
+        //
+        if (socios==null || socios.isEmpty()){
+            return Response.status(Response.Status.NO_CONTENT).build();
+        }else {
+
+            return Response.status(Response.Status.OK).entity(socios).build();
+
+        }
+    }
 }
