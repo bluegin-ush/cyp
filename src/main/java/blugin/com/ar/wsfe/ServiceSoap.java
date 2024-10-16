@@ -29,12 +29,12 @@ public interface ServiceSoap {
      * @param auth
      * @param feCAEReq
      * @return
-     *     returns wsfe.FECAEResponse
+     *     returns blugin.com.ar.wsfe.FECAEResponse
      */
     @WebMethod(operationName = "FECAESolicitar", action = "http://ar.gov.afip.dif.FEV1/FECAESolicitar")
     @WebResult(name = "FECAESolicitarResult", targetNamespace = "http://ar.gov.afip.dif.FEV1/")
-    @RequestWrapper(localName = "FECAESolicitar", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "wsfe.FECAESolicitar")
-    @ResponseWrapper(localName = "FECAESolicitarResponse", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "wsfe.FECAESolicitarResponse")
+    @RequestWrapper(localName = "FECAESolicitar", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "blugin.com.ar.wsfe.FECAESolicitar")
+    @ResponseWrapper(localName = "FECAESolicitarResponse", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "blugin.com.ar.wsfe.FECAESolicitarResponse")
     public FECAEResponse fecaeSolicitar(
         @WebParam(name = "Auth", targetNamespace = "http://ar.gov.afip.dif.FEV1/")
         FEAuthRequest auth,
@@ -46,12 +46,12 @@ public interface ServiceSoap {
      * 
      * @param auth
      * @return
-     *     returns wsfe.FERegXReqResponse
+     *     returns blugin.com.ar.wsfe.FERegXReqResponse
      */
     @WebMethod(operationName = "FECompTotXRequest", action = "http://ar.gov.afip.dif.FEV1/FECompTotXRequest")
     @WebResult(name = "FECompTotXRequestResult", targetNamespace = "http://ar.gov.afip.dif.FEV1/")
-    @RequestWrapper(localName = "FECompTotXRequest", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "wsfe.FECompTotXRequest")
-    @ResponseWrapper(localName = "FECompTotXRequestResponse", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "wsfe.FECompTotXRequestResponse")
+    @RequestWrapper(localName = "FECompTotXRequest", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "blugin.com.ar.wsfe.FECompTotXRequest")
+    @ResponseWrapper(localName = "FECompTotXRequestResponse", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "blugin.com.ar.wsfe.FECompTotXRequestResponse")
     public FERegXReqResponse feCompTotXRequest(
         @WebParam(name = "Auth", targetNamespace = "http://ar.gov.afip.dif.FEV1/")
         FEAuthRequest auth);
@@ -60,12 +60,12 @@ public interface ServiceSoap {
      * Metodo dummy para verificacion de funcionamiento
      * 
      * @return
-     *     returns wsfe.DummyResponse
+     *     returns blugin.com.ar.wsfe.DummyResponse
      */
     @WebMethod(operationName = "FEDummy", action = "http://ar.gov.afip.dif.FEV1/FEDummy")
     @WebResult(name = "FEDummyResult", targetNamespace = "http://ar.gov.afip.dif.FEV1/")
-    @RequestWrapper(localName = "FEDummy", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "wsfe.FEDummy")
-    @ResponseWrapper(localName = "FEDummyResponse", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "wsfe.FEDummyResponse")
+    @RequestWrapper(localName = "FEDummy", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "blugin.com.ar.wsfe.FEDummy")
+    @ResponseWrapper(localName = "FEDummyResponse", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "blugin.com.ar.wsfe.FEDummyResponse")
     public DummyResponse feDummy();
 
     /**
@@ -75,12 +75,12 @@ public interface ServiceSoap {
      * @param cbteTipo
      * @param ptoVta
      * @return
-     *     returns wsfe.FERecuperaLastCbteResponse
+     *     returns blugin.com.ar.wsfe.FERecuperaLastCbteResponse
      */
     @WebMethod(operationName = "FECompUltimoAutorizado", action = "http://ar.gov.afip.dif.FEV1/FECompUltimoAutorizado")
     @WebResult(name = "FECompUltimoAutorizadoResult", targetNamespace = "http://ar.gov.afip.dif.FEV1/")
-    @RequestWrapper(localName = "FECompUltimoAutorizado", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "wsfe.FECompUltimoAutorizado")
-    @ResponseWrapper(localName = "FECompUltimoAutorizadoResponse", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "wsfe.FECompUltimoAutorizadoResponse")
+    @RequestWrapper(localName = "FECompUltimoAutorizado", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "blugin.com.ar.wsfe.FECompUltimoAutorizado")
+    @ResponseWrapper(localName = "FECompUltimoAutorizadoResponse", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "blugin.com.ar.wsfe.FECompUltimoAutorizadoResponse")
     public FERecuperaLastCbteResponse feCompUltimoAutorizado(
         @WebParam(name = "Auth", targetNamespace = "http://ar.gov.afip.dif.FEV1/")
         FEAuthRequest auth,
@@ -95,12 +95,12 @@ public interface ServiceSoap {
      * @param auth
      * @param feCompConsReq
      * @return
-     *     returns wsfe.FECompConsultaResponse
+     *     returns blugin.com.ar.wsfe.FECompConsultaResponse
      */
     @WebMethod(operationName = "FECompConsultar", action = "http://ar.gov.afip.dif.FEV1/FECompConsultar")
     @WebResult(name = "FECompConsultarResult", targetNamespace = "http://ar.gov.afip.dif.FEV1/")
-    @RequestWrapper(localName = "FECompConsultar", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "wsfe.FECompConsultar")
-    @ResponseWrapper(localName = "FECompConsultarResponse", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "wsfe.FECompConsultarResponse")
+    @RequestWrapper(localName = "FECompConsultar", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "blugin.com.ar.wsfe.FECompConsultar")
+    @ResponseWrapper(localName = "FECompConsultarResponse", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "blugin.com.ar.wsfe.FECompConsultarResponse")
     public FECompConsultaResponse feCompConsultar(
         @WebParam(name = "Auth", targetNamespace = "http://ar.gov.afip.dif.FEV1/")
         FEAuthRequest auth,
@@ -113,12 +113,12 @@ public interface ServiceSoap {
      * @param auth
      * @param feCAEARegInfReq
      * @return
-     *     returns wsfe.FECAEAResponse
+     *     returns blugin.com.ar.wsfe.FECAEAResponse
      */
     @WebMethod(operationName = "FECAEARegInformativo", action = "http://ar.gov.afip.dif.FEV1/FECAEARegInformativo")
     @WebResult(name = "FECAEARegInformativoResult", targetNamespace = "http://ar.gov.afip.dif.FEV1/")
-    @RequestWrapper(localName = "FECAEARegInformativo", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "wsfe.FECAEARegInformativo")
-    @ResponseWrapper(localName = "FECAEARegInformativoResponse", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "wsfe.FECAEARegInformativoResponse")
+    @RequestWrapper(localName = "FECAEARegInformativo", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "blugin.com.ar.wsfe.FECAEARegInformativo")
+    @ResponseWrapper(localName = "FECAEARegInformativoResponse", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "blugin.com.ar.wsfe.FECAEARegInformativoResponse")
     public FECAEAResponse fecaeaRegInformativo(
         @WebParam(name = "Auth", targetNamespace = "http://ar.gov.afip.dif.FEV1/")
         FEAuthRequest auth,
@@ -132,12 +132,12 @@ public interface ServiceSoap {
      * @param orden
      * @param periodo
      * @return
-     *     returns wsfe.FECAEAGetResponse
+     *     returns blugin.com.ar.wsfe.FECAEAGetResponse
      */
     @WebMethod(operationName = "FECAEASolicitar", action = "http://ar.gov.afip.dif.FEV1/FECAEASolicitar")
     @WebResult(name = "FECAEASolicitarResult", targetNamespace = "http://ar.gov.afip.dif.FEV1/")
-    @RequestWrapper(localName = "FECAEASolicitar", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "wsfe.FECAEASolicitar")
-    @ResponseWrapper(localName = "FECAEASolicitarResponse", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "wsfe.FECAEASolicitarResponse")
+    @RequestWrapper(localName = "FECAEASolicitar", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "blugin.com.ar.wsfe.FECAEASolicitar")
+    @ResponseWrapper(localName = "FECAEASolicitarResponse", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "blugin.com.ar.wsfe.FECAEASolicitarResponse")
     public FECAEAGetResponse fecaeaSolicitar(
         @WebParam(name = "Auth", targetNamespace = "http://ar.gov.afip.dif.FEV1/")
         FEAuthRequest auth,
@@ -153,12 +153,12 @@ public interface ServiceSoap {
      * @param caea
      * @param ptoVta
      * @return
-     *     returns wsfe.FECAEASinMovConsResponse
+     *     returns blugin.com.ar.wsfe.FECAEASinMovConsResponse
      */
     @WebMethod(operationName = "FECAEASinMovimientoConsultar", action = "http://ar.gov.afip.dif.FEV1/FECAEASinMovimientoConsultar")
     @WebResult(name = "FECAEASinMovimientoConsultarResult", targetNamespace = "http://ar.gov.afip.dif.FEV1/")
-    @RequestWrapper(localName = "FECAEASinMovimientoConsultar", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "wsfe.FECAEASinMovimientoConsultar")
-    @ResponseWrapper(localName = "FECAEASinMovimientoConsultarResponse", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "wsfe.FECAEASinMovimientoConsultarResponse")
+    @RequestWrapper(localName = "FECAEASinMovimientoConsultar", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "blugin.com.ar.wsfe.FECAEASinMovimientoConsultar")
+    @ResponseWrapper(localName = "FECAEASinMovimientoConsultarResponse", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "blugin.com.ar.wsfe.FECAEASinMovimientoConsultarResponse")
     public FECAEASinMovConsResponse fecaeaSinMovimientoConsultar(
         @WebParam(name = "Auth", targetNamespace = "http://ar.gov.afip.dif.FEV1/")
         FEAuthRequest auth,
@@ -174,12 +174,12 @@ public interface ServiceSoap {
      * @param caea
      * @param ptoVta
      * @return
-     *     returns wsfe.FECAEASinMovResponse
+     *     returns blugin.com.ar.wsfe.FECAEASinMovResponse
      */
     @WebMethod(operationName = "FECAEASinMovimientoInformar", action = "http://ar.gov.afip.dif.FEV1/FECAEASinMovimientoInformar")
     @WebResult(name = "FECAEASinMovimientoInformarResult", targetNamespace = "http://ar.gov.afip.dif.FEV1/")
-    @RequestWrapper(localName = "FECAEASinMovimientoInformar", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "wsfe.FECAEASinMovimientoInformar")
-    @ResponseWrapper(localName = "FECAEASinMovimientoInformarResponse", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "wsfe.FECAEASinMovimientoInformarResponse")
+    @RequestWrapper(localName = "FECAEASinMovimientoInformar", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "blugin.com.ar.wsfe.FECAEASinMovimientoInformar")
+    @ResponseWrapper(localName = "FECAEASinMovimientoInformarResponse", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "blugin.com.ar.wsfe.FECAEASinMovimientoInformarResponse")
     public FECAEASinMovResponse fecaeaSinMovimientoInformar(
         @WebParam(name = "Auth", targetNamespace = "http://ar.gov.afip.dif.FEV1/")
         FEAuthRequest auth,
@@ -195,12 +195,12 @@ public interface ServiceSoap {
      * @param orden
      * @param periodo
      * @return
-     *     returns wsfe.FECAEAGetResponse
+     *     returns blugin.com.ar.wsfe.FECAEAGetResponse
      */
     @WebMethod(operationName = "FECAEAConsultar", action = "http://ar.gov.afip.dif.FEV1/FECAEAConsultar")
     @WebResult(name = "FECAEAConsultarResult", targetNamespace = "http://ar.gov.afip.dif.FEV1/")
-    @RequestWrapper(localName = "FECAEAConsultar", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "wsfe.FECAEAConsultar")
-    @ResponseWrapper(localName = "FECAEAConsultarResponse", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "wsfe.FECAEAConsultarResponse")
+    @RequestWrapper(localName = "FECAEAConsultar", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "blugin.com.ar.wsfe.FECAEAConsultar")
+    @ResponseWrapper(localName = "FECAEAConsultarResponse", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "blugin.com.ar.wsfe.FECAEAConsultarResponse")
     public FECAEAGetResponse fecaeaConsultar(
         @WebParam(name = "Auth", targetNamespace = "http://ar.gov.afip.dif.FEV1/")
         FEAuthRequest auth,
@@ -215,12 +215,12 @@ public interface ServiceSoap {
      * @param auth
      * @param monId
      * @return
-     *     returns wsfe.FECotizacionResponse
+     *     returns blugin.com.ar.wsfe.FECotizacionResponse
      */
     @WebMethod(operationName = "FEParamGetCotizacion", action = "http://ar.gov.afip.dif.FEV1/FEParamGetCotizacion")
     @WebResult(name = "FEParamGetCotizacionResult", targetNamespace = "http://ar.gov.afip.dif.FEV1/")
-    @RequestWrapper(localName = "FEParamGetCotizacion", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "wsfe.FEParamGetCotizacion")
-    @ResponseWrapper(localName = "FEParamGetCotizacionResponse", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "wsfe.FEParamGetCotizacionResponse")
+    @RequestWrapper(localName = "FEParamGetCotizacion", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "blugin.com.ar.wsfe.FEParamGetCotizacion")
+    @ResponseWrapper(localName = "FEParamGetCotizacionResponse", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "blugin.com.ar.wsfe.FEParamGetCotizacionResponse")
     public FECotizacionResponse feParamGetCotizacion(
         @WebParam(name = "Auth", targetNamespace = "http://ar.gov.afip.dif.FEV1/")
         FEAuthRequest auth,
@@ -232,12 +232,12 @@ public interface ServiceSoap {
      * 
      * @param auth
      * @return
-     *     returns wsfe.FETributoResponse
+     *     returns blugin.com.ar.wsfe.FETributoResponse
      */
     @WebMethod(operationName = "FEParamGetTiposTributos", action = "http://ar.gov.afip.dif.FEV1/FEParamGetTiposTributos")
     @WebResult(name = "FEParamGetTiposTributosResult", targetNamespace = "http://ar.gov.afip.dif.FEV1/")
-    @RequestWrapper(localName = "FEParamGetTiposTributos", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "wsfe.FEParamGetTiposTributos")
-    @ResponseWrapper(localName = "FEParamGetTiposTributosResponse", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "wsfe.FEParamGetTiposTributosResponse")
+    @RequestWrapper(localName = "FEParamGetTiposTributos", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "blugin.com.ar.wsfe.FEParamGetTiposTributos")
+    @ResponseWrapper(localName = "FEParamGetTiposTributosResponse", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "blugin.com.ar.wsfe.FEParamGetTiposTributosResponse")
     public FETributoResponse feParamGetTiposTributos(
         @WebParam(name = "Auth", targetNamespace = "http://ar.gov.afip.dif.FEV1/")
         FEAuthRequest auth);
@@ -247,12 +247,12 @@ public interface ServiceSoap {
      * 
      * @param auth
      * @return
-     *     returns wsfe.MonedaResponse
+     *     returns blugin.com.ar.wsfe.MonedaResponse
      */
     @WebMethod(operationName = "FEParamGetTiposMonedas", action = "http://ar.gov.afip.dif.FEV1/FEParamGetTiposMonedas")
     @WebResult(name = "FEParamGetTiposMonedasResult", targetNamespace = "http://ar.gov.afip.dif.FEV1/")
-    @RequestWrapper(localName = "FEParamGetTiposMonedas", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "wsfe.FEParamGetTiposMonedas")
-    @ResponseWrapper(localName = "FEParamGetTiposMonedasResponse", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "wsfe.FEParamGetTiposMonedasResponse")
+    @RequestWrapper(localName = "FEParamGetTiposMonedas", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "blugin.com.ar.wsfe.FEParamGetTiposMonedas")
+    @ResponseWrapper(localName = "FEParamGetTiposMonedasResponse", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "blugin.com.ar.wsfe.FEParamGetTiposMonedasResponse")
     public MonedaResponse feParamGetTiposMonedas(
         @WebParam(name = "Auth", targetNamespace = "http://ar.gov.afip.dif.FEV1/")
         FEAuthRequest auth);
@@ -262,12 +262,12 @@ public interface ServiceSoap {
      * 
      * @param auth
      * @return
-     *     returns wsfe.IvaTipoResponse
+     *     returns blugin.com.ar.wsfe.IvaTipoResponse
      */
     @WebMethod(operationName = "FEParamGetTiposIva", action = "http://ar.gov.afip.dif.FEV1/FEParamGetTiposIva")
     @WebResult(name = "FEParamGetTiposIvaResult", targetNamespace = "http://ar.gov.afip.dif.FEV1/")
-    @RequestWrapper(localName = "FEParamGetTiposIva", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "wsfe.FEParamGetTiposIva")
-    @ResponseWrapper(localName = "FEParamGetTiposIvaResponse", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "wsfe.FEParamGetTiposIvaResponse")
+    @RequestWrapper(localName = "FEParamGetTiposIva", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "blugin.com.ar.wsfe.FEParamGetTiposIva")
+    @ResponseWrapper(localName = "FEParamGetTiposIvaResponse", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "blugin.com.ar.wsfe.FEParamGetTiposIvaResponse")
     public IvaTipoResponse feParamGetTiposIva(
         @WebParam(name = "Auth", targetNamespace = "http://ar.gov.afip.dif.FEV1/")
         FEAuthRequest auth);
@@ -277,12 +277,12 @@ public interface ServiceSoap {
      * 
      * @param auth
      * @return
-     *     returns wsfe.OpcionalTipoResponse
+     *     returns blugin.com.ar.wsfe.OpcionalTipoResponse
      */
     @WebMethod(operationName = "FEParamGetTiposOpcional", action = "http://ar.gov.afip.dif.FEV1/FEParamGetTiposOpcional")
     @WebResult(name = "FEParamGetTiposOpcionalResult", targetNamespace = "http://ar.gov.afip.dif.FEV1/")
-    @RequestWrapper(localName = "FEParamGetTiposOpcional", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "wsfe.FEParamGetTiposOpcional")
-    @ResponseWrapper(localName = "FEParamGetTiposOpcionalResponse", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "wsfe.FEParamGetTiposOpcionalResponse")
+    @RequestWrapper(localName = "FEParamGetTiposOpcional", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "blugin.com.ar.wsfe.FEParamGetTiposOpcional")
+    @ResponseWrapper(localName = "FEParamGetTiposOpcionalResponse", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "blugin.com.ar.wsfe.FEParamGetTiposOpcionalResponse")
     public OpcionalTipoResponse feParamGetTiposOpcional(
         @WebParam(name = "Auth", targetNamespace = "http://ar.gov.afip.dif.FEV1/")
         FEAuthRequest auth);
@@ -292,12 +292,12 @@ public interface ServiceSoap {
      * 
      * @param auth
      * @return
-     *     returns wsfe.ConceptoTipoResponse
+     *     returns blugin.com.ar.wsfe.ConceptoTipoResponse
      */
     @WebMethod(operationName = "FEParamGetTiposConcepto", action = "http://ar.gov.afip.dif.FEV1/FEParamGetTiposConcepto")
     @WebResult(name = "FEParamGetTiposConceptoResult", targetNamespace = "http://ar.gov.afip.dif.FEV1/")
-    @RequestWrapper(localName = "FEParamGetTiposConcepto", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "wsfe.FEParamGetTiposConcepto")
-    @ResponseWrapper(localName = "FEParamGetTiposConceptoResponse", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "wsfe.FEParamGetTiposConceptoResponse")
+    @RequestWrapper(localName = "FEParamGetTiposConcepto", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "blugin.com.ar.wsfe.FEParamGetTiposConcepto")
+    @ResponseWrapper(localName = "FEParamGetTiposConceptoResponse", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "blugin.com.ar.wsfe.FEParamGetTiposConceptoResponse")
     public ConceptoTipoResponse feParamGetTiposConcepto(
         @WebParam(name = "Auth", targetNamespace = "http://ar.gov.afip.dif.FEV1/")
         FEAuthRequest auth);
@@ -307,12 +307,12 @@ public interface ServiceSoap {
      * 
      * @param auth
      * @return
-     *     returns wsfe.FEPtoVentaResponse
+     *     returns blugin.com.ar.wsfe.FEPtoVentaResponse
      */
     @WebMethod(operationName = "FEParamGetPtosVenta", action = "http://ar.gov.afip.dif.FEV1/FEParamGetPtosVenta")
     @WebResult(name = "FEParamGetPtosVentaResult", targetNamespace = "http://ar.gov.afip.dif.FEV1/")
-    @RequestWrapper(localName = "FEParamGetPtosVenta", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "wsfe.FEParamGetPtosVenta")
-    @ResponseWrapper(localName = "FEParamGetPtosVentaResponse", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "wsfe.FEParamGetPtosVentaResponse")
+    @RequestWrapper(localName = "FEParamGetPtosVenta", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "blugin.com.ar.wsfe.FEParamGetPtosVenta")
+    @ResponseWrapper(localName = "FEParamGetPtosVentaResponse", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "blugin.com.ar.wsfe.FEParamGetPtosVentaResponse")
     public FEPtoVentaResponse feParamGetPtosVenta(
         @WebParam(name = "Auth", targetNamespace = "http://ar.gov.afip.dif.FEV1/")
         FEAuthRequest auth);
@@ -322,12 +322,12 @@ public interface ServiceSoap {
      * 
      * @param auth
      * @return
-     *     returns wsfe.CbteTipoResponse
+     *     returns blugin.com.ar.wsfe.CbteTipoResponse
      */
     @WebMethod(operationName = "FEParamGetTiposCbte", action = "http://ar.gov.afip.dif.FEV1/FEParamGetTiposCbte")
     @WebResult(name = "FEParamGetTiposCbteResult", targetNamespace = "http://ar.gov.afip.dif.FEV1/")
-    @RequestWrapper(localName = "FEParamGetTiposCbte", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "wsfe.FEParamGetTiposCbte")
-    @ResponseWrapper(localName = "FEParamGetTiposCbteResponse", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "wsfe.FEParamGetTiposCbteResponse")
+    @RequestWrapper(localName = "FEParamGetTiposCbte", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "blugin.com.ar.wsfe.FEParamGetTiposCbte")
+    @ResponseWrapper(localName = "FEParamGetTiposCbteResponse", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "blugin.com.ar.wsfe.FEParamGetTiposCbteResponse")
     public CbteTipoResponse feParamGetTiposCbte(
         @WebParam(name = "Auth", targetNamespace = "http://ar.gov.afip.dif.FEV1/")
         FEAuthRequest auth);
@@ -337,12 +337,12 @@ public interface ServiceSoap {
      * 
      * @param auth
      * @return
-     *     returns wsfe.DocTipoResponse
+     *     returns blugin.com.ar.wsfe.DocTipoResponse
      */
     @WebMethod(operationName = "FEParamGetTiposDoc", action = "http://ar.gov.afip.dif.FEV1/FEParamGetTiposDoc")
     @WebResult(name = "FEParamGetTiposDocResult", targetNamespace = "http://ar.gov.afip.dif.FEV1/")
-    @RequestWrapper(localName = "FEParamGetTiposDoc", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "wsfe.FEParamGetTiposDoc")
-    @ResponseWrapper(localName = "FEParamGetTiposDocResponse", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "wsfe.FEParamGetTiposDocResponse")
+    @RequestWrapper(localName = "FEParamGetTiposDoc", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "blugin.com.ar.wsfe.FEParamGetTiposDoc")
+    @ResponseWrapper(localName = "FEParamGetTiposDocResponse", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "blugin.com.ar.wsfe.FEParamGetTiposDocResponse")
     public DocTipoResponse feParamGetTiposDoc(
         @WebParam(name = "Auth", targetNamespace = "http://ar.gov.afip.dif.FEV1/")
         FEAuthRequest auth);
@@ -352,12 +352,12 @@ public interface ServiceSoap {
      * 
      * @param auth
      * @return
-     *     returns wsfe.FEPaisResponse
+     *     returns blugin.com.ar.wsfe.FEPaisResponse
      */
     @WebMethod(operationName = "FEParamGetTiposPaises", action = "http://ar.gov.afip.dif.FEV1/FEParamGetTiposPaises")
     @WebResult(name = "FEParamGetTiposPaisesResult", targetNamespace = "http://ar.gov.afip.dif.FEV1/")
-    @RequestWrapper(localName = "FEParamGetTiposPaises", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "wsfe.FEParamGetTiposPaises")
-    @ResponseWrapper(localName = "FEParamGetTiposPaisesResponse", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "wsfe.FEParamGetTiposPaisesResponse")
+    @RequestWrapper(localName = "FEParamGetTiposPaises", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "blugin.com.ar.wsfe.FEParamGetTiposPaises")
+    @ResponseWrapper(localName = "FEParamGetTiposPaisesResponse", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "blugin.com.ar.wsfe.FEParamGetTiposPaisesResponse")
     public FEPaisResponse feParamGetTiposPaises(
         @WebParam(name = "Auth", targetNamespace = "http://ar.gov.afip.dif.FEV1/")
         FEAuthRequest auth);
@@ -367,12 +367,12 @@ public interface ServiceSoap {
      * 
      * @param auth
      * @return
-     *     returns wsfe.FEActividadesResponse
+     *     returns blugin.com.ar.wsfe.FEActividadesResponse
      */
     @WebMethod(operationName = "FEParamGetActividades", action = "http://ar.gov.afip.dif.FEV1/FEParamGetActividades")
     @WebResult(name = "FEParamGetActividadesResult", targetNamespace = "http://ar.gov.afip.dif.FEV1/")
-    @RequestWrapper(localName = "FEParamGetActividades", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "wsfe.FEParamGetActividades")
-    @ResponseWrapper(localName = "FEParamGetActividadesResponse", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "wsfe.FEParamGetActividadesResponse")
+    @RequestWrapper(localName = "FEParamGetActividades", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "blugin.com.ar.wsfe.FEParamGetActividades")
+    @ResponseWrapper(localName = "FEParamGetActividadesResponse", targetNamespace = "http://ar.gov.afip.dif.FEV1/", className = "blugin.com.ar.wsfe.FEParamGetActividadesResponse")
     public FEActividadesResponse feParamGetActividades(
         @WebParam(name = "Auth", targetNamespace = "http://ar.gov.afip.dif.FEV1/")
         FEAuthRequest auth);

@@ -89,6 +89,7 @@ public class SocioResource {// implements PanacheRepositoryResource<SocioReposit
             return Response.status(Response.Status.NOT_FOUND).entity("Socio no encontrado").build();
         }
     }
+
     @POST
     @Path("/{socioId}/servicio/{servicioId}")
     @Transactional
@@ -329,4 +330,5 @@ public class SocioResource {// implements PanacheRepositoryResource<SocioReposit
 
         }
     }
+
 }

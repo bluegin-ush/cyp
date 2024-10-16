@@ -262,8 +262,8 @@
                         <!-- prod
                         <wsdlUrl>https://servicios1.afip.gov.ar/wsfev1/service.asmx?WSDL</wsdlUrl> -->
                     </wsdlUrls>
-                    <packageName>wsfe</packageName>
-                    <sourceDestDir>${project.basedir}/src/main/java/bluegin/com/ar</sourceDestDir>
+                    <packageName>blugin.com.ar.wsfe</packageName>
+                    <sourceDestDir>${project.basedir}/src/main/java</sourceDestDir>
                     <verbose>true</verbose>
                     <!--<sourceRoot>${project.build.directory}/generated-sources/wsimport</sourceRoot>-->
                 </configuration>

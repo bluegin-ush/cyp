@@ -7,7 +7,7 @@ import jakarta.xml.bind.annotation.XmlRegistry;
 /**
  * This object contains factory methods for each 
  * Java content interface and Java element interface 
- * generated in the wsfe package. 
+ * generated in the blugin.com.ar.wsfe package. 
  * <p>An ObjectFactory allows you to programatically 
  * construct new instances of the Java representation 
  * for XML content. The Java representation of XML 
@@ -23,7 +23,7 @@ public class ObjectFactory {
 
 
     /**
-     * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package: wsfe
+     * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package: blugin.com.ar.wsfe
      * 
      */
     public ObjectFactory() {
