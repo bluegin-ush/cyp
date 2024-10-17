@@ -10,7 +10,7 @@ import jakarta.ws.rs.core.Response;
 
 public interface PagoResource {//extends PanacheRepositoryResource<PagoRepository, Pago, Long> {
 
-    @POST
+   /* @POST
     @Transactional
     default Response crearPago(Pago pago) {
         //
@@ -31,5 +31,5 @@ public interface PagoResource {//extends PanacheRepositoryResource<PagoRepositor
             return Response.status(Response.Status.NOT_FOUND).entity("Socio no encontrado para la factura asociada").build();
         }
     }
-
+    */
 }
