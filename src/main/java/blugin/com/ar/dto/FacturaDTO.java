@@ -20,10 +20,8 @@ public class FacturaDTO {
     public List<PagoDTO> pagos;
     public List<ItemDTO> items;
 
-    public String estado;  //
-    //public LocalDate fechaCancelacion;
-    //public String motivoCancelacion;
-    //public long nroComprobanteCancelacion;
+    public String estado;
+    public String qr;
 
     public FacturaDTO(){
 
@@ -48,9 +46,8 @@ public class FacturaDTO {
                 .collect(Collectors.toList());
 
         this.estado = factura.estado.name();
-        //this.fechaCancelacion = factura.fechaCancelacion;
-        //this.motivoCancelacion = factura.motivoCancelacion;
-        //this.nroComprobanteCancelacion = factura.nroComprobanteCancelacion;
+
+        this.qr = factura.qr;
     }
 
     public List<ItemDTO> getItems() {

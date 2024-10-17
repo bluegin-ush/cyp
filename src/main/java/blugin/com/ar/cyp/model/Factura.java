@@ -50,8 +50,6 @@ public class Factura extends PanacheEntity {
     @Enumerated(EnumType.STRING)
     public EstadoFactura estado;  //
 
-    // Datos relacionados con la cancelación
-    //public LocalDate fechaCancelacion;
-    //public String motivoCancelacion;
-    //public long notaCreditoId;
+    @Column(columnDefinition = "TEXT")
+    public String qr;
 }

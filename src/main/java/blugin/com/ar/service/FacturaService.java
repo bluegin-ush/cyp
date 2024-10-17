@@ -2,22 +2,23 @@ package blugin.com.ar.service;
 
 import blugin.com.ar.cyp.model.Factura;
 import blugin.com.ar.cyp.model.NotaDeCredito;
+import blugin.com.ar.cyp.model.Person;
+import blugin.com.ar.dto.FacturaQR;
 import blugin.com.ar.fe.*;
 import blugin.com.ar.repository.ConfiguracionRepository;
 import blugin.com.ar.wsfe.CbteAsoc;
 import blugin.com.ar.wsfe.FEAuthRequest;
-import blugin.com.ar.wsfe.wrappers.Comprobante;
-import blugin.com.ar.wsfe.wrappers.Persona;
-import blugin.com.ar.wsfe.wrappers.TiposComprobante;
-import blugin.com.ar.wsfe.wrappers.TiposDocumento;
+import blugin.com.ar.wsfe.wrappers.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.xml.ws.soap.SOAPFaultException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -98,6 +99,7 @@ public class FacturaService {
 
         //no necesito asociar nada a la factura
         CbteAsoc asociacion = null;
+
         //
         FacturaDatosAFIP facturaDatosAFIP = WSFEClient.emitirFactura(autorizacion, comprobante, persona, factura.fecha.toLocalDate(), factura.total, asociacion);
 
@@ -105,7 +107,38 @@ public class FacturaService {
         factura.cae = facturaDatosAFIP.cae;
         factura.vtoCae = FacturaDatosAFIP.getVto(facturaDatosAFIP.vto);
 
+        factura.qr = generarQR(factura, persona);
+
         return factura;
+    }
+
+    private String generarQR(Factura factura, Persona persona) throws IOException {
+        FacturaQR qr = new FacturaQR(
+                1,
+                FacturaQR.getFecha(factura.fecha.toLocalDate()),
+                cuitEmisor,
+                puntoDeVenta,
+                TiposComprobante.FACTURA_C.codigo(),
+                factura.nroComprobante,
+                factura.total,
+                Monedas.PESOS_ARGENTINOS.codigo(),
+                1,
+                persona.tipo().codigo(),
+                persona.numero(),
+                "E",
+                Long.parseLong(factura.cae));
+
+        String url = "https://www.afip.gob.ar/fe/qr/";
+        String json = FacturaQR.convertirAFacturaJSON(qr);
+
+        // Convertir el JSON String a bytes
+        byte[] jsonBytes = json.getBytes();
+
+        // Codificar en Base64
+        String base64Encoded = Base64.getEncoder().encodeToString(jsonBytes);
+
+        //
+        return String.format("%s?p=%s",url,base64Encoded);
     }
 
     public NotaDeCredito cancelar(NotaDeCredito notaDeCredito) throws Exception {
