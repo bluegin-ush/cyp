@@ -31,7 +31,7 @@ public class Factura extends PanacheEntity {
     @ManyToOne
     public Socio socio;
 
-    public Integer nroComprobante;
+    public Long nroComprobante;
     public String cae;
     public LocalDate vtoCae;
     public BigDecimal total;
@@ -46,5 +46,12 @@ public class Factura extends PanacheEntity {
     @JsonManagedReference
     public List<Pago> pagos;
 
+    // Estado de la factura - "Emitida", "Pagada", "Cancelada"
+    @Enumerated(EnumType.STRING)
+    public EstadoFactura estado;  //
 
+    // Datos relacionados con la cancelación
+    //public LocalDate fechaCancelacion;
+    //public String motivoCancelacion;
+    //public long notaCreditoId;
 }

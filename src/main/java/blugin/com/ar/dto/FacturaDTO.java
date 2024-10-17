@@ -1,15 +1,17 @@
 package blugin.com.ar.dto;
 
+import blugin.com.ar.cyp.model.EstadoFactura;
 import blugin.com.ar.cyp.model.Factura;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class FacturaDTO {
 
-    private Long facturaId;
+    public Long facturaId;
 
     public LocalDateTime fecha;
     public String tipo;
@@ -17,6 +19,11 @@ public class FacturaDTO {
     public BigDecimal total;
     public List<PagoDTO> pagos;
     public List<ItemDTO> items;
+
+    public String estado;  //
+    //public LocalDate fechaCancelacion;
+    //public String motivoCancelacion;
+    //public long nroComprobanteCancelacion;
 
     public FacturaDTO(){
 
@@ -40,10 +47,10 @@ public class FacturaDTO {
                 .map(FacturaMapper::toPagoDTO)
                 .collect(Collectors.toList());
 
-    }
-
-    public Long getFacturaId(){
-        return this.facturaId;
+        this.estado = factura.estado.name();
+        //this.fechaCancelacion = factura.fechaCancelacion;
+        //this.motivoCancelacion = factura.motivoCancelacion;
+        //this.nroComprobanteCancelacion = factura.nroComprobanteCancelacion;
     }
 
     public List<ItemDTO> getItems() {

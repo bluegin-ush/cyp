@@ -1,9 +1,6 @@
 package blugin.com.ar.resource;
 
-import blugin.com.ar.cyp.model.Factura;
-import blugin.com.ar.cyp.model.MedioDePago;
-import blugin.com.ar.cyp.model.Pago;
-import blugin.com.ar.cyp.model.Socio;
+import blugin.com.ar.cyp.model.*;
 import blugin.com.ar.dto.PagoDTO;
 import blugin.com.ar.repository.FacturaRepository;
 import blugin.com.ar.repository.PagoRepository;
@@ -13,13 +10,18 @@ import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Path("/pago")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public class PagoResourceImpl {//implements PagoResource {
+public class PagoResourceImpl {
+    private static final Logger log = LoggerFactory.getLogger(PagoResourceImpl.class);//implements PagoResource {
 
     @Inject
     PagoRepository pagoRepository;
@@ -46,7 +48,31 @@ public class PagoResourceImpl {//implements PagoResource {
             pago.factura = factura;
             pago.medioDePago = MedioDePago.valueOf(pagoDto.medioDePago);
             pago.monto = pagoDto.monto;
+
+            if(pagoDto.fecha == null){
+                pagoDto.fecha = LocalDateTime.now();
+            }
             pago.fecha = pagoDto.fecha;
+
+            //verificar si se cancela el total de la factura
+            BigDecimal totalPagos = new BigDecimal(factura.total.intValue());
+
+
+            //descuento este pago
+            totalPagos = totalPagos.subtract(pago.monto);
+
+            // Verificamos si hay pagos
+            if (factura.pagos != null && !factura.pagos.isEmpty()) {
+                // Actualizamos la cuenta corriente (ctacte) del socio
+                for (Pago p : factura.pagos) {
+                    totalPagos = totalPagos.subtract(p.monto);
+                }
+            }
+
+            //estalecemos el estado de la factura
+            if (totalPagos.compareTo(BigDecimal.ZERO)<=0){
+                factura.estado = EstadoFactura.PAGADA;
+            }
 
             // Persistir el pago
             pagoRepository.persist(pago);

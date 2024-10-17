@@ -12,7 +12,8 @@ import java.util.stream.Collectors;
 
 public class WSFEClient {
 
-    public static FEAuthRequest obtenerAutorizacion(String token, String sign, long cuit) {
+    public static FEAuthRequest obtenerAuthRequest(String token, String sign, long cuit) {
+
         FEAuthRequest auth = new FEAuthRequest();
         auth.setToken(token);
         auth.setSign(sign);
@@ -21,22 +22,14 @@ public class WSFEClient {
         return auth;
     }
 
-    public static void cancelarFactura(FEAuthRequest autorizacion,
-                                       Comprobante comprobante,
-                                       Persona persona,
-                                       LocalDate fecha,
-                                       BigDecimal importe) {
-
-        Tributos otrosTributos = new Tributos();
-
-    }
-
     public static FacturaDatosAFIP emitirFactura(FEAuthRequest auth,
                                                         Comprobante comprobante,
                                                         Persona persona,
                                                         LocalDate fecha,
-                                                        BigDecimal importe) throws Exception {
+                                                        BigDecimal importe,
+                                                        CbteAsoc asociacion) throws Exception {
 
+        System.out.println("Comenzado proceso de emisión...");
         FacturaDatosAFIP facturaDatosAFIP = new FacturaDatosAFIP();
 
         Tributos otrosTributos = new Tributos();
@@ -46,7 +39,8 @@ public class WSFEClient {
                 persona,
                 fecha,
                 importe,
-                otrosTributos);
+                otrosTributos,
+                asociacion);
 
         ServiceSoap service = new Service().getServiceSoap();
 
@@ -62,6 +56,26 @@ public class WSFEClient {
                 response.getFeCabResp().getResultado());
 
         //Resultado = A=APROBADO, R=RECHAZADO, P=PARCIAL
+
+        ArrayOfErr errores = response.getErrors();
+        Optional<Exception> errorTecnico =
+                (errores != null && errores.getErr() != null && !errores.getErr().isEmpty())
+                ? Optional.of(new Exception())
+                : Optional.empty();
+
+        if (errorTecnico.isPresent()) {
+            System.out.printf("ERROR: %s\n",errorTecnico.get().getMessage());
+            throw errorTecnico.get();
+        }
+
+        Optional<Exception> errorFuncional =
+                ("R".equals(response.getFeDetResp().getFECAEDetResponse().get(0).getResultado()))
+                ? Optional.of(new Exception(response.getFeDetResp().getFECAEDetResponse().get(0).getObservaciones().getObs().get(0).getMsg()))
+                : Optional.empty();
+        if (errorFuncional.isPresent()) {
+            System.out.printf("ERROR: %s\n",errorFuncional.get().getMessage());
+            throw errorFuncional.get();
+        }
 
         for(FECAEDetResponse detalle: response.getFeDetResp().getFECAEDetResponse()){
             System.out.printf("CAE: %s - FchVto: %s - Resultado: %s - DocTipo: %s - DocNro: %s - CbteFch: %s - CbteDesde: %s - CbteHasta: %s - Concepto: %s\n",
@@ -79,30 +93,11 @@ public class WSFEClient {
         facturaDatosAFIP.cae = response.getFeDetResp().getFECAEDetResponse().get(0).getCAE();
         facturaDatosAFIP.vto = response.getFeDetResp().getFECAEDetResponse().get(0).getCAEFchVto();
 
-        ArrayOfErr errores = response.getErrors();
-        Optional<Exception> errorTecnico =
-                (errores != null && errores.getErr() != null && !errores.getErr().isEmpty())
-                ? Optional.of(new Exception())
-                : Optional.empty();
-
-        if (errorTecnico.isPresent()) {
-            System.out.printf("ERROR: %s\n",errorTecnico.get().getMessage());
-            throw errorTecnico.get();
-        }
-        Optional<Exception> errorFuncional =
-                ("R".equals(response.getFeDetResp().getFECAEDetResponse().get(0).getResultado()))
-                ? Optional.of(new Exception(response.getFeDetResp().getFECAEDetResponse().get(0).getObservaciones().getObs().get(0).getMsg()))
-                : Optional.empty();
-        if (errorFuncional.isPresent()) {
-            System.out.printf("ERROR: %s\n",errorFuncional.get().getMessage());
-            throw errorFuncional.get();
-        }
-
         return facturaDatosAFIP;
     }
 
     private static FECAERequest requestSinIVA(Conceptos concepto, Comprobante comprobante, Persona persona,
-                                              LocalDate fecha, BigDecimal importe, Tributos otrosTributos) {
+                                              LocalDate fecha, BigDecimal importe, Tributos otrosTributos, CbteAsoc asociacion) {
         final FECAEDetRequest detalle = new FECAEDetRequest();
 
         detalle.setConcepto(concepto.codigo());
@@ -130,22 +125,26 @@ public class WSFEClient {
         detalle.setFchVtoPago(DateTimeFormatter.ofPattern("yyyyMMdd").format(fecha));
         ponerTributosSiTiene(otrosTributos, detalle);
 
-        /* AGREGAR UNA ASOCIACION (ej nota crédito o débito) *
-
-        ArrayOfCbteAsoc asociaciones = new ArrayOfCbteAsoc();
-
-        CbteAsoc asociacion = new CbteAsoc();
-        asociacion.setCuit();
-        asociacion.setPtoVta();
-        asociacion.setTipo();
-        asociacion.setNro();
-        asociacion.setCbteFch();
-        asociaciones.getCbteAsoc().add(asociacion);
-
-        detalle.setCbtesAsoc(asociaciones);
-        */
-
         final ArrayOfFECAEDetRequest detalles = new ArrayOfFECAEDetRequest();
+
+        if(asociacion != null ) {
+            /* AGREGAR UNA ASOCIACION (ej nota crédito o débito) */
+
+            ArrayOfCbteAsoc asociaciones = new ArrayOfCbteAsoc();
+
+            /*CbteAsoc asociacion = new CbteAsoc();
+            asociacion.setCuit();
+            asociacion.setPtoVta();
+            asociacion.setTipo();
+            asociacion.setNro();
+            asociacion.setCbteFch();
+            */
+            asociaciones.getCbteAsoc().add(asociacion);
+            detalle.setCbtesAsoc(asociaciones);
+
+
+
+        }
         detalles.getFECAEDetRequest().add(detalle);
 
         final FECAERequest request = new FECAERequest();
@@ -312,7 +311,7 @@ public class WSFEClient {
         //
         FERecuperaLastCbteResponse comprobante = service.feCompUltimoAutorizado(auth, puntoDeVenta, tipo);
 
-        System.out.printf("%s - %s \n",comprobante.getCbteTipo(), comprobante.getCbteNro());
+        System.out.printf("Obteniendo último comprobante: tipo:%s - nro:%s \n",comprobante.getCbteTipo(), comprobante.getCbteNro());
 
         return comprobante.getCbteNro();
     }

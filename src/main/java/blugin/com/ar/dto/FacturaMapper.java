@@ -8,6 +8,7 @@ import org.hibernate.boot.archive.spi.ArchiveEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
 public class FacturaMapper {
@@ -16,6 +17,11 @@ public class FacturaMapper {
 
     public static Factura toEntity(FacturaDTO dto) {
         Factura factura = new Factura();
+
+        if(dto.fecha == null){
+            dto.fecha = LocalDateTime.now();
+        }
+
         factura.fecha = dto.fecha;
         factura.total = dto.total;
         factura.tipo = Factura.Tipo.valueOf(dto.tipo);
@@ -49,6 +55,11 @@ public class FacturaMapper {
     public static Pago toEntity(PagoDTO dto) {
         Pago pago = new Pago();
         pago.monto = dto.monto;
+
+        if(dto.fecha == null){
+            dto.fecha = LocalDateTime.now();
+        }
+
         pago.fecha = dto.fecha;
         pago.medioDePago = MedioDePago.valueOf(dto.medioDePago);
         return pago;

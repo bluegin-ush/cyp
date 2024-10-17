@@ -1,24 +1,22 @@
 package blugin.com.ar.service;
 
 import blugin.com.ar.cyp.model.Factura;
-import blugin.com.ar.cyp.model.Person;
-import blugin.com.ar.dto.FacturaDTO;
+import blugin.com.ar.cyp.model.NotaDeCredito;
 import blugin.com.ar.fe.*;
-import blugin.com.ar.repository.PersonRepository;
+import blugin.com.ar.wsfe.CbteAsoc;
 import blugin.com.ar.wsfe.FEAuthRequest;
 import blugin.com.ar.wsfe.wrappers.Comprobante;
 import blugin.com.ar.wsfe.wrappers.Persona;
 import blugin.com.ar.wsfe.wrappers.TiposComprobante;
 import blugin.com.ar.wsfe.wrappers.TiposDocumento;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import jakarta.xml.ws.soap.SOAPFaultException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @ApplicationScoped
@@ -54,22 +52,50 @@ public class FacturaService {
 
         FEAuthRequest autorizacion = obtenerAutorizacion();
 
-        int nroComprobanteSiguiente = WSFEClient.ultimoComprobante(autorizacion, puntoDeVenta, TiposComprobante.FACTURA_C.codigo()) + 1;
+        long nroComprobanteSiguiente = WSFEClient.ultimoComprobante(autorizacion, puntoDeVenta, TiposComprobante.FACTURA_C.codigo()) + 1;
 
         Comprobante comprobante = new Comprobante(puntoDeVenta, nroComprobanteSiguiente, TiposComprobante.FACTURA_C);
 
         Persona persona = new Persona(TiposDocumento.getTipo(factura.socio.tipoDoc), factura.socio.numDoc);
 
+        //no necesito asociar nada a la factura
+        CbteAsoc asociacion = null;
         //
-        FacturaDatosAFIP facturaDatosAFIP = WSFEClient.emitirFactura(autorizacion, comprobante, persona, factura.fecha.toLocalDate(), factura.total);
+        FacturaDatosAFIP facturaDatosAFIP = WSFEClient.emitirFactura(autorizacion, comprobante, persona, factura.fecha.toLocalDate(), factura.total, asociacion);
 
         factura.nroComprobante = nroComprobanteSiguiente;
         factura.cae = facturaDatosAFIP.cae;
-        factura.vtoCae = facturaDatosAFIP.getVto();
+        factura.vtoCae = FacturaDatosAFIP.getVto(facturaDatosAFIP.vto);
 
         return factura;
     }
 
+    public NotaDeCredito cancelar(NotaDeCredito notaDeCredito) throws Exception {
+
+        FEAuthRequest autorizacion = obtenerAutorizacion();
+
+        long nroComprobanteSiguiente = WSFEClient.ultimoComprobante(autorizacion, puntoDeVenta, TiposComprobante.NOTA_CREDITO_C.codigo()) + 1;
+
+        Comprobante comprobante = new Comprobante(puntoDeVenta, nroComprobanteSiguiente, TiposComprobante.NOTA_CREDITO_C);
+
+        Persona persona = new Persona(TiposDocumento.getTipo(notaDeCredito.factura.socio.tipoDoc), notaDeCredito.factura.socio.numDoc);
+
+        CbteAsoc asociacion = new CbteAsoc();
+        asociacion.setCuit(String.valueOf(cuit));
+        asociacion.setPtoVta(puntoDeVenta);
+        asociacion.setTipo(TiposComprobante.FACTURA_C.codigo());
+        asociacion.setNro(notaDeCredito.factura.nroComprobante);
+        asociacion.setCbteFch(FacturaDatosAFIP.getVto(notaDeCredito.factura.vtoCae));
+
+        //
+        FacturaDatosAFIP facturaDatosAFIP = WSFEClient.emitirFactura(autorizacion, comprobante, persona, LocalDate.now(), notaDeCredito.total, asociacion);
+
+        notaDeCredito.nroComprobante = nroComprobanteSiguiente;
+        notaDeCredito.cae = facturaDatosAFIP.cae;
+        notaDeCredito.vtoCae = FacturaDatosAFIP.getVto(facturaDatosAFIP.vto);
+
+        return notaDeCredito;
+    }
     /**
      *
      * @return
@@ -117,7 +143,7 @@ public class FacturaService {
 
         //WSFEClient.ping();
 
-        return WSFEClient.obtenerAutorizacion(token, sign, cuit);
+        return WSFEClient.obtenerAuthRequest(token, sign, cuit);
 
     }
 }
