@@ -8,6 +8,13 @@
 --insert into person (name,status) values('Otro dany',0);
 --INSERT INTO person (id, birth, name, status) VALUES (1, '1995-09-12', 'Emily Brown', 0);
 --ALTER SEQUENCE person_seq RESTART WITH 2;
+INSERT INTO usuario (id,nombre,usuario,clave) VALUES
+-- (admisnitrador,admin,123456)
+(1,'administrador','admin','8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92'),
+-- (daniel aguil,daniel,daniel)
+(2,'daniel aguil','daniel','bd3dae5fb91f88a4f0978222dfd58f59a124257cb081486387cbae9df11fb879');
+ALTER SEQUENCE usuario_seq RESTART WITH 3;
+
 INSERT INTO configuracion (id,clave, valor) VALUES
 (1,'desa-endpoint',    'https://wsaahomo.afip.gov.ar/ws/services/LoginCms'),
 (2,'desa-certPath',    'certificados/afip-cyp.pem'),
