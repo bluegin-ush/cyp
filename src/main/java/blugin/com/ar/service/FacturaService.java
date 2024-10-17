@@ -3,6 +3,7 @@ package blugin.com.ar.service;
 import blugin.com.ar.cyp.model.Factura;
 import blugin.com.ar.cyp.model.NotaDeCredito;
 import blugin.com.ar.fe.*;
+import blugin.com.ar.repository.ConfiguracionRepository;
 import blugin.com.ar.wsfe.CbteAsoc;
 import blugin.com.ar.wsfe.FEAuthRequest;
 import blugin.com.ar.wsfe.wrappers.Comprobante;
@@ -10,6 +11,7 @@ import blugin.com.ar.wsfe.wrappers.Persona;
 import blugin.com.ar.wsfe.wrappers.TiposComprobante;
 import blugin.com.ar.wsfe.wrappers.TiposDocumento;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.xml.ws.soap.SOAPFaultException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,12 +38,46 @@ public class FacturaService {
     //optional
     String dn = "SERIALNUMBER=CUIT 20290833869, CN=cyp";
 
-    //
-    long cuit     = 20290833869L; // CUIT del emisor
+    // CUIT del emisor
+    long cuitEmisor = 20290833869L;
 
     //
     int puntoDeVenta = 1;
 
+    @Inject
+    ConfiguracionRepository configuracionRepository;
+
+    public FacturaService(){
+
+        System.out.println("Cargando valores por defecto!!");
+
+    }
+
+    public void cargarConfiguraciones(){
+        System.out.println("valores:");
+        Map<String,String> configuraciones = configuracionRepository.obtenerTodasLasConfiguraciones();
+
+        String modo = configuraciones.get("modo");
+
+        System.out.printf("configuraciones cargadas a partir del modo: %s\n",modo);
+        configuraciones.forEach((clave, valor) -> {
+            if(clave.contains(modo)) {
+                String claveModo = clave.split("-")[1];
+                System.out.println("Clave: " + claveModo + " Valor: " + valor);
+                switch (claveModo) {
+                    case "endpoint" -> endpoint = valor;
+                    case "certPath" -> certPath = valor;
+                    case "cuitEmisor" -> cuitEmisor = Long.parseLong(valor);
+                    case "dn" -> dn = valor;
+                    case "puntoDeVenta" -> puntoDeVenta = Integer.parseInt(valor);
+                    case "service" -> service = valor;
+                    case "keyPath" -> keyPath = valor;
+                    case "expiration" -> expiration = Duration.ofHours(Long.parseLong(valor));
+                    case "threshold" -> threshold = Duration.ofHours(Long.parseLong(valor));
+                }
+            }
+        });
+    }
     /**
      *
      * @param factura
@@ -49,6 +85,8 @@ public class FacturaService {
      * @throws Exception
      */
     public Factura facturar(Factura factura) throws Exception {
+
+        cargarConfiguraciones();
 
         FEAuthRequest autorizacion = obtenerAutorizacion();
 
@@ -72,6 +110,8 @@ public class FacturaService {
 
     public NotaDeCredito cancelar(NotaDeCredito notaDeCredito) throws Exception {
 
+        cargarConfiguraciones();
+
         FEAuthRequest autorizacion = obtenerAutorizacion();
 
         long nroComprobanteSiguiente = WSFEClient.ultimoComprobante(autorizacion, puntoDeVenta, TiposComprobante.NOTA_CREDITO_C.codigo()) + 1;
@@ -81,7 +121,7 @@ public class FacturaService {
         Persona persona = new Persona(TiposDocumento.getTipo(notaDeCredito.factura.socio.tipoDoc), notaDeCredito.factura.socio.numDoc);
 
         CbteAsoc asociacion = new CbteAsoc();
-        asociacion.setCuit(String.valueOf(cuit));
+        asociacion.setCuit(String.valueOf(cuitEmisor));
         asociacion.setPtoVta(puntoDeVenta);
         asociacion.setTipo(TiposComprobante.FACTURA_C.codigo());
         asociacion.setNro(notaDeCredito.factura.nroComprobante);
@@ -143,7 +183,7 @@ public class FacturaService {
 
         //WSFEClient.ping();
 
-        return WSFEClient.obtenerAuthRequest(token, sign, cuit);
+        return WSFEClient.obtenerAuthRequest(token, sign, cuitEmisor);
 
     }
 }

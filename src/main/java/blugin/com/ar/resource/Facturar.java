@@ -4,9 +4,7 @@ import blugin.com.ar.cyp.model.*;
 import blugin.com.ar.dto.FacturaDTO;
 import blugin.com.ar.dto.FacturaMapper;
 import blugin.com.ar.dto.NotaDeCreditoDTO;
-import blugin.com.ar.fe.Main;
 import blugin.com.ar.repository.FacturaRepository;
-import blugin.com.ar.repository.PagoRepository;
 import blugin.com.ar.repository.SocioRepository;
 import blugin.com.ar.service.FacturaService;
 import jakarta.inject.Inject;
@@ -18,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,6 +36,11 @@ public class Facturar {
     @Inject
     FacturaService facturaService;
 
+    @GET
+    public Response foo(){
+        facturaService.cargarConfiguraciones();
+        return Response.ok().build();
+    }
     @DELETE
     public Response cancelar(NotaDeCreditoDTO notaDTO) {
 

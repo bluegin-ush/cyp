@@ -8,6 +8,29 @@
 --insert into person (name,status) values('Otro dany',0);
 --INSERT INTO person (id, birth, name, status) VALUES (1, '1995-09-12', 'Emily Brown', 0);
 --ALTER SEQUENCE person_seq RESTART WITH 2;
+INSERT INTO configuracion (id,clave, valor) VALUES
+(1,'desa-endpoint',    'https://wsaahomo.afip.gov.ar/ws/services/LoginCms'),
+(2,'desa-certPath',    'certificados/afip-cyp.pem'),
+(3,'desa-keyPath',     'certificados/clave-prueba'),
+(4,'desa-service',     'wsfe'),
+(5,'desa-threshold',   '12'),
+(6,'desa-expiration',  '12'),
+(7,'desa-dn',          'SERIALNUMBER=CUIT 20290833869, CN=cyp'),
+(8,'desa-cuitEmisor',  '20290833869'),
+(9,'desa-puntoDeVenta','1'),
+(10,'modo','desa'),
+(11,'prod-endpoint',    'https://'),
+(12,'prod-certPath',    'certificados/afip-cyp.pem'),
+(13,'prod-keyPath',     'certificados/clave-prueba'),
+(14,'prod-service',     ''),
+(15,'prod-threshold',   '12'),
+(16,'prod-expiration',  '12'),
+(17,'prod-dn',          'SERIALNUMBER=CUIT 20290833869, CN=cyp'),
+(18,'prod-cuitEmisor',  '2012345678'),
+(19,'prod-puntoDeVenta','10');
+
+
+ALTER SEQUENCE configuracion_seq RESTART WITH 20;
 
 --
 INSERT INTO servicio (id, codigo, descripcion, costo) VALUES
