@@ -31,37 +31,21 @@ public class WSFEClient {
 
     }
 
-    public static void emitirFacturaEjemplo(FEAuthRequest auth) {
+    public static FacturaDatosAFIP emitirFactura(FEAuthRequest auth,
+                                                        Comprobante comprobante,
+                                                        Persona persona,
+                                                        LocalDate fecha,
+                                                        BigDecimal importe) throws Exception {
 
+        FacturaDatosAFIP facturaDatosAFIP = new FacturaDatosAFIP();
 
-        //
-        int nroComprobante = ultimoNroComprobante(auth, TiposComprobante.FACTURA_C.codigo()) + 1;
-
-        //
-        System.out.printf("Nro de comprobante a utilizar: %s\n", nroComprobante);
-
-        //
-        Comprobante comprobante = new Comprobante(1,nroComprobante, TiposComprobante.FACTURA_C);
-
-        /*
-        * Para estos casos, se utiliza el método FECompConsultar, que dado el tipo de comprobante, punto
-        de venta y numero de comprobante, retorna toda la información enviada en el método de autoriPágina 69 de 197
-        specificaciones técnicas de Servicios Web –WSFEv1
-        zación (FECAESolicitar) más el CAE, fecha de vencimiento del mismo. El WsfeV1 también ofrece
-        mecanismo para la consulta del último comprobante autorizado (FECompUltimoAutorizado).
-        * */
-
-        Persona persona = new Persona(TiposDocumento.DNI, 29141313);
-        LocalDate fecha = LocalDate.now();
-
-        BigDecimal importeNeto = new BigDecimal(40000);
         Tributos otrosTributos = new Tributos();
 
         FECAERequest caeReq = requestSinIVA(Conceptos.SERVICIOS,
                 comprobante,
                 persona,
                 fecha,
-                importeNeto,
+                importe,
                 otrosTributos);
 
         ServiceSoap service = new Service().getServiceSoap();
@@ -92,6 +76,9 @@ public class WSFEClient {
                     detalle.getConcepto());
         }
 
+        facturaDatosAFIP.cae = response.getFeDetResp().getFECAEDetResponse().get(0).getCAE();
+        facturaDatosAFIP.vto = response.getFeDetResp().getFECAEDetResponse().get(0).getCAEFchVto();
+
         ArrayOfErr errores = response.getErrors();
         Optional<Exception> errorTecnico =
                 (errores != null && errores.getErr() != null && !errores.getErr().isEmpty())
@@ -100,7 +87,7 @@ public class WSFEClient {
 
         if (errorTecnico.isPresent()) {
             System.out.printf("ERROR: %s\n",errorTecnico.get().getMessage());
-            //throw errorTecnico.get();
+            throw errorTecnico.get();
         }
         Optional<Exception> errorFuncional =
                 ("R".equals(response.getFeDetResp().getFECAEDetResponse().get(0).getResultado()))
@@ -108,8 +95,10 @@ public class WSFEClient {
                 : Optional.empty();
         if (errorFuncional.isPresent()) {
             System.out.printf("ERROR: %s\n",errorFuncional.get().getMessage());
-            //throw errorFuncional.get();
+            throw errorFuncional.get();
         }
+
+        return facturaDatosAFIP;
     }
 
     private static FECAERequest requestSinIVA(Conceptos concepto, Comprobante comprobante, Persona persona,
@@ -306,6 +295,26 @@ public class WSFEClient {
 
         System.out.printf("%s - %s \n",comprobante.getCbteTipo(), comprobante.getCbteNro());
 
+    }
+
+    /**
+     *
+     * @param auth
+     * @param puntoDeVenta
+     * @param tipo
+     * @return
+     */
+    public static int ultimoComprobante(FEAuthRequest auth, int puntoDeVenta, int tipo) {
+
+        //
+        ServiceSoap service = new Service().getServiceSoap();
+
+        //
+        FERecuperaLastCbteResponse comprobante = service.feCompUltimoAutorizado(auth, puntoDeVenta, tipo);
+
+        System.out.printf("%s - %s \n",comprobante.getCbteTipo(), comprobante.getCbteNro());
+
+        return comprobante.getCbteNro();
     }
 
 

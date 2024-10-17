@@ -10,6 +10,7 @@ import blugin.com.ar.fe.Main;
 import blugin.com.ar.repository.FacturaRepository;
 import blugin.com.ar.repository.PagoRepository;
 import blugin.com.ar.repository.SocioRepository;
+import blugin.com.ar.service.FacturaService;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
@@ -33,6 +34,9 @@ public class Facturar {
 
     @Inject
     SocioRepository socioRepository;
+
+    @Inject
+    FacturaService facturaService;
 
     @POST
     public Response facturar(FacturaDTO facturaDTO) {
@@ -59,21 +63,20 @@ public class Facturar {
             }
         }
 
-        /**
-         * persistir y retornar
-         * "nroComprobante": 0,
-         *   "cae": "<long>",
-         *   "vtoCae": "<date>",
-         *
-         */
+        try {
+            factura = facturaService.facturar(factura);
 
 
-        // Persistimos la factura (no es necesario llamar a socio.persist() si ya fue cargado desde la base de datos)
-        factura.persist();
+            // Persistimos la factura (no es necesario llamar a socio.persist() si ya fue cargado desde la base de datos)
+            factura.persist();
 
-        // Devolvemos la factura como respuesta
-        return Response.ok(factura).build();
+            // Devolvemos la factura como respuesta
+            return Response.ok(factura).build();
 
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return Response.serverError().entity(e).build();
+        }
     }
 
     @GET

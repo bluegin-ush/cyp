@@ -32,7 +32,7 @@ public class Factura extends PanacheEntity {
     public Socio socio;
 
     public Integer nroComprobante;
-    public Long cae;
+    public String cae;
     public LocalDate vtoCae;
     public BigDecimal total;
 
