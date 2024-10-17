@@ -76,7 +76,7 @@ public class FacturaMapper {
     public static PagoDTO toPagoDTO(Pago pago) {
 
         PagoDTO dto = new PagoDTO();
-        //dto.factura = pago.factura.id;
+        dto.factura = pago.factura.id;
         dto.fecha = pago.fecha;
         dto.medioDePago = pago.medioDePago.name();
         dto.monto = pago.monto;

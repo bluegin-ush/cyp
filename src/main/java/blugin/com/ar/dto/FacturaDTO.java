@@ -18,6 +18,10 @@ public class FacturaDTO {
     public List<PagoDTO> pagos;
     public List<ItemDTO> items;
 
+    public FacturaDTO(){
+
+    }
+
     // Constructor que toma la entidad Factura
     public FacturaDTO(Factura factura) {
         this.facturaId = factura.id;

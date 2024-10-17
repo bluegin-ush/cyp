@@ -72,7 +72,7 @@ public class Facturar {
         factura.persist();
 
         // Devolvemos la factura como respuesta
-        return Response.ok(facturaDTO).build();
+        return Response.ok(factura).build();
 
     }
 
