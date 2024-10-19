@@ -52,4 +52,7 @@ public class Factura extends PanacheEntity {
 
     @Column(columnDefinition = "TEXT")
     public String qr;
+
+    @ManyToOne
+    public LoteFactura loteFactura;
 }

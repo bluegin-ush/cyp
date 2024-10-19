@@ -24,9 +24,6 @@ import jakarta.ws.rs.core.Response;
 @Produces(MediaType.APPLICATION_JSON)
 public class SocioResource {// implements PanacheRepositoryResource<SocioRepository, Socio, Long> {
 
-   /* @Inject
-    SocioServicioRepository socioServicioRepository;
-*/
     @Inject
     SocioRepository socioRepository;
 
@@ -50,7 +47,7 @@ public class SocioResource {// implements PanacheRepositoryResource<SocioReposit
     @POST
     @Transactional
     public Response createSocio(Socio socio){
-        // TODO: tiene que tener tipo de documento
+
         if (socio.nombre == null || socio.nombre.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity("El nombre del socio es obligatorio").build();
         }else if (socio.tipoDoc == null || socio.tipoDoc.isEmpty()) {
@@ -331,4 +328,15 @@ public class SocioResource {// implements PanacheRepositoryResource<SocioReposit
         }
     }
 
+    /*@GET
+    @Path("/entidad-crediticia/{entidadId}")
+    public Response getSociosByEntidad(@PathParam("entidadId") Long entidadId) {
+        List<Socio> socios = socioRepository.findByEntidadId(entidadId);
+        if (socios != null) {
+            return Response.ok(socios).build();
+        } else {
+            //
+            return Response.status(Response.Status.NOT_FOUND).entity("Socio no encontrado").build();
+        }
+    }*/
 }

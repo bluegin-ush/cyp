@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -79,7 +80,8 @@ public class Facturar {
             return Response.serverError().entity(e).build();
         }
     }
-        @POST
+
+    @POST
     public Response facturar(FacturaDTO facturaDTO) {
 
         Factura factura = FacturaMapper.toEntity(facturaDTO);
@@ -154,6 +156,73 @@ public class Facturar {
             //
             return Response.status(Response.Status.NOT_FOUND).entity("Socio no encontrado").build();
         }
+    }
+
+    @POST
+    @Path("/lote/{mes}/{anio}")
+    @Transactional
+    public Response generarFacturasPorLote(@PathParam("mes") int mes, @PathParam("anio") int anio) {
+
+        // Verificar si ya existe un lote generado para este mes y año
+        LoteFactura loteExistente = LoteFactura.find("mes = ?1 and anio = ?2", mes, anio).firstResult();
+        if (loteExistente != null) {
+            return Response.status(Response.Status.CONFLICT)
+                    .entity("Ya se ha generado un lote de facturas para este mes y año.")
+                    .build();
+        }
+
+        // Crear un nuevo lote de facturas
+        LoteFactura loteFactura = new LoteFactura(mes, anio);
+
+        List<Socio> sociosActivos = Socio.list("activo", true);
+        List<Factura> facturasGeneradas = new ArrayList<>();
+
+        try {
+            for (Socio socio : sociosActivos) {
+                BigDecimal totalFactura = BigDecimal.ZERO;
+                List<Item> items = new ArrayList<>();
+
+                // Obtener los servicios asociados al socio
+                for (Servicio servicio : socio.servicios) {
+                    Item item = new Item();
+                    item.concepto = servicio.descripcion;
+                    item.cantidad = 1; // Asumimos cantidad 1 por servicio
+                    item.precio = servicio.costo;
+                    items.add(item);
+
+                    // Sumar el costo del servicio al total de la factura
+                    totalFactura = totalFactura.add(servicio.costo);
+                }
+
+                // Crear una nueva factura
+                Factura factura = new Factura();
+                factura.fecha = LocalDateTime.now();
+                factura.socio = socio;
+                factura.tipo = Factura.Tipo.C; // Factura tipo C por defecto
+                factura.items = items;
+                factura.total = totalFactura;
+                factura.estado = EstadoFactura.EMITIDA; // Estado inicial
+
+                // Relacionar los items con la factura
+                for (Item item : items) {
+                    item.factura = factura;
+                }
+
+                // Facturar en afip
+                factura = facturaService.facturar(factura);
+
+                // Persistir el lote, lo que también persistirá todas las facturas relacionadas
+                loteFactura.persist();
+
+                //
+                facturasGeneradas.add(factura);
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return Response.serverError().entity(e).build();
+        }
+
+        return Response.ok(facturasGeneradas).build();
     }
 }
 
