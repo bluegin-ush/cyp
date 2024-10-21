@@ -54,5 +54,23 @@ public class Factura extends PanacheEntity {
     public String qr;
 
     @ManyToOne
-    public LoteFactura loteFactura;
+    private LoteFactura loteFactura;
+
+    @ManyToOne
+    private ArchivoProcesamiento archivoProcesamiento;
+
+    public void setLoteFactura(LoteFactura l){
+        this.loteFactura = l;
+    }
+
+    public Long getLoteFactura() {
+        if(loteFactura !=null) {
+            return loteFactura.id;
+        }else{
+            return null;
+        }
+    }
+
+    //TODO hacer lo mismo para el archivo de procesamiento
+
 }

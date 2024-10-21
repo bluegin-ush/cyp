@@ -203,6 +203,9 @@ public class Facturar {
                 factura.total = totalFactura;
                 factura.estado = EstadoFactura.EMITIDA; // Estado inicial
 
+                //actualizamos el estado de la ctacte del socio
+                factura.socio.ctacte = factura.socio.ctacte.add(totalFactura);
+
                 // Relacionar los items con la factura
                 for (Item item : items) {
                     item.factura = factura;
@@ -211,12 +214,16 @@ public class Facturar {
                 // Facturar en afip
                 factura = facturaService.facturar(factura);
 
-                // Persistir el lote, lo que también persistirá todas las facturas relacionadas
-                loteFactura.persist();
-
                 //
+                loteFactura.agregarFactura(factura);
+
+
                 facturasGeneradas.add(factura);
             }
+
+            // Persistir el lote, lo que también persistirá todas las facturas relacionadas
+            loteFactura.persist();
+
         } catch (Exception e) {
             log.error(e.getMessage());
             return Response.serverError().entity(e).build();
