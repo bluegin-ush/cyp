@@ -4,10 +4,12 @@ import blugin.com.ar.cyp.model.Pago;
 import blugin.com.ar.cyp.model.Socio;
 import blugin.com.ar.repository.PagoRepository;
 import io.quarkus.hibernate.orm.rest.data.panache.PanacheRepositoryResource;
+import io.quarkus.rest.data.panache.ResourceProperties;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.core.Response;
 
+@ResourceProperties(paged = false)
 public interface PagoResource {//extends PanacheRepositoryResource<PagoRepository, Pago, Long> {
 
    /* @POST

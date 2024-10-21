@@ -1,9 +1,9 @@
 package blugin.com.ar.resource;
 
-import blugin.com.ar.cyp.model.Item;
-import blugin.com.ar.repository.ItemRepository;
+import blugin.com.ar.cyp.model.Salida;
+import blugin.com.ar.repository.SalidaRepository;
 import io.quarkus.hibernate.orm.rest.data.panache.PanacheRepositoryResource;
 import io.quarkus.rest.data.panache.ResourceProperties;
 
 @ResourceProperties(paged = false)
-public interface ItemResource extends PanacheRepositoryResource<ItemRepository, Item, Long> { }
+public interface SalidaResource extends PanacheRepositoryResource<SalidaRepository, Salida, Long> { }

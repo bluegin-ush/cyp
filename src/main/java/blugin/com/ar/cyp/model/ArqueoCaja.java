@@ -4,7 +4,8 @@ import jakarta.persistence.Entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-@Entity
+@Deprecated
+//@Entity
 public class ArqueoCaja extends PanacheEntity {
     public LocalDate fecha;
     public String detalle;

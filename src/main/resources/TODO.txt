@@ -10,7 +10,7 @@ falta ver
     - egresos, registramos el movimiento ?
     - inresos por algo facturado, siempre ?
   - restringir eliminaciones (ej entidad crediticia)
-  - ver facturas de un periodo (rango)
+  - ver facturas de un periodo (rango) [LISTO]
 migrar
   - importar socios
   - importar entidades crediticias (visa y las que usen)

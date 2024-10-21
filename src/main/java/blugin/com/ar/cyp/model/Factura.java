@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@NamedQuery(name = "Factura.buscarEntreFechas", query = "SELECT f FROM Factura f WHERE f.fecha >= :fechaInicio AND f.fecha <= :fechaFin")
 public class Factura extends PanacheEntity {
 
     private static final Logger log = LoggerFactory.getLogger(Factura.class);
@@ -36,12 +37,12 @@ public class Factura extends PanacheEntity {
     public LocalDate vtoCae;
     public BigDecimal total;
 
-    @OneToMany(mappedBy = "factura", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "factura", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JsonDeserialize(contentAs = Item.class)
     @JsonManagedReference
     public List<Item> items;
 
-    @OneToMany(mappedBy = "factura", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "factura", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JsonDeserialize(contentAs = Pago.class)
     @JsonManagedReference
     public List<Pago> pagos;

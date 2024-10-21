@@ -2,8 +2,12 @@ package blugin.com.ar.repository;
 
 import blugin.com.ar.cyp.model.*;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
+import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @ApplicationScoped
@@ -15,4 +19,9 @@ public class FacturaRepository implements PanacheRepository<Factura> {
         return find("select f from Factura f left join fetch f.items where f.socio.id = ?1", socioId).list();
     }
 
+    public List<Factura> buscarFacturasEntreFechas(LocalDate fechaInicio, LocalDate fechaFin) {
+        LocalDateTime fechaInicioTime = fechaInicio.atStartOfDay();
+        LocalDateTime fechaFinTime = fechaFin.atTime(LocalTime.MAX);
+        return find("#Factura.buscarEntreFechas", Parameters.with("fechaInicio", fechaInicioTime).and("fechaFin", fechaFinTime)).list();
+    }
 }

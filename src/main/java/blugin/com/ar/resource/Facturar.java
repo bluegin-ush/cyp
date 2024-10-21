@@ -16,12 +16,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Path("/facturar")
+@Path("/factura")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Transactional
@@ -38,14 +39,34 @@ public class Facturar {
     FacturaService facturaService;
 
     @GET
-    public Response foo(){
-        facturaService.cargarConfiguraciones();
-        return Response.ok().build();
-    }
-    @DELETE
-    public Response cancelar(NotaDeCreditoDTO notaDTO) {
+    public Response obtenerFacturas(@QueryParam("desde") @DefaultValue("2024-01-01")LocalDate desde ,@QueryParam("hasta") @DefaultValue("2100-12-31")LocalDate hasta){
 
-        Factura factura = facturaRepository.findById(notaDTO.factura);
+        System.out.println(desde);
+        System.out.println(hasta);
+
+        return Response.ok(facturaRepository.buscarFacturasEntreFechas(desde, hasta)).build();
+    }
+
+    @GET
+    @Path("/count")
+    public Response obtenerCantidadDeFacturas(){
+
+        return Response.ok(facturaRepository.count()).build();
+        /*// Convertir las entidades Factura a FacturaDTO para evitar el problema de lazy loading
+        List<FacturaDTO> facturaDTOs = facturas.stream()
+                .map(FacturaDTO::new)
+                .collect(Collectors.toList());
+
+        return Response.ok(facturaDTOs).build();*/
+
+    }
+
+
+    @DELETE
+    @Path("/{facturaId}")
+    public Response cancelar(@PathParam("facturaId") Long facturaId ,NotaDeCreditoDTO notaDTO) {
+
+        Factura factura = facturaRepository.findById(facturaId);
 
         // Verificamos si el socio existe
         if (factura == null) {
@@ -199,7 +220,7 @@ public class Facturar {
                 factura.fecha = LocalDateTime.now();
                 factura.socio = socio;
                 factura.tipo = Factura.Tipo.C; // Factura tipo C por defecto
-                factura.items = items;
+                factura.items =  items;
                 factura.total = totalFactura;
                 factura.estado = EstadoFactura.EMITIDA; // Estado inicial
 

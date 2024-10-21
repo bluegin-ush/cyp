@@ -3,7 +3,9 @@ package blugin.com.ar.resource;
 import blugin.com.ar.cyp.model.LoteFactura;
 import blugin.com.ar.repository.LoteFacturaRepository;
 import io.quarkus.hibernate.orm.rest.data.panache.PanacheRepositoryResource;
+import io.quarkus.rest.data.panache.ResourceProperties;
 
+@ResourceProperties(paged = false)
 public interface LoteFacturaResource extends PanacheRepositoryResource<LoteFacturaRepository, LoteFactura, Long> {
 
    /* @POST

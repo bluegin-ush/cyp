@@ -4,5 +4,6 @@ import blugin.com.ar.cyp.model.*; // Asegúrate de importar tus modelos correcta
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 
-@ApplicationScoped
+@Deprecated
+//@ApplicationScoped
 public class ArqueoCajaRepository implements PanacheRepository<ArqueoCaja> { }
