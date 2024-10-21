@@ -1,0 +1,16 @@
+falta ver
+  - lote
+  - generación de archivos
+  - arqueo de caja
+    - de un determinado periodo (rango)
+  - recibos
+    - múltiples pagos, como lo podemos hacer?
+    - comprobante fiscal, X - va por la afip?
+  - movimientos
+    - egresos, registramos el movimiento ?
+    - inresos por algo facturado, siempre ?
+  - restringir eliminaciones (ej entidad crediticia)
+  - ver facturas de un periodo (rango)
+migrar
+  - importar socios
+  - importar entidades crediticias (visa y las que usen)
