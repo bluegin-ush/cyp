@@ -1,16 +1,20 @@
 falta ver
   - lote
   - generación de archivos
-  - arqueo de caja
-    - de un determinado periodo (rango)
   - recibos
     - múltiples pagos, como lo podemos hacer?
-    - comprobante fiscal, X - va por la afip?
-  - movimientos
-    - egresos, registramos el movimiento ?
-    - inresos por algo facturado, siempre ?
+    - comprobante fiscal, X - va por la afip
   - restringir eliminaciones (ej entidad crediticia)
-  - ver facturas de un periodo (rango) [LISTO]
+
 migrar
   - importar socios
   - importar entidades crediticias (visa y las que usen)
+
+ LISTO
+   - arqueo de caja
+     - de un determinado periodo (rango) [LISTO - del tipo consulta:: /arqueo-caja]
+     - comprobante fiscal, X - va por la afip [ LISTO - Sumimos que sí y en tal caso sera una salida en negativo porq no tiene factura]
+   - movimientos
+     - egresos, registramos el movimiento [LISTO :: /salida]
+     - inresos por algo facturado, siempre ? [ LISTO - Sumimos que sí y en tal caso sera una salida en negativo porq no tiene factura]
+   - ver facturas de un periodo (rango) [LISTO]
