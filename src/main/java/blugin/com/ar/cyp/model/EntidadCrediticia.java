@@ -14,4 +14,13 @@ public class EntidadCrediticia extends PanacheEntity {
     public Long cuit;
     public String contacto;
 
+    @Override
+    public String toString() {
+        return "{ id=" + id +
+                "tipo='" + tipo + '\'' +
+                ", nombre='" + nombre + '\'' +
+                ", archivo=" + archivo +
+                ", cuit=" + cuit +
+                ", contacto='" + contacto + " }";
+    }
 }

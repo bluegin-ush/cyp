@@ -261,12 +261,12 @@ public class SocioResource {// implements PanacheRepositoryResource<SocioReposit
         if (entidad == null) {
             return Response.status(Response.Status.NOT_FOUND).entity("Entidad no encontrada").build();
         }
-        if (socio.entidadCrediticia != null) {
+        if (socio.getEntidadCrediticia() != null) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Ya se encuentra vinculado con una entidad").build();
         }
 
         //
-        socio.entidadCrediticia = entidad;
+        socio.setEntidadCrediticia(entidad);
         socio.persist();
 
         //
@@ -284,12 +284,12 @@ public class SocioResource {// implements PanacheRepositoryResource<SocioReposit
             return Response.status(Response.Status.NOT_FOUND).entity("Socio no encontrado").build();
         }
 
-        if (socio.entidadCrediticia == null) {
+        if (socio.getEntidadCrediticia() == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity("No se encuentra vinculado con alguna entidad").build();
         }
 
         //
-        socio.entidadCrediticia = null;
+        socio.setEntidadCrediticia(null);
         socio.persist();
 
         //

@@ -161,7 +161,7 @@ public class Facturar {
     @POST
     @Path("/lote/{mes}/{anio}")
     @Transactional
-    public Response generarFacturasPorLote(@PathParam("mes") int mes, @PathParam("anio") int anio) {
+    public Response generarFacturasPorLote(@PathParam("mes") int mes, @PathParam("anio") int anio, @QueryParam("prueba")Boolean prueba) {
 
         // Verificar si ya existe un lote generado para este mes y año
         LoteFactura loteExistente = LoteFactura.find("mes = ?1 and anio = ?2", mes, anio).firstResult();
@@ -212,7 +212,9 @@ public class Facturar {
                 }
 
                 // Facturar en afip
-                factura = facturaService.facturar(factura);
+                if(prueba==null || !prueba){
+                    factura = facturaService.facturar(factura);
+                }
 
                 //
                 loteFactura.agregarFactura(factura);
@@ -221,8 +223,10 @@ public class Facturar {
                 facturasGeneradas.add(factura);
             }
 
-            // Persistir el lote, lo que también persistirá todas las facturas relacionadas
-            loteFactura.persist();
+            // Persistir el lote, si no es prueba!
+            if(prueba==null || !prueba){
+                loteFactura.persist();
+            }
 
         } catch (Exception e) {
             log.error(e.getMessage());
