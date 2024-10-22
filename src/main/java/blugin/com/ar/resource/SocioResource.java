@@ -241,6 +241,22 @@ public class SocioResource {// implements PanacheRepositoryResource<SocioReposit
             socio.nombre = socioNew.nombre;
         }
 
+        if (socioNew.correo != null && !socioNew.correo.isEmpty()) {
+            socio.correo = socioNew.correo;
+        }
+
+        if (socioNew.tarjetaNum != null) {
+            socio.tarjetaNum =socioNew.tarjetaNum;
+        }
+
+        if (socioNew.tarjetaVto != null) {
+            socio.tarjetaVto = socioNew.tarjetaVto;
+        }
+
+        if (socioNew.tarjetaCod != null) {
+                socio.tarjetaCod = socioNew.tarjetaCod;
+        }
+
         socio.persist();
 
         // Construcción de la respuesta
@@ -261,12 +277,12 @@ public class SocioResource {// implements PanacheRepositoryResource<SocioReposit
         if (entidad == null) {
             return Response.status(Response.Status.NOT_FOUND).entity("Entidad no encontrada").build();
         }
-        if (socio.getEntidadCrediticia() != null) {
+        if (socio.entidadCrediticia != null) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Ya se encuentra vinculado con una entidad").build();
         }
 
         //
-        socio.setEntidadCrediticia(entidad);
+        socio.entidadCrediticia = entidad;
         socio.persist();
 
         //
@@ -284,12 +300,12 @@ public class SocioResource {// implements PanacheRepositoryResource<SocioReposit
             return Response.status(Response.Status.NOT_FOUND).entity("Socio no encontrado").build();
         }
 
-        if (socio.getEntidadCrediticia() == null) {
+        if (socio.entidadCrediticia == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity("No se encuentra vinculado con alguna entidad").build();
         }
 
         //
-        socio.setEntidadCrediticia(null);
+        socio.entidadCrediticia = null;
         socio.persist();
 
         //

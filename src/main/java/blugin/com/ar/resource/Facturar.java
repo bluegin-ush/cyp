@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -185,20 +186,24 @@ public class Facturar {
     @POST
     @Path("/lote/{mes}/{anio}")
     @Transactional
-    public Response generarFacturasPorLote(@PathParam("mes") int mes, @PathParam("anio") int anio, @QueryParam("prueba")Boolean prueba) {
+    public Response generarFacturasPorLote(@PathParam("mes") int mes, @PathParam("anio") int anio, List<Long> sociosIds, @QueryParam("prueba")Boolean prueba) {
 
         // Verificar si ya existe un lote generado para este mes y año
         LoteFactura loteExistente = LoteFactura.find("mes = ?1 and anio = ?2", mes, anio).firstResult();
         if (loteExistente != null) {
+            int size = (loteExistente.facturas != null)?loteExistente.facturas.size():0;
             return Response.status(Response.Status.CONFLICT)
-                    .entity("Ya se ha generado un lote de facturas para este mes y año.")
+                    .entity(String.format("Ya se ha generado un lote (con %s facturas) para este mes y año.",size))
                     .build();
         }
 
         // Crear un nuevo lote de facturas
         LoteFactura loteFactura = new LoteFactura(mes, anio);
 
-        List<Socio> sociosActivos = Socio.list("activo", true);
+        List<Socio> sociosActivos = (sociosIds==null || sociosIds.isEmpty())
+                ? Socio.list("activo", true)
+                : Socio.list("id in ?1 and activo = true", sociosIds);
+
         List<Factura> facturasGeneradas = new ArrayList<>();
 
         try {
@@ -271,7 +276,8 @@ public class Facturar {
         // Verificar si ya existe un lote generado para este mes y año
         LoteFactura loteExistente = LoteFactura.find("mes = ?1 and anio = ?2", mes, anio).firstResult();
         if (loteExistente != null) {
-            return Multi.createFrom().item("Ya se ha generado un lote de facturas para este mes y año.");
+            int size = (loteExistente.facturas != null)?loteExistente.facturas.size():0;
+            return Multi.createFrom().item(String.format("Ya se ha generado un lote (con %s facturas) para este mes y año.",size));
         }
 
         // Crear un nuevo lote de facturas
@@ -346,6 +352,32 @@ public class Facturar {
             }
         });
 
+    }
+
+    @GET
+    @Path("/entidad/{entidadId}/{mes}/{anio}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response obtenerFacturasEmitidasPorEntidadYPeriodo(
+            @PathParam("entidadId") Long entidadId,
+            @PathParam("mes") int mes,
+            @PathParam("anio") int anio) {
+
+        // Convertir mes y año en rango de fechas
+        LocalDateTime inicioMes = LocalDateTime.of(anio, mes, 1, 0, 0);
+        LocalDateTime finMes = inicioMes.with(TemporalAdjusters.lastDayOfMonth()).withHour(23).withMinute(59).withSecond(59);
+
+        // Buscar las facturas
+        List<Factura> facturas = Factura.find(
+                "estado = ?1 AND socio.entidadCrediticia.id = ?2 AND fecha >= ?3 AND fecha <= ?4",
+                EstadoFactura.EMITIDA, entidadId, inicioMes, finMes).list();
+
+        if (facturas.isEmpty()) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("No se encontraron facturas emitidas para la entidad crediticia en el periodo especificado.")
+                    .build();
+        }
+
+        return Response.ok(facturas).build();
     }
 }
 

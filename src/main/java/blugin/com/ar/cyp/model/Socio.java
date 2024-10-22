@@ -21,14 +21,14 @@ public class Socio extends PanacheEntity {
     public String correo;
 
     @ManyToOne
-    private EntidadCrediticia entidadCrediticia;
+    public EntidadCrediticia entidadCrediticia;
 
     //16 dígitos
-    private String tarjetaNum;
+    public String tarjetaNum;
     //MM/YY
-    private String tarjetaVto;
+    public String tarjetaVto;
     //3 dígitos
-    private String tarjetaCod;
+    public String tarjetaCod;
 
     public Boolean activo;
     public BigDecimal ctacte; // Cuenta corriente
@@ -52,9 +52,11 @@ public class Socio extends PanacheEntity {
     }
 
     public List<Registro> getRegistros(){
+
         return registros;
     }
 
+    /*
     public void setTarjetaCod(String tarjetaCod) {
         //TODO validar que sean 3 dígitos
         this.tarjetaCod = tarjetaCod;
@@ -82,4 +84,6 @@ public class Socio extends PanacheEntity {
     public void setEntidadCrediticia(EntidadCrediticia entidadCrediticia) {
         this.entidadCrediticia = entidadCrediticia;
     }
+    */
+
 }

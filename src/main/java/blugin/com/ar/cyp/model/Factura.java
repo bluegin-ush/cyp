@@ -1,6 +1,5 @@
 package blugin.com.ar.cyp.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
@@ -12,7 +11,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -58,7 +56,7 @@ public class Factura extends PanacheEntity {
     private LoteFactura loteFactura;
 
     @ManyToOne
-    private ArchivoProcesamiento archivoProcesamiento;
+    private Archivo archivo;
 
     public void setLoteFactura(LoteFactura l){
         this.loteFactura = l;
@@ -72,6 +70,15 @@ public class Factura extends PanacheEntity {
         }
     }
 
-    //TODO hacer lo mismo para el archivo de procesamiento
+    public void setArchivo(Archivo archivo) {
+        this.archivo = archivo;
+    }
 
+    public Long getArchivo() {
+        if(archivo !=null) {
+            return archivo.id;
+        }else{
+            return null;
+        }
+    }
 }

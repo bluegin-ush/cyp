@@ -1,11 +1,8 @@
 falta ver
-  - lote
-    -generamos para todos los socios o se debe poder editar la lista?
   - generación de archivos
-  - recibos
-    - múltiples pagos, como lo podemos hacer?
-    - comprobante fiscal, X - va por la afip
-  - restringir eliminaciones (ej entidad crediticia)
+
+  Obtener todas la facturas "emitidas" de los socios relacionados a una determinada entidad crediticia en una periodo particular (mes/anio).
+  ==> /facturas/archivo/:entidadId/:mes/:anio
 
 migrar
   - importar socios
@@ -22,3 +19,49 @@ migrar
             DEBITO
      - inresos por algo facturado, siempre ? [ LISTO - Sumimos que sí y en tal caso sera una salida en negativo porq no tiene factura]
    - ver facturas de un periodo (rango) [LISTO]
+
+  - restringir eliminaciones (ej entidad crediticia) [LISTO]
+  - lote
+    -generamos para todos los socios o se debe poder editar la lista [LISTO :: POST /factura/lote/:mes/:anio?prueba]
+        ahora tiene la posibilidad de tener una  body con una lista de id's. Ej: [1,2,3]
+
+  - recibos
+   - múltiples pagos, como lo podemos hacer [LISTO :: Si no se han realizado, se envian asociado a cada factura. Se seleccionan los que se requieran]
+   - comprobante fiscal, X - va por la afip [LISTO :: no va por la afip]
+
+   El comprobante X puede conformarse por 1 o más pagos (cada pago es por una factura total o parcial)
+   Los datos que debe llevar el comprobante X
+    -   Datos del socio (nombre, apellido, etc.).
+    -   Fecha del pago.
+    -   Desglose de las facturas pagadas (número de factura, monto correspondiente).
+    -   Monto total pagado.
+    -   Forma de pago (si es relevante: efectivo, transferencia, tarjeta, etc.).
+
+    La nota de credito:
+    La impresión de la nota de crédito debe incluir toda la información fiscal relevante, similar a una factura, como:
+    Número de la nota de crédito.
+    Número de la factura asociada que se está anulando o corrigiendo.
+    CAE y fecha de vencimiento del CAE.
+    Datos del socio.
+    Detalle del concepto y monto de la nota de crédito.
+
+    EJ:
+        Asociación CyP - CUIT: 30-12345678-9
+        --------------------------------------
+        NOTA DE CRÉDITO TIPO C - Nro: 0001-00012345
+        --------------------------------------
+        Fecha de emisión: 22/10/2024
+
+        Socio: Juan Pérez
+        CUIT/DNI: 30.123.456
+
+        Referencia: Factura Nro 0001-00054321 (Fecha: 19/10/2024)
+
+        Detalle:
+        --------------------------------------
+        Motivo de la anulación: Error en el importe
+        Monto anulado: $1500
+
+        CAE: 67891234567890
+        Fecha de vencimiento del CAE: 31/10/2024
+        --------------------------------------
