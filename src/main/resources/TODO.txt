@@ -1,5 +1,6 @@
 falta ver
   - lote
+    -generamos para todos los socios o se debe poder editar la lista?
   - generación de archivos
   - recibos
     - múltiples pagos, como lo podemos hacer?
@@ -13,8 +14,11 @@ migrar
  LISTO
    - arqueo de caja
      - de un determinado periodo (rango) [LISTO - del tipo consulta:: /arqueo-caja]
-     - comprobante fiscal, X - va por la afip [ LISTO - Sumimos que sí y en tal caso sera una salida en negativo porq no tiene factura]
+     - comprobante fiscal, X - va por la afip [ LISTO - Asumimos que sí y en tal caso sera una salida en negativo porq no tiene factura]
    - movimientos
      - egresos, registramos el movimiento [LISTO :: /salida]
+       tipo:EFECTIVO,
+            TRANSFERENCIA,
+            DEBITO
      - inresos por algo facturado, siempre ? [ LISTO - Sumimos que sí y en tal caso sera una salida en negativo porq no tiene factura]
    - ver facturas de un periodo (rango) [LISTO]
