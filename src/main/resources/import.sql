@@ -61,3 +61,18 @@ INSERT INTO servicio (id, codigo, descripcion, costo) VALUES
 -- Actualizar la secuencia para que el próximo ID sea el siguiente disponible
 --SELECT setval('servicio_seq', (SELECT MAX(id) FROM servicio) + 1);
 ALTER SEQUENCE servicio_seq RESTART WITH 17;
+
+--
+INSERT INTO entidadCrediticia(id,tipo, nombre, archivo, cuit, contacto) VALUES
+(1,'tarjeta','tarjeta visa - débito automático',true,0,'sin datos de contacto'),
+(2,'tarjeta','tarjeta master card - débito automático',true,0,'sin datos de contacto'),
+(3,'tarjeta','tarjeta tdf - débito automático',true,0,'sin datos de contacto'),
+(4,'tarjeta','tarjeta visa',false,0,'sin datos de contacto'),
+(5,'tarjeta','tarjeta master card',false,0,'sin datos de contacto'),
+(6,'tarjeta','tarjeta american express',false,0,'sin datos de contacto'),
+(7,'tarjeta','tarjeta tdf',false,0,'sin datos de contacto'),
+(8,'débito','maestro',false,0,'sin datos de contacto'),
+(9,'débito','visa electron',false,0,'sin datos de contacto');
+
+ALTER SEQUENCE servicio_seq RESTART WITH 10;
+

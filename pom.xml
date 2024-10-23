@@ -61,10 +61,10 @@
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-hibernate-orm-rest-data-panache</artifactId>
         </dependency>
-        <!--<dependency>
+        <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-flyway</artifactId>
-        </dependency>-->
+        </dependency>
         <!-- TEST -->
         <dependency>
             <groupId>io.quarkus</groupId>

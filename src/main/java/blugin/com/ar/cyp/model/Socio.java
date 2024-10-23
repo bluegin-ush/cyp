@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +20,14 @@ public class Socio extends PanacheEntity {
     public String tipoDoc; // Tipo de documento
     public Long numDoc; // Número de documento
     public String correo;
+
+    public String telefono;
+
+    public String domicilio;
+
+    public LocalDate fecNacimiento;
+
+    public String genero;
 
     @ManyToOne
     public EntidadCrediticia entidadCrediticia;

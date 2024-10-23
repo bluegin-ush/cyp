@@ -241,6 +241,22 @@ public class SocioResource {// implements PanacheRepositoryResource<SocioReposit
             socio.nombre = socioNew.nombre;
         }
 
+        if (socioNew.genero != null) {
+            socio.genero = socioNew.genero;
+        }
+
+        if (socioNew.telefono != null) {
+            socio.telefono = socioNew.telefono;
+        }
+
+        if (socioNew.domicilio != null) {
+            socio.domicilio = socioNew.domicilio;
+        }
+
+        if (socioNew.fecNacimiento != null) {
+            socio.fecNacimiento = socioNew.fecNacimiento;
+        }
+
         if (socioNew.correo != null && !socioNew.correo.isEmpty()) {
             socio.correo = socioNew.correo;
         }
