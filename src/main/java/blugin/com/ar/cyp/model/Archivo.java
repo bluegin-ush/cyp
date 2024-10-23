@@ -4,6 +4,7 @@ import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -28,7 +29,14 @@ public class Archivo extends PanacheEntity {
     //puede autogenrarse con YYYYMMDD-Entidad.txt
     //public String nombreArchivo;
 
-    @OneToMany(mappedBy = "archivo")
+    @OneToMany(mappedBy = "archivo", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     public List<Factura> facturas;
 
+    public void agregarFactura(Factura factura) {
+        if(facturas == null){
+            facturas = new ArrayList<>();
+        }
+        facturas.add(factura);
+        factura.setArchivo(this);
+    }
 }

@@ -8,10 +8,14 @@ import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +25,8 @@ import java.util.List;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Transactional
-public class ArchivoResource { //extends PanacheRepositoryResource<ArchivoProcesamientoRepository, ArchivoProcesamiento, Long> { }
+public class ArchivoResource {
+    private static final Logger log = LoggerFactory.getLogger(ArchivoResource.class); //extends PanacheRepositoryResource<ArchivoProcesamientoRepository, ArchivoProcesamiento, Long> { }
 
     @Inject
     ArchivoRepository archivoRepository;
@@ -29,6 +34,64 @@ public class ArchivoResource { //extends PanacheRepositoryResource<ArchivoProces
     //@Inject
     //PagoService pagoService;
 
+    @GET
+    @Path("/{archivoId}")
+    public Response getArchivo(@PathParam("archivoId") Long archivoId) {
+
+        //
+        Archivo  archivo = Archivo.findById(archivoId);
+
+        if(archivo != null) {
+            return Response.status(Response.Status.OK).entity(archivo).build();
+        } else {
+            return Response.status(Response.Status.NO_CONTENT).build();
+        }
+    }
+
+    @DELETE
+    @Path("/{archivoId}")
+    public Response elimianrArchivo(@PathParam("archivoId") Long archivoId) {
+
+        //
+        Archivo  archivo = Archivo.findById(archivoId);
+
+        if(archivo != null) {
+            //if( (archivo.facturas!=null) && (!archivo.facturas.isEmpty() )){
+                archivo.delete();
+                return Response.status(Response.Status.ACCEPTED).build();
+            //}else {
+            //    return Response.status(Response.Status.CONFLICT).entity("No es posible eliminar, el archivo contiene facturas asociadas").build();
+            //}
+        } else {
+            return Response.status(Response.Status.NOT_FOUND).entity("Archivo no encontrado").build();
+        }
+    }
+
+    @GET
+    public Response getArchivos(@QueryParam("desde") LocalDate desde,
+                               @QueryParam("hasta") LocalDate hasta) {
+        if(desde == null){
+            desde = LocalDate.now();
+        }
+
+        if(hasta == null){
+            hasta = LocalDate.now();
+        }
+
+        LocalDateTime inicio = desde.atStartOfDay();
+        LocalDateTime fin = hasta.atTime(LocalTime.MAX);
+
+        // Consultar pagos recibidos en el periodo
+        List<Archivo>  archivos = Archivo.find("fechaGeneracion >= ?1 and fechaGeneracion <= ?2", inicio, fin).list();
+
+        //List<Archivo> archivos = archivoRepository.findAll().list();
+
+        if(!archivos.isEmpty()) {
+            return Response.status(Response.Status.OK).entity(archivos).build();
+        } else {
+            return Response.status(Response.Status.NO_CONTENT).build();
+        }
+    }
     @POST
     @Path("/generar/{entidadId}")
     public Response generarArchivo(@PathParam("entidadId") Long entidadId, List<Long> facturasIds) {
@@ -49,19 +112,24 @@ public class ArchivoResource { //extends PanacheRepositoryResource<ArchivoProces
                     .build();
         }
 
+        // Crear el archivo en la entidad Archivo
+        Archivo archivo = new Archivo();
+
         // Generar el archivo en formato texto
         StringBuilder archivoTexto = new StringBuilder();
         archivoTexto.append("Archivo de facturas para la entidad: ").append(entidadCrediticia.nombre).append("\n");
         archivoTexto.append("Fecha de generación: ").append(LocalDateTime.now()).append("\n\n");
         archivoTexto.append("Facturas:\n");
+
         for (Factura factura : facturas) {
             archivoTexto.append("Factura ID: ").append(factura.id)
                     .append(" | Socio: ").append(factura.socio.nombre).append(" ").append(factura.socio.apellido)
                     .append(" | Total: ").append(factura.total).append("\n");
+            factura.setArchivo(archivo);
+            archivo.agregarFactura(factura);
         }
 
-        // Crear el archivo en la entidad Archivo
-        Archivo archivo = new Archivo();
+
         archivo.entidadCrediticia = entidadCrediticia;
         archivo.fechaGeneracion = LocalDateTime.now();
         archivo.estado = EstadoArchivo.GENERADO;
@@ -74,15 +142,6 @@ public class ArchivoResource { //extends PanacheRepositoryResource<ArchivoProces
         return Response.ok(archivo).build();
     }
 
-    //TODO filtrar por periodo
-    @GET
-    public Response listarArchivos() {
-        List<Archivo> archivos = Archivo.listAll();
-        if (archivos.isEmpty()) {
-            return Response.status(Response.Status.NO_CONTENT).build();
-        }
-        return Response.ok(archivos).build();
-    }
 
     @PATCH
     @Path("/{archivoId}/marcar-enviado")
@@ -92,15 +151,15 @@ public class ArchivoResource { //extends PanacheRepositoryResource<ArchivoProces
             return Response.status(Response.Status.NOT_FOUND).entity("Archivo no encontrado").build();
         }
 
-        if (archivo.estado != EstadoArchivo.GENERADO) {
+        if (archivo.estado == EstadoArchivo.GENERADO ) {
+            archivo.estado = EstadoArchivo.ENVIADO;
+            archivo.persist();  // Guardar los cambios
+
+            return Response.ok("Archivo marcado como ENVIADO").build();
+        }else {
             return Response.status(Response.Status.CONFLICT)
                     .entity("El archivo debe estar en estado GENERADO para poder marcarse como ENVIADO").build();
         }
-
-        archivo.estado = EstadoArchivo.ENVIADO;
-        archivo.persist();  // Guardar los cambios
-
-        return Response.ok("Archivo marcado como ENVIADO").build();
     }
 
     @GET
@@ -132,15 +191,20 @@ public class ArchivoResource { //extends PanacheRepositoryResource<ArchivoProces
         Archivo archivo = archivoRepository.findById(archivoId);
         if (archivo == null) {
             return Response.status(Response.Status.NOT_FOUND).entity("Archivo no encontrado").build();
-
-        } else if (!archivo.estado.equals(EstadoArchivo.ENVIADO)) {
+        } else if (archivo.estado.equals(EstadoArchivo.PROCESADO) || archivo.estado.equals(EstadoArchivo.ERROR)) {
             return Response.status(Response.Status.CONFLICT).entity("El archivo ya se encuentra procesado").build();
+        } else if (archivo.estado.equals(EstadoArchivo.GENERADO)) {
+            return Response.status(Response.Status.CONFLICT).entity("El estado del archivo registra que no se ha enviado").build();
         }
 
-        // Leer el contenido del archivo
+            // Leer el contenido del archivo
         String contenido;
         try {
             contenido = new String(streamArchivoEntidad.readAllBytes(), StandardCharsets.UTF_8);
+
+            if(contenido.isEmpty()){
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error al leer el archivo proporcionado por la entidad, sin contenido!").build();
+            }
         } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error al leer el archivo proporcionado por la entidad").build();
         }
@@ -150,16 +214,16 @@ public class ArchivoResource { //extends PanacheRepositoryResource<ArchivoProces
         StringBuilder detalleErrores = new StringBuilder();
 
         // Procesar el contenido del archivo
-        switch (archivo.entidadCrediticia.nombre){
-            case "visa" -> {
-                archivoService.procesarArchivoVisa(archivo, contenido, detalleErrores);
-            }
-            case "master" -> {
-                archivoService.procesarArchivoMaster(archivo, contenido, detalleErrores);
-            }
-            default -> {
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(String.format("No existe implementación para la entidad %s",archivo.entidadCrediticia.nombre)).build();
-            }
+        if (archivo.entidadCrediticia.id == 1){
+            //"visa"
+            archivoService.procesarArchivoVisa(archivo, contenido, detalleErrores);
+
+        } else if (archivo.entidadCrediticia.id == 2) {
+            //"master"
+            archivoService.procesarArchivoMaster(archivo, contenido, detalleErrores);
+        } else {
+            //Otro no implementado
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(String.format("No existe implementación para la entidad %s",archivo.entidadCrediticia.nombre)).build();
         }
 
 
