@@ -87,15 +87,18 @@
         <dependency>
             <groupId>jakarta.xml.soap</groupId>
             <artifactId>jakarta.xml.soap-api</artifactId>
-            <version>2.0.0</version>
+            <version>3.0.0</version>
         </dependency>
 
         <!-- Dependencia JAX-WS API -->
+
+        <!-- eliinada por antigua
         <dependency>
             <groupId>javax.jws</groupId>
             <artifactId>javax.jws-api</artifactId>
             <version>1.1</version>
         </dependency>
+        -->
 
         <dependency>
             <groupId>jakarta.xml.ws</groupId>
@@ -110,17 +113,22 @@
             <version>4.0.0</version>
         </dependency>
 
-        <dependency>
+       <dependency>
             <groupId>com.sun.xml.ws</groupId>
             <artifactId>jaxws-rt</artifactId>
-            <version>4.0.0</version>
+            <version>4.0.1</version>
         </dependency>
 
         <!-- Implementación de referencia de JAXB -->
         <dependency>
             <groupId>org.glassfish.jaxb</groupId>
             <artifactId>jaxb-runtime</artifactId>
-            <version>4.0.0</version>
+            <version>4.0.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-jaxb</artifactId>
         </dependency>
 
         <!-- Dependencia de activación para JAXB -->
@@ -130,34 +138,40 @@
             <version>4.0.0</version>
         </dependency>
 
-        <!-- JAX-WS API (Servicios Web) -->
-        <dependency>
-            <groupId>jakarta.xml.ws</groupId>
-            <artifactId>jakarta.xml.ws-api</artifactId>
-            <version>4.0.0</version>
-        </dependency>
-
-        <!-- Implementación de JAXB -->
-        <dependency>
-            <groupId>org.glassfish.jaxb</groupId>
-            <artifactId>jaxb-runtime</artifactId>
-            <version>4.0.0</version>
-        </dependency>
-
         <!-- Implementación de Jakarta SOAP (SAAJ) -->
         <dependency>
             <groupId>com.sun.xml.messaging.saaj</groupId>
             <artifactId>saaj-impl</artifactId>
-            <version>2.0.1</version>
+            <version>3.0.0</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.sun.xml.messaging.saaj/saaj-impl -->
+        <!--<dependency>
+            <groupId>com.sun.xml.messaging.saaj</groupId>
+            <artifactId>saaj-impl</artifactId>
+            <version>3.0.4</version>
+        </dependency>-->
 
+        <!-- https://mvnrepository.com/artifact/com.sun.xml.messaging.saaj/metro-saaj -->
+        <!--<dependency>
+            <groupId>com.sun.xml.messaging.saaj</groupId>
+            <artifactId>metro-saaj</artifactId>
+            <version>3.0.4</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.xml.ws</groupId>
+            <artifactId>jakarta.xml.ws-api</artifactId>
+            <version>4.0.2</version>
+        </dependency>
+        -->
         <!-- Dependencias para manejo de XML -->
+        <!-- eliminada por antigua
         <dependency>
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
             <version>2.3.1</version>
         </dependency>
-
+        -->
         <!-- BouncyCastle para firma digital -->
         <dependency>
             <groupId>org.bouncycastle</groupId>
@@ -179,7 +193,24 @@
         <dependency>
             <groupId>xerces</groupId>
             <artifactId>xercesImpl</artifactId>
-            <version>2.12.1</version>
+            <version>2.12.2</version>
+        </dependency>
+        <!--
+            <exclusions>
+                <exclusion>
+                    <groupId>xerces</groupId>
+                    <artifactId>xml-apis</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>xml-apis</groupId>
+            <artifactId>xml-apis</artifactId>
+            <version>1.4.01</version>
+        </dependency>-->
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-container-image-docker</artifactId>
         </dependency>
     </dependencies>
 

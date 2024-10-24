@@ -2,8 +2,12 @@ package blugin.com.ar.tools;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-
+/*import com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl;
+import org.wildfly.common.xml.DocumentBuilderFactoryUtil;
+import javax.xml.parsers.DocumentBuilderFactory;
+*/
 public class CifradoSHA256 {
+
 
     public static String cifrarSHA256(String input) {
         try {

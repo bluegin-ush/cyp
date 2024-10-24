@@ -11,10 +11,14 @@ import blugin.com.ar.wsfe.FEAuthRequest;
 import blugin.com.ar.wsfe.wrappers.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.xml.soap.MessageFactory;
+import jakarta.xml.soap.SOAPException;
+import jakarta.xml.soap.SOAPMessage;
 import jakarta.xml.ws.soap.SOAPFaultException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -55,6 +59,22 @@ public class FacturaService {
     }
 
     public void cargarConfiguraciones(){
+
+        System.out.println("============== DocumentBuilderFactory configurado a Xerces ==============");
+        DocumentBuilderFactory doc = javax.xml.parsers.DocumentBuilderFactory.newInstance();
+        System.out.println("============== DocumentBuilderFactory instnaciado a "+ doc.getClass().getName()+"==============");
+        try {
+            MessageFactory messageFactory = MessageFactory.newInstance();
+
+            SOAPMessage soapMessage = messageFactory.createMessage();
+
+            System.out.println("============== Implementación de SOAPMessage: " + soapMessage.getClass().getName() + "==============");
+
+        } catch (SOAPException e) {
+            System.out.println("========= ERROR ===== "+e.getMessage());;
+        }
+
+        // Imprimir la implementación utilizada
         System.out.println("valores:");
         Map<String,String> configuraciones = configuracionRepository.obtenerTodasLasConfiguraciones();
 
@@ -78,6 +98,18 @@ public class FacturaService {
                 }
             }
         });
+    }
+
+    /**
+     *
+     * @return
+     * @throws Exception
+     */
+    public String ping() throws Exception {
+
+        //cargarConfiguraciones();
+
+        return WSFEClient.ping();
     }
     /**
      *
@@ -181,7 +213,7 @@ public class FacturaService {
         //
         AuthTokenAndSign auth = new AuthTokenAndSign();
 
-        if(auth.isThresholdExceeded(threshold)) {
+        //if(auth.isThresholdExceeded(threshold)) {
             //
             String ltr = SignXML.getLoginTicketRequest(null, service, expiration);
 
@@ -205,7 +237,7 @@ public class FacturaService {
             //
             auth.saveAuthToken(authTokens);
 
-        }
+        //}
 
         //
         String token    = auth.getToken();

@@ -46,17 +46,6 @@ public class WSFEClient {
 
         FECAEResponse response = service.fecaeSolicitar(auth, caeReq);
 
-        System.out.printf("CbteTipo: %s - Cuit: %s - CantReg: %s - Reproceso: %s - PtoVta: %s - FchProceso: %s - Resultado: %s\n",
-                response.getFeCabResp().getCbteTipo(),
-                response.getFeCabResp().getCuit(),
-                response.getFeCabResp().getCantReg(),
-                response.getFeCabResp().getReproceso(),
-                response.getFeCabResp().getPtoVta(),
-                response.getFeCabResp().getFchProceso(),
-                response.getFeCabResp().getResultado());
-
-        //Resultado = A=APROBADO, R=RECHAZADO, P=PARCIAL
-
         ArrayOfErr errores = response.getErrors();
         Optional<Exception> errorTecnico =
                 (errores != null && errores.getErr() != null && !errores.getErr().isEmpty())
@@ -76,6 +65,17 @@ public class WSFEClient {
             System.out.printf("ERROR: %s\n",errorFuncional.get().getMessage());
             throw errorFuncional.get();
         }
+
+        System.out.printf("CbteTipo: %s - Cuit: %s - CantReg: %s - Reproceso: %s - PtoVta: %s - FchProceso: %s - Resultado: %s\n",
+                response.getFeCabResp().getCbteTipo(),
+                response.getFeCabResp().getCuit(),
+                response.getFeCabResp().getCantReg(),
+                response.getFeCabResp().getReproceso(),
+                response.getFeCabResp().getPtoVta(),
+                response.getFeCabResp().getFchProceso(),
+                response.getFeCabResp().getResultado());
+
+        //Resultado = A=APROBADO, R=RECHAZADO, P=PARCIAL
 
         for(FECAEDetResponse detalle: response.getFeDetResp().getFECAEDetResponse()){
             System.out.printf("CAE: %s - FchVto: %s - Resultado: %s - DocTipo: %s - DocNro: %s - CbteFch: %s - CbteDesde: %s - CbteHasta: %s - Concepto: %s\n",
@@ -212,11 +212,11 @@ public class WSFEClient {
     //================================================================================//
     //================================================================================//
 
-    public static void ping() {
+    public static String ping() {
         ServiceSoap service = new Service().getServiceSoap();
 
         DummyResponse dummy = service.feDummy();
-        System.out.printf("Ping: appServer: %s, authServer: %s, dbServer: %s\n",
+        return String.format("Ping: appServer: %s, authServer: %s, dbServer: %s\n",
                 dummy.getAppServer(),
                 dummy.getAuthServer(),
                 dummy.getDbServer());
