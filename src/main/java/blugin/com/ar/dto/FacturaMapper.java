@@ -61,7 +61,7 @@ public class FacturaMapper {
         }
 
         pago.fecha = dto.fecha;
-        pago.medioDePago = MedioDePago.valueOf(dto.medioDePago);
+        pago.medioDePago = MedioDePago.fromNombre(dto.medioDePago);
         return pago;
     }
 

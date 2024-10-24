@@ -46,7 +46,7 @@ public class PagoResourceImpl {
 
             Pago pago = new Pago();
             pago.factura = factura;
-            pago.medioDePago = MedioDePago.valueOf(pagoDto.medioDePago);
+            pago.medioDePago = MedioDePago.fromNombre(pagoDto.medioDePago);
             pago.monto = pagoDto.monto;
 
             if(pagoDto.fecha == null){
