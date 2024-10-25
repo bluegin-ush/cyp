@@ -1,60 +1,74 @@
 package blugin.com.ar.fe;
 
+import blugin.com.ar.cyp.model.Configuracion;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
-import java.util.prefs.Preferences;
 
+@ApplicationScoped
 public class AuthTokenAndSign {
+
     private static final String TOKEN_KEY = "token";
     private static final String SIGN_KEY = "sign";
     private static final String TOKEN_TIMESTAMP_KEY = "token_timestamp";
 
-    private Preferences prefs;
+    @Inject
+    EntityManager entityManager;
 
-    public AuthTokenAndSign() {
-        prefs = Preferences.userNodeForPackage(AuthTokenAndSign.class);
+    @Transactional
+    public void saveAuthToken(Map<String, String> auth) {
+        saveValue(TOKEN_KEY, auth.get(TOKEN_KEY));
+        saveValue(SIGN_KEY, auth.get(SIGN_KEY));
+        saveValue(TOKEN_TIMESTAMP_KEY, String.valueOf(Instant.now().toEpochMilli()));
     }
 
-    public void saveAuthToken(Map<String, String> auth){
-        saveToken(auth.get(TOKEN_KEY));
-        saveSign(auth.get(SIGN_KEY));
-    }
-    // Método para guardar el token junto con el timestamp actual
-    private void saveToken(String token) {
-        prefs.put(TOKEN_KEY, token);
-        prefs.putLong(TOKEN_TIMESTAMP_KEY, Instant.now().toEpochMilli());
-    }
-
-    // Método para recuperar el token
+    @Transactional
     public String getToken() {
-        return prefs.get(TOKEN_KEY, null);
+        return findValue(TOKEN_KEY);
     }
 
-    // Método para guardar el sign
-    private void saveSign(String sign) {
-        prefs.put(SIGN_KEY, sign);
-    }
-
-    // Método para recuperar el sign
+    @Transactional
     public String getSign() {
-        return prefs.get(SIGN_KEY, null);
+        return findValue(SIGN_KEY);
     }
 
-    // Método para recuperar el timestamp del token
+    @Transactional
     public Instant getTokenTimestamp() {
-        long timestamp = prefs.getLong(TOKEN_TIMESTAMP_KEY, 0);
-        return (timestamp > 0) ? Instant.ofEpochMilli(timestamp) : null;
+        String timestampStr = findValue(TOKEN_TIMESTAMP_KEY);
+        return (timestampStr != null) ? Instant.ofEpochMilli(Long.parseLong(timestampStr)) : null;
     }
 
-    // Método para verificar si el umbral de tiempo ha sido superado
+    @Transactional
     public boolean isThresholdExceeded(Duration threshold) {
         Instant tokenTimestamp = getTokenTimestamp();
         if (tokenTimestamp == null) {
-            return true; // Si no hay timestamp, consideramos que el umbral está superado
+            return true;
         }
         Instant now = Instant.now();
         Duration duration = Duration.between(tokenTimestamp, now);
         return duration.compareTo(threshold) > 0;
+    }
+
+    private void saveValue(String key, String value) {
+        Configuracion config = Configuracion.find("clave", key).firstResult();
+        if (config == null) {
+            config = new Configuracion();
+            config.clave = key;
+        }
+        config.valor = value;
+        config.persist();
+    }
+
+    private String findValue(String key) {
+        Configuracion config = Configuracion.find("clave", key).firstResult();
+        return (config != null) ? config.valor : null;
+    }
+
+    public void setTimeStamp(String value){
+        saveValue(TOKEN_TIMESTAMP_KEY, value);
     }
 }

@@ -2,7 +2,6 @@ package blugin.com.ar.service;
 
 import blugin.com.ar.cyp.model.Factura;
 import blugin.com.ar.cyp.model.NotaDeCredito;
-import blugin.com.ar.cyp.model.Person;
 import blugin.com.ar.dto.FacturaQR;
 import blugin.com.ar.fe.*;
 import blugin.com.ar.repository.ConfiguracionRepository;
@@ -51,6 +50,9 @@ public class FacturaService {
 
     @Inject
     ConfiguracionRepository configuracionRepository;
+
+    @Inject
+    AuthTokenAndSign authTokenAndSign;
 
     public FacturaService(){
 
@@ -211,9 +213,8 @@ public class FacturaService {
         Map authTokens = new HashMap();
 
         //
-        AuthTokenAndSign auth = new AuthTokenAndSign();
 
-        //if(auth.isThresholdExceeded(threshold)) {
+        if(authTokenAndSign.isThresholdExceeded(threshold)) {
             //
             String ltr = SignXML.getLoginTicketRequest(null, service, expiration);
 
@@ -225,29 +226,42 @@ public class FacturaService {
                 //
                 authTokens = WSAAClient.getTicketAuthorization(endpoint, ltrs);
 
+                //
+                authTokenAndSign.saveAuthToken(authTokens);
+
             }catch(SOAPFaultException e){
 
                 // again with sames credentials
-                authTokens.put("token", auth.getToken());
-                authTokens.put("sign", auth.getSign());
+                log.error("Error al obtener los datos vía SOAP, intentamos establecer",e);
 
+                //
+                authTokenAndSign.setTimeStamp("0");
+
+                /*try{
+                    authTokens.put("token", authTokenAndSign.getToken());
+                    authTokens.put("sign", authTokenAndSign.getSign());
+                }catch (Exception eInPut){
+                    log.error("En establecer las preferencias");
+                    e.printStackTrace();
+                }
+                */
                 e.printStackTrace();
             }
 
-            //
-            auth.saveAuthToken(authTokens);
 
-        //}
+        }
 
         //
-        String token    = auth.getToken();
-        String sign     = auth.getSign();
+        String token    = authTokenAndSign.getToken();
+        String sign     = authTokenAndSign.getSign();
 
         System.out.println("Ticket de Acceso: " + token);
         System.out.println("Firma de Acceso: " + sign);
 
         //WSFEClient.ping();
-
+        if(token==null){
+            throw new Exception("El token está nulo");
+        }
         return WSFEClient.obtenerAuthRequest(token, sign, cuitEmisor);
 
     }

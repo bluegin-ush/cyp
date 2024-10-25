@@ -1,15 +1,8 @@
 package blugin.com.ar.fe;
 
-import blugin.com.ar.wsfe.FEAuthRequest;
 import jakarta.xml.ws.soap.SOAPFaultException;
-import blugin.com.ar.wsfe.wrappers.Comprobante;
-import blugin.com.ar.wsfe.wrappers.Persona;
-import blugin.com.ar.wsfe.wrappers.TiposComprobante;
-import blugin.com.ar.wsfe.wrappers.TiposDocumento;
 
-import java.math.BigDecimal;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,7 +27,7 @@ public class Main {
             Map authTokens = new HashMap();
 
             //
-            AuthTokenAndSign auth = new AuthTokenAndSign();
+            AuthTokenAndSign_deprecated auth = new AuthTokenAndSign_deprecated();
 
             if(auth.isThresholdExceeded(threshold)) {
                 //

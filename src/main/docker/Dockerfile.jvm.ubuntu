@@ -1,0 +1,56 @@
+# Usar una imagen base de Ubuntu con OpenJDK
+FROM ubuntu:22.04
+
+# Instalar OpenJDK 21
+RUN apt-get update && \
+    apt-get install -y openjdk-21-jdk && \
+    apt-get install -y vim && \
+    apt-get clean
+
+    # && \
+    #rm -rf /var/lib/apt/lists/*
+
+# Establecer variables de entorno
+ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
+ENV PATH="${JAVA_HOME}/bin:${PATH}"
+ENV LANGUAGE='en_US:en'
+
+# Crear el directorio de despliegue
+RUN mkdir -p /deployments/app /deployments/lib /deployments/quarkus
+
+# Copiar los archivos de la aplicación
+COPY --chown=185 target/quarkus-app/lib/ /deployments/lib/
+COPY --chown=185 target/quarkus-app/*.jar /deployments/
+COPY --chown=185 target/quarkus-app/app/ /deployments/app/
+COPY --chown=185 target/quarkus-app/quarkus/ /deployments/quarkus/
+#COPY --chown=185 target/classes/jaxp.properties /etc/java-21-openjdk/jaxp.properties
+
+# Exponer el puerto
+EXPOSE 8080
+
+# Cambiar a un usuario no root
+USER 185
+
+# Establecer opciones de Java
+ENV JAVA_OPTS_APPEND="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Dquarkus-profile=docker --add-opens java.xml/com.sun.org.apache.xerces.internal.jaxp=ALL-UNNAMED"
+
+# Especificar el JAR de la aplicación
+ENV JAVA_APP_JAR="/deployments/quarkus-run.jar"
+
+# Comando de entrada
+ENTRYPOINT ["java", "-jar", "/deployments/quarkus-run.jar"]
+#ENTRYPOINT ["tail", "-f", "/dev/null"]
+
+#ENTRYPOINT ["java", "-Djavax.xml.parsers.DocumentBuilderFactory=org.apache.xerces.jaxp.DocumentBuilderFactoryImpl", "-jar", "/deployments/quarkus-run.jar"]
+
+
+# Agrega las configuraciones necesarias para XML
+#ENV JAVA_OPTS="\
+#    -Dquarkus.http.host=0.0.0.0 \
+#    --add-opens=java.base/java.lang=ALL-UNNAMED \
+#    --add-opens=java.xml/com.sun.org.apache.xerces.internal.jaxp=ALL-UNNAMED \
+#    --add-opens=java.xml/javax.xml.catalog=ALL-UNNAMED \
+#    --add-modules=java.xml.ws \
+#    -Djavax.xml.accessExternalSchema=all"
+
+#ENTRYPOINT ["java", "-jar", "/deployments/quarkus-run.jar"]
