@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.IOException;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Base64;
 import java.util.HashMap;
@@ -235,7 +236,10 @@ public class FacturaService {
                 log.error("Error al obtener los datos vía SOAP, intentamos establecer",e);
 
                 //
-                authTokenAndSign.setTimeStamp("0");
+                if(e.getFault().getFaultCode().equals("ns1:coe.alreadyAuthenticated")) {
+                    authTokenAndSign.setTime(""+(Instant.now().plus(Duration.ofMinutes(10))).toEpochMilli());
+                    //authTokenAndSign.saveAuthToken(authTokens);
+                }
 
                 /*try{
                     authTokens.put("token", authTokenAndSign.getToken());

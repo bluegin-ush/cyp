@@ -68,7 +68,7 @@ public class AuthTokenAndSign {
         return (config != null) ? config.valor : null;
     }
 
-    public void setTimeStamp(String value){
+    public void setTime(String value){
         saveValue(TOKEN_TIMESTAMP_KEY, value);
     }
 }
