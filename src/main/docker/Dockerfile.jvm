@@ -32,24 +32,25 @@ EXPOSE 8080
 USER 185
 
 # Establecer opciones de Java
-#ENV JAVA_OPTS_APPEND="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Dquarkus-profile=docker --add-opens java.xml/com.sun.org.apache.xerces.internal.jaxp=ALL-UNNAMED"
+ENV JAVA_OPTS_APPEND="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Dquarkus-profile=docker --add-opens java.xml/com.sun.org.apache.xerces.internal.jaxp=ALL-UNNAMED"
 
 # Especificar el JAR de la aplicación
-#ENV JAVA_APP_JAR="/deployments/quarkus-run.jar"
+ENV JAVA_APP_JAR="/deployments/quarkus-run.jar"
 
 # Comando de entrada
-#ENTRYPOINT ["java", "-jar", "/deployments/quarkus-run.jar"]
+ENTRYPOINT ["java", "-jar", "/deployments/quarkus-run.jar"]
+#ENTRYPOINT ["tail", "-f", "/dev/null"]
+
 #ENTRYPOINT ["java", "-Djavax.xml.parsers.DocumentBuilderFactory=org.apache.xerces.jaxp.DocumentBuilderFactoryImpl", "-jar", "/deployments/quarkus-run.jar"]
 
 
 # Agrega las configuraciones necesarias para XML
-ENV JAVA_OPTS="\
-    -Dquarkus.http.host=0.0.0.0 \
-    --add-opens=java.base/java.lang=ALL-UNNAMED \
-    --add-opens=java.xml/com.sun.org.apache.xerces.internal.jaxp=ALL-UNNAMED \
-    --add-opens=java.xml/javax.xml.catalog=ALL-UNNAMED \
-    --add-modules=java.xml.ws \
-    -Djavax.xml.accessExternalSchema=all"
+#ENV JAVA_OPTS="\
+#    -Dquarkus.http.host=0.0.0.0 \
+#    --add-opens=java.base/java.lang=ALL-UNNAMED \
+#    --add-opens=java.xml/com.sun.org.apache.xerces.internal.jaxp=ALL-UNNAMED \
+#    --add-opens=java.xml/javax.xml.catalog=ALL-UNNAMED \
+#    --add-modules=java.xml.ws \
+#    -Djavax.xml.accessExternalSchema=all"
 
 #ENTRYPOINT ["java", "-jar", "/deployments/quarkus-run.jar"]
-ENTRYPOINT ["tail", "-f", "/dev/null"]
