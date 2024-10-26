@@ -56,15 +56,22 @@ public class Facturar {
     public Response obtenerCantidadDeFacturas(){
 
         return Response.ok(facturaRepository.count()).build();
-        /*// Convertir las entidades Factura a FacturaDTO para evitar el problema de lazy loading
-        List<FacturaDTO> facturaDTOs = facturas.stream()
-                .map(FacturaDTO::new)
-                .collect(Collectors.toList());
-
-        return Response.ok(facturaDTOs).build();*/
 
     }
 
+    @GET
+    @Path("/{facturaId}")
+    public Response obtenerUnaFactura(@PathParam("facturaId") Long facturaId) {
+
+        Factura factura = facturaRepository.findById(facturaId);
+
+        // Verificamos si el socio existe
+        if (factura == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity("La factura no existe").build();
+        }
+
+        return Response.status(Response.Status.OK).entity(factura).build();
+    }
 
     @DELETE
     @Path("/{facturaId}")

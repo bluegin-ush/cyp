@@ -193,7 +193,7 @@ public class FacturaService {
         asociacion.setPtoVta(puntoDeVenta);
         asociacion.setTipo(TiposComprobante.FACTURA_C.codigo());
         asociacion.setNro(notaDeCredito.factura.nroComprobante);
-        asociacion.setCbteFch(FacturaDatosAFIP.getVto(notaDeCredito.factura.vtoCae));
+        asociacion.setCbteFch(FacturaDatosAFIP.getVto(notaDeCredito.factura.fecha.toLocalDate()));
 
         //
         FacturaDatosAFIP facturaDatosAFIP = WSFEClient.emitirFactura(autorizacion, comprobante, persona, LocalDate.now(), notaDeCredito.total, asociacion);
