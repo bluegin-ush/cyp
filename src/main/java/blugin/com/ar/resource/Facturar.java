@@ -83,9 +83,19 @@ public class Facturar {
         if (factura == null) {
             return Response.status(Response.Status.NOT_FOUND).entity("La factura no existe").build();
         }
+         else if (factura.estado.equals(EstadoFactura.CANCELADA)) {
+            return Response.status(Response.Status.CONFLICT).entity("La factura ya se ha cancelado").build();
+        }
 
         try {
-            factura.estado = EstadoFactura.CANCELADA;
+
+            //factura.estado = EstadoFactura.CANCELADA;
+            try{
+                factura.estado = asignarEstadoSegunTotales(factura, notaDTO);
+            }catch (Exception e){
+                return Response.status(Response.Status.CONFLICT).entity("La nota de crédito excede el total de la factura").build();
+            }
+
 
             NotaDeCredito notaDeCredito = new NotaDeCredito();
 
@@ -111,6 +121,27 @@ public class Facturar {
             log.error(e.getMessage());
             return Response.serverError().entity(e).build();
         }
+    }
+
+    private EstadoFactura asignarEstadoSegunTotales(Factura factura, NotaDeCreditoDTO notaDTO) throws Exception {
+
+        //
+        BigDecimal totalCancelado = notaDTO.total;
+
+        //
+        for(NotaDeCredito notaDeCredito: factura.notasDeCredito){
+            totalCancelado = totalCancelado.add(notaDeCredito.total);
+        }
+
+        //Si el total cancelado supera el facturado, lanzamos una excepción porque no se podría
+        if(totalCancelado.compareTo(factura.total) == 1){
+            throw new Exception("El o los totales de las notadas de creditos superaría el monto total de la factura");
+        } else if(totalCancelado.compareTo(factura.total) == 0){
+            return EstadoFactura.CANCELADA;
+        } else {
+            return EstadoFactura.PARCIALMENTE_CANCELADA;
+        }
+
     }
 
     @POST

@@ -3,5 +3,6 @@ package blugin.com.ar.cyp.model;
 public enum EstadoFactura {
         EMITIDA,
         PAGADA,
-        CANCELADA
+        CANCELADA,
+        PARCIALMENTE_CANCELADA
     }

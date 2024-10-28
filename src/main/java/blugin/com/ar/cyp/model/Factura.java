@@ -45,6 +45,11 @@ public class Factura extends PanacheEntity {
     @JsonManagedReference
     public List<Pago> pagos;
 
+    @OneToMany(mappedBy = "factura", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JsonDeserialize(contentAs = NotaDeCredito.class)
+    @JsonManagedReference
+    public List<NotaDeCredito> notasDeCredito;
+
     // Estado de la factura - "Emitida", "Pagada", "Cancelada"
     @Enumerated(EnumType.STRING)
     public EstadoFactura estado;  //
