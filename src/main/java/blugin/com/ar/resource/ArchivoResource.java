@@ -68,8 +68,9 @@ public class ArchivoResource {
     }
 
     @GET
-    public Response getArchivos(@QueryParam("desde") LocalDate desde,
-                               @QueryParam("hasta") LocalDate hasta) {
+    public Response getArchivos(@QueryParam("entidadId") Long entidadId,
+                                @QueryParam("desde") LocalDate desde,
+                                @QueryParam("hasta") LocalDate hasta) {
         if(desde == null){
             desde = LocalDate.now();
         }
@@ -82,7 +83,18 @@ public class ArchivoResource {
         LocalDateTime fin = hasta.atTime(LocalTime.MAX);
 
         // Consultar pagos recibidos en el periodo
-        List<Archivo>  archivos = Archivo.find("fechaGeneracion >= ?1 and fechaGeneracion <= ?2", inicio, fin).list();
+        List<Archivo> archivos;
+
+        if(entidadId!=null){
+
+            if (EntidadCrediticia.findById(entidadId) == null) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity("Entidad crediticia no encontrada").build();
+            }
+            archivos = Archivo.find("entidadCrediticia.id = ?1 and (fechaGeneracion >= ?2 and fechaGeneracion <= ?3)", entidadId, inicio, fin).list();
+        } else{
+            archivos = Archivo.find("fechaGeneracion >= ?1 and fechaGeneracion <= ?2", inicio, fin).list();
+        }
 
         //List<Archivo> archivos = archivoRepository.findAll().list();
 

@@ -1,8 +1,4 @@
 falta ver
-    -habilitar el guardado de toquen en FacturaService
-    - ver estado de Archivo, no permite procesar si está en CREADO
-  - ver cantidad en items de la factura, creo que no los estoy teniendo en cuenta.
-  - generación de archivos
 
   Obtener todas la facturas "emitidas" de los socios relacionados a una determinada entidad crediticia en una periodo particular (mes/anio).
   ==> /facturas/archivo/:entidadId/:mes/:anio
@@ -12,6 +8,8 @@ migrar
   - importar entidades crediticias (visa y las que usen)
 
  LISTO
+   - generación de archivos
+
    - arqueo de caja
      - de un determinado periodo (rango) [LISTO - del tipo consulta:: /arqueo-caja]
      - comprobante fiscal, X - va por la afip [ LISTO - Asumimos que sí y en tal caso sera una salida en negativo porq no tiene factura]
