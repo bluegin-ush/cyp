@@ -1,0 +1,59 @@
+services:
+
+  db:
+    image: postgres:16.4
+    container_name: db-postgres
+    environment:
+      POSTGRES_USER: cyp
+      POSTGRES_PASSWORD: cyp
+      POSTGRES_DB: cypdb
+    ports:
+      - 5432:5432
+    #network_mode: host
+    volumes:
+      - ./data:/var/lib/postgresql/data/
+
+  db-backup:
+    image: tiredofit/db-backup
+    depends_on:
+      - db
+    environment:
+      #
+      DB_TYPE: postgres
+      DB_HOST: db
+      DB_NAME: cypdb
+      DB_USER: cyp
+      DB_PASS: cyp
+      # ... otras configuraciones (destino, frecuencia, etc.)
+    volumes:
+      - ./backups:/backups
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: danielaguilmallea@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: 123456
+        #PGADMIN_CONFIG_SERVER_MODE: False
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin             
+      - ./servers.json:/pgadmin4/servers.json 
+
+  api:
+    image: bluegin/cyp-jvm
+    restart: always
+    environment:
+      JAVA_OPTS: '-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -Dquarkus-profile=docker'
+      POSTGRES_USERNAME: cyp
+      POSTGRES_PASSWORD: cyp
+      POSTGRES_URL: "jdbc:postgresql://db:5432/cypdb"
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+volumes:
+  pgadmin-data:

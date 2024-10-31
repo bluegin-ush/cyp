@@ -1,0 +1,12 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "servidor cyp",
+      "Group": "Servers",
+      "Host": "db",
+      "Port": 5432,
+      "Username": "cyp",
+      "MaintenanceDB": "postgres"
+    }
+  }
+}
