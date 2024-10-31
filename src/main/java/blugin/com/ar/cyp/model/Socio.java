@@ -14,6 +14,9 @@ import java.util.List;
 public class Socio extends PanacheEntity {
 
     private static final Logger log = LoggerFactory.getLogger(Socio.class);
+
+    public String nro;
+
     public String nombre;
 
     public String apellido;
@@ -25,10 +28,6 @@ public class Socio extends PanacheEntity {
 
     public String domicilio;
 
-    public LocalDate fecNacimiento;
-
-    public String genero;
-
     @ManyToOne
     public EntidadCrediticia entidadCrediticia;
 
@@ -36,8 +35,6 @@ public class Socio extends PanacheEntity {
     public String tarjetaNum;
     //MM/YY
     public String tarjetaVto;
-    //3 dígitos
-    public String tarjetaCod;
 
     public Boolean activo;
     public BigDecimal ctacte; // Cuenta corriente

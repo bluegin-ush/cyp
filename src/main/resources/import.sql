@@ -64,6 +64,10 @@ ALTER SEQUENCE servicio_seq RESTART WITH 17;
 
 --
 INSERT INTO entidadCrediticia(id,tipo, nombre, archivo, cuit, contacto) VALUES
+--  51	MASTER AUTOMATICO   (2)
+--  52	VISA AUTOMATICO     (1)
+--  53	T.D.F. AUTOMATICO   (3)
+
 (1,'tarjeta-credito','tarjeta de credito visa - débito automático',true,0,'sin datos de contacto'),
 (2,'tarjeta-credito','tarjeta de credito master card - débito automático',true,0,'sin datos de contacto'),
 (3,'tarjeta-credito','tarjeta de credito tdf - débito automático',true,0,'sin datos de contacto'),
