@@ -5,6 +5,15 @@ sacar del perfil docker el import.
 		acceder al pgadmin y correr el script datos.iniciales.sql
 
 --al agregar un socio, si no tiene nro establecido sugerir el próximo (max + 1)
+  Se puede sugerir el próximo con: GET  {{baseUrl}}/socio/proximo-numero
+  Si al POST de un usuario no le llega el valor de nro, se le asigna automáticamente el sugerido.
+
+Para la generación X LOTE
+    -- Se pueden obtener todos los socios que no tengan una entidad asociada y además tengan un servicio (se ppodría factura)
+    GET {{baseUrl}}/socio/sin-entidad?servicio=true
+
+    POST /lote/{mes}/{anio} ?prueba=true | body (lista de socios)
+    ?prueba=true, no realiza la generación de la factura contra la AFIP
 
 Normalizar lo siguiente:
 

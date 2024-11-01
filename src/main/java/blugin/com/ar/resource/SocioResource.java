@@ -39,6 +39,13 @@ public class SocioResource {// implements PanacheRepositoryResource<SocioReposit
     }
 
     @GET
+    @Path("/proximo-numero")
+    public Long getProximoNumero(){
+
+        return socioRepository.obtenerSiguienteNroDeSocio();
+    }
+
+    @GET
     @Path("{socioId}")
     public Socio getSocio(@PathParam("socioId")Long socioId){
         return socioRepository.findById(socioId);
@@ -56,6 +63,9 @@ public class SocioResource {// implements PanacheRepositoryResource<SocioReposit
             return Response.status(Response.Status.BAD_REQUEST).entity("El número de documento del socio es obligatorio").build();
         }
 
+        if(socio.nro == null){
+            socio.nro = socioRepository.obtenerSiguienteNroDeSocio();
+        }
 
         // Registramos el alta del socio
 
@@ -334,9 +344,15 @@ public class SocioResource {// implements PanacheRepositoryResource<SocioReposit
 
     @GET
     @Path("/sin-entidad")
-    public Response getSociosSinEntidad() {
+    public Response getSociosSinEntidad(@QueryParam("servicio")Boolean servicio) {
 
-        List<Socio> socios = socioRepository.find("entidadCrediticia is null").list();
+        List<Socio> socios;
+
+        if (servicio == null) {
+            socios = socioRepository.todosSinEntidad();
+        } else {
+            socios = socioRepository.todosSinEntidadYServicio(servicio);
+        }
 
         //
         if (socios==null || socios.isEmpty()){

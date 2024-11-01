@@ -15,7 +15,7 @@ public class Socio extends PanacheEntity {
 
     private static final Logger log = LoggerFactory.getLogger(Socio.class);
 
-    public String nro;
+    public Long nro;
 
     public String nombre;
 
