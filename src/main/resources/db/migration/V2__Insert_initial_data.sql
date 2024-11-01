@@ -1,19 +1,9 @@
--- This file allow to write SQL commands that will be emitted in test and dev.
--- The commands are commented as their support depends of the database
--- insert into myentity (id, field) values(1, 'field-1');
--- insert into myentity (id, field) values(2, 'field-2');
--- insert into myentity (id, field) values(3, 'field-3');
--- alter sequence myentity_seq restart with 4;
---insert into person (name,birth) values('Dany','2022-03-10');
---insert into person (name,status) values('Otro dany',0);
---INSERT INTO person (id, birth, name, status) VALUES (1, '1995-09-12', 'Emily Brown', 0);
---ALTER SEQUENCE person_seq RESTART WITH 2;
 INSERT INTO usuario (id,nombre,usuario,clave) VALUES
 -- (admisnitrador,admin,123456)
 (1,'administrador','admin','8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92'),
--- (daniel aguil,daniel,daniel)
 (2,'daniel aguil','daniel','bd3dae5fb91f88a4f0978222dfd58f59a124257cb081486387cbae9df11fb879');
-ALTER SEQUENCE usuario_seq RESTART WITH 3;
+(3,'invitado','invitado','bd3dae5fb91f88a4f0978222dfd58f59a124257cb081486387cbae9df11fb879');
+ALTER SEQUENCE usuario_seq RESTART WITH 4;
 
 INSERT INTO configuracion (id,clave, valor) VALUES
 (1,'desa-endpoint',    'https://wsaahomo.afip.gov.ar/ws/services/LoginCms'),
@@ -79,4 +69,3 @@ INSERT INTO entidadCrediticia(id,tipo, nombre, archivo, cuit, contacto) VALUES
 (9,'tarjeta-debito','tarjeta de débito visa electron',false,0,'sin datos de contacto');
 
 ALTER SEQUENCE entidadCrediticia_seq RESTART WITH 10;
-
