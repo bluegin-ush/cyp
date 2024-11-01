@@ -398,19 +398,24 @@ public class Facturar {
     public Response obtenerFacturasEmitidasPorEntidadYPeriodo(
             @PathParam("entidadId") Long entidadId,
             @PathParam("mes") int mes,
-            @PathParam("anio") int anio) {
+            @PathParam("anio") int anio,
+            @QueryParam("estado") String estado) {
 
         // Convertir mes y año en rango de fechas
         LocalDateTime inicioMes = LocalDateTime.of(anio, mes, 1, 0, 0);
         LocalDateTime finMes = inicioMes.with(TemporalAdjusters.lastDayOfMonth()).withHour(23).withMinute(59).withSecond(59);
 
+        EstadoFactura estadoFactura = (estado==null)
+                ? EstadoFactura.EMITIDA
+                :EstadoFactura.fromNombre(estado);
+
         // Buscar las facturas
         List<Factura> facturas = Factura.find(
                 "estado = ?1 AND socio.entidadCrediticia.id = ?2 AND fecha >= ?3 AND fecha <= ?4",
-                EstadoFactura.EMITIDA, entidadId, inicioMes, finMes).list();
+                estadoFactura, entidadId, inicioMes, finMes).list();
 
         if (facturas.isEmpty()) {
-            return Response.status(Response.Status.NOT_FOUND)
+            return Response.status(Response.Status.NO_CONTENT)
                     .entity("No se encontraron facturas emitidas para la entidad crediticia en el periodo especificado.")
                     .build();
         }
