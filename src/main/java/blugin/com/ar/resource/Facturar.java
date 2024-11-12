@@ -43,7 +43,8 @@ public class Facturar {
     FacturaService facturaService;
 
     @GET
-    public Response obtenerFacturas(@QueryParam("desde") @DefaultValue("2024-01-01")LocalDate desde ,@QueryParam("hasta") @DefaultValue("2100-12-31")LocalDate hasta){
+    public Response obtenerFacturas(@QueryParam("desde") @DefaultValue("2024-01-01")LocalDate desde ,
+                                    @QueryParam("hasta") @DefaultValue("2100-12-31")LocalDate hasta){
 
         System.out.println(desde);
         System.out.println(hasta);
@@ -204,7 +205,7 @@ public class Facturar {
             List<Factura> facturas = facturaRepository.findBySocioId(socioId);
 
             if (facturas.isEmpty()) {
-                return Response.status(Response.Status.NOT_FOUND).entity("No se encontraron facturas para el socio con ID: " + socioId).build();
+                return Response.status(Response.Status.NO_CONTENT).entity("No se encontraron facturas para el socio con ID: " + socioId).build();
             }
 
             // Convertir las entidades Factura a FacturaDTO para evitar el problema de lazy loading

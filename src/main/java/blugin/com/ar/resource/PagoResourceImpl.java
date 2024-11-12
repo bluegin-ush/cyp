@@ -140,7 +140,7 @@ public class PagoResourceImpl {
         if (socio != null) {
             List<Pago> pagos = pagoRepository.findBySocioId(socioId);
             if (pagos.isEmpty()) {
-                return Response.status(Response.Status.NOT_FOUND).entity("No se encontraron pagos para el socio con ID: " + socioId).build();
+                return Response.status(Response.Status.NO_CONTENT).entity("No se encontraron pagos para el socio con ID: " + socioId).build();
             }
             return Response.ok(pagos).build();
         } else {

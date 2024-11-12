@@ -119,7 +119,7 @@ public class ArchivoResource {
         List<Factura> facturas = Factura.list("id in ?1 and socio.entidadCrediticia.id = ?2 and estado = ?3",
                 facturasIds, entidadId, EstadoFactura.EMITIDA);
         if (facturas.isEmpty()) {
-            return Response.status(Response.Status.NOT_FOUND)
+            return Response.status(Response.Status.NO_CONTENT)
                     .entity("No se encontraron facturas emitidas para la entidad crediticia en la lista proporcionada.")
                     .build();
         }

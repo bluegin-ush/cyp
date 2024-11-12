@@ -1,10 +1,8 @@
 package blugin.com.ar.resource;
 
 import blugin.com.ar.cyp.model.*;
-import blugin.com.ar.repository.EntidadCrediticiaRepository;
-import blugin.com.ar.repository.ServicioRepository;
-import blugin.com.ar.repository.SocioRepository;
-import blugin.com.ar.repository.SocioServicioRepository;
+import blugin.com.ar.dto.*;
+import blugin.com.ar.repository.*;
 import io.quarkus.hibernate.orm.rest.data.panache.PanacheRepositoryResource;
 import jakarta.persistence.LockModeType;
 import jakarta.ws.rs.*;
@@ -12,6 +10,9 @@ import jakarta.ws.rs.core.MediaType;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -28,42 +29,45 @@ public class SocioResource {// implements PanacheRepositoryResource<SocioReposit
     SocioRepository socioRepository;
 
     @Inject
+    FacturaRepository facturaRepository;
+
+    @Inject
     ServicioRepository servicioRepository;
 
     @Inject
     EntidadCrediticiaRepository entidadRepository;
 
     @GET
-    public List<Socio> getAllSocios(){
+    public List<Socio> getAllSocios() {
         return socioRepository.listAll();
     }
 
     @GET
     @Path("/proximo-numero")
-    public Long getProximoNumero(){
+    public Long getProximoNumero() {
 
         return socioRepository.obtenerSiguienteNroDeSocio();
     }
 
     @GET
     @Path("{socioId}")
-    public Socio getSocio(@PathParam("socioId")Long socioId){
+    public Socio getSocio(@PathParam("socioId") Long socioId) {
         return socioRepository.findById(socioId);
     }
 
     @POST
     @Transactional
-    public Response createSocio(Socio socio){
+    public Response createSocio(Socio socio) {
 
         if (socio.nombre == null || socio.nombre.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity("El nombre del socio es obligatorio").build();
-        }else if (socio.tipoDoc == null || socio.tipoDoc.isEmpty()) {
+        } else if (socio.tipoDoc == null || socio.tipoDoc.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST).entity("El tipo de documento del socio es obligatorio").build();
-        }else if (socio.numDoc == null || socio.numDoc==0L) {
+        } else if (socio.numDoc == null || socio.numDoc == 0L) {
             return Response.status(Response.Status.BAD_REQUEST).entity("El número de documento del socio es obligatorio").build();
         }
 
-        if(socio.nro == null){
+        if (socio.nro == null) {
             socio.nro = socioRepository.obtenerSiguienteNroDeSocio();
         }
 
@@ -153,17 +157,16 @@ public class SocioResource {// implements PanacheRepositoryResource<SocioReposit
     @PUT
     @Path("{socioId}/baja")
     @Transactional
-    public Response bajaSocio(@PathParam("socioId") Long socioId, String motivo){
+    public Response bajaSocio(@PathParam("socioId") Long socioId, String motivo) {
 
         Socio socio = socioRepository.findById(socioId);
 
         // Validaciones
         if (socio == null) {
             return Response.status(Response.Status.NOT_FOUND).entity("Socio no encontrado").build();
-        }  else if (!socio.activo) {
+        } else if (!socio.activo) {
             return Response.status(Response.Status.CONFLICT).entity("El socio ya esta dado de baja").build();
-        }
-        else if (socio.ctacte.compareTo(BigDecimal.ZERO) < 0) {
+        } else if (socio.ctacte.compareTo(BigDecimal.ZERO) < 0) {
             return Response.status(Response.Status.CONFLICT).entity("El socio tiene deuda").build();
         }
 
@@ -173,7 +176,7 @@ public class SocioResource {// implements PanacheRepositoryResource<SocioReposit
         Registro registro = new Registro();
         registro.fecha = LocalDate.now();
         registro.tipo = Registro.Tipo.BAJA;
-        registro.motivo = (motivo!=null && !motivo.isEmpty() ? motivo : "baja del socio");
+        registro.motivo = (motivo != null && !motivo.isEmpty() ? motivo : "baja del socio");
         registro.setSocio(socio);
 
         registro.persist();
@@ -191,14 +194,14 @@ public class SocioResource {// implements PanacheRepositoryResource<SocioReposit
     @PUT
     @Path("{socioId}/alta")
     @Transactional
-    public Response altaSocio(@PathParam("socioId") Long socioId, String motivo){
+    public Response altaSocio(@PathParam("socioId") Long socioId, String motivo) {
 
         Socio socio = socioRepository.findById(socioId);
 
         // Validaciones
         if (socio == null) {
             return Response.status(Response.Status.NOT_FOUND).entity("Socio no encontrado").build();
-        }  else if (socio.activo) {
+        } else if (socio.activo) {
             return Response.status(Response.Status.CONFLICT).entity("El socio ya esta habilitado").build();
         }
 
@@ -208,7 +211,7 @@ public class SocioResource {// implements PanacheRepositoryResource<SocioReposit
         Registro registro = new Registro();
         registro.fecha = LocalDate.now();
         registro.tipo = Registro.Tipo.ALTA;
-        registro.motivo = (motivo!=null && !motivo.isEmpty() ? motivo : "rehabilitación del socio");
+        registro.motivo = (motivo != null && !motivo.isEmpty() ? motivo : "rehabilitación del socio");
         registro.setSocio(socio);
 
         registro.persist();
@@ -264,7 +267,7 @@ public class SocioResource {// implements PanacheRepositoryResource<SocioReposit
         }
 
         if (socioNew.tarjetaNum != null) {
-            socio.tarjetaNum =socioNew.tarjetaNum;
+            socio.tarjetaNum = socioNew.tarjetaNum;
         }
 
         if (socioNew.tarjetaVto != null) {
@@ -333,9 +336,9 @@ public class SocioResource {// implements PanacheRepositoryResource<SocioReposit
         List<Socio> socios = socioRepository.find("entidadCrediticia.id = ?1", entidadId).list();
 
         //
-        if (socios==null || socios.isEmpty()){
+        if (socios == null || socios.isEmpty()) {
             return Response.status(Response.Status.NO_CONTENT).build();
-        }else {
+        } else {
 
             return Response.status(Response.Status.OK).entity(socios).build();
 
@@ -344,7 +347,7 @@ public class SocioResource {// implements PanacheRepositoryResource<SocioReposit
 
     @GET
     @Path("/sin-entidad")
-    public Response getSociosSinEntidad(@QueryParam("servicio")Boolean servicio) {
+    public Response getSociosSinEntidad(@QueryParam("servicio") Boolean servicio) {
 
         List<Socio> socios;
 
@@ -355,11 +358,56 @@ public class SocioResource {// implements PanacheRepositoryResource<SocioReposit
         }
 
         //
-        if (socios==null || socios.isEmpty()){
+        if (socios == null || socios.isEmpty()) {
             return Response.status(Response.Status.NO_CONTENT).build();
-        }else {
+        } else {
 
             return Response.status(Response.Status.OK).entity(socios).build();
+
+        }
+    }
+
+    @GET
+    @Path("/con-entidad/{mes}/{anio}")
+    public Response getSociosConEntidad(@PathParam("mes") int mes,
+                                        @PathParam("anio") int anio) {
+
+        // Convertir mes y año en rango de fechas
+        LocalDateTime inicioMes = LocalDateTime.of(anio, mes, 1, 0, 0);
+        LocalDateTime finMes = inicioMes.with(TemporalAdjusters.lastDayOfMonth()).withHour(23).withMinute(59).withSecond(59);
+
+        List<Socio> socios;
+
+        //Obtengo  los socios de la entidad
+        socios = socioRepository.todosConEntidadYServicio();
+
+        //
+        if (socios == null || socios.isEmpty()) {
+            return Response.status(Response.Status.NO_CONTENT).build();
+        } else {
+
+            // Obtengo las facturas de cada socio según el periodo inicio - fin
+
+            List<SocioDTO> sociosDTO = new ArrayList<>();
+            for (Socio socio : socios) {
+
+                SocioDTO socioDTO = SocioMapper.toDTO(socio);
+
+                socioDTO.entidadCrediticia = EntidadCrediticiaMapper.toDTO(socio.entidadCrediticia);
+
+                //Obtengo las faturas del periodo de cada socio
+                List<Factura> facturas = facturaRepository.buscarFacturasEntreFechasPorSocio(socio.id, inicioMes, finMes);
+
+                for (Factura factura : facturas) {
+                    FacturaDTO facturaDTO = new FacturaDTO(factura);
+                    socioDTO.addFactura(facturaDTO);
+                }
+
+                sociosDTO.add(socioDTO);
+
+            }
+
+            return Response.status(Response.Status.OK).entity(sociosDTO).build();
 
         }
     }

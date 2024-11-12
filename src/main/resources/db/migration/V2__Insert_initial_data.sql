@@ -14,19 +14,27 @@ INSERT INTO configuracion (id,clave, valor) VALUES
 (7,'desa-dn',          'SERIALNUMBER=CUIT 20290833869, CN=cyp'),
 (8,'desa-cuitEmisor',  '20290833869'),
 (9,'desa-puntoDeVenta','1'),
-(10,'modo','desa'),
-(11,'prod-endpoint',    'https://'),
-(12,'prod-certPath',    'certificados/afip-cyp.pem'),
-(13,'prod-keyPath',     'certificados/clave-prueba'),
-(14,'prod-service',     ''),
-(15,'prod-threshold',   '12'),
-(16,'prod-expiration',  '12'),
-(17,'prod-dn',          'SERIALNUMBER=CUIT 20290833869, CN=cyp'),
-(18,'prod-cuitEmisor',  '2012345678'),
-(19,'prod-puntoDeVenta','10');
+(10,'desa-ingresosBrutos','123456/7'),
+(11,'desa-razonSocial','ASOCIACION CAZA Y PESCA USHUAIA'),
+(12,'desa-domicilioComercial','Av. Maipú 822'),
+(13,'desa-fechaInicioActividad','01/09/1960'),
+(14,'modo','desa'),
+(15,'prod-endpoint',    'https://'),
+(16,'prod-certPath',    'certificados/afip-cyp-produccion.pem'),
+(17,'prod-keyPath',     'certificados/clave-produccion'),
+(18,'prod-service',     'wsfe'),
+(19,'prod-threshold',   '12'),
+(20,'prod-expiration',  '12'),
+(21,'prod-dn',          'SERIALNUMBER=CUIT 30675803702, CN=cyp'),
+(22,'prod-cuitEmisor',  '30675803702'),
+(23,'prod-puntoDeVenta','3');
+(24,'prod-ingresosBrutos','116842/8'),
+(25,'prod-razonSocial','ASOCIACION CAZA Y PESCA USHUAIA'),
+(26,'prod-domicilioComercial','Av. Maipú 822'),
+(27,'prod-fechaInicioActividad','01/09/1960'),
 
 
-ALTER SEQUENCE configuracion_seq RESTART WITH 20;
+ALTER SEQUENCE configuracion_seq RESTART WITH 28;
 
 --
 INSERT INTO servicio (id, codigo, descripcion, costo) VALUES
@@ -57,14 +65,14 @@ INSERT INTO entidadCrediticia(id,tipo, nombre, archivo, cuit, contacto) VALUES
 --  52	VISA AUTOMATICO     (1)
 --  53	T.D.F. AUTOMATICO   (3)
 
-(1,'tarjeta-credito','tarjeta de credito visa - débito automático',true,0,'sin datos de contacto'),
-(2,'tarjeta-credito','tarjeta de credito master card - débito automático',true,0,'sin datos de contacto'),
-(3,'tarjeta-credito','tarjeta de credito tdf - débito automático',true,0,'sin datos de contacto'),
-(4,'tarjeta-credito','tarjeta de credito visa',false,0,'sin datos de contacto'),
-(5,'tarjeta-credito','tarjeta de credito master card',false,0,'sin datos de contacto'),
-(6,'tarjeta-credito','tarjeta de credito american express',false,0,'sin datos de contacto'),
-(7,'tarjeta-credito','tarjeta de credito tdf',false,0,'sin datos de contacto'),
-(8,'tarjeta-debito','tarjeta de débito maestro',false,0,'sin datos de contacto'),
-(9,'tarjeta-debito','tarjeta de débito visa electron',false,0,'sin datos de contacto');
+(1,'tarjeta-credito','visa',true,0,'sin datos de contacto'),
+(2,'tarjeta-credito','master card',true,0,'sin datos de contacto'),
+(3,'tarjeta-credito','tdf',true,0,'sin datos de contacto'),
+(4,'tarjeta-credito','visa',false,0,'sin datos de contacto'),
+(5,'tarjeta-credito','master card',false,0,'sin datos de contacto'),
+(6,'tarjeta-credito','american express',false,0,'sin datos de contacto'),
+(7,'tarjeta-credito','tdf',false,0,'sin datos de contacto'),
+(8,'tarjeta-debito','maestro',false,0,'sin datos de contacto'),
+(9,'tarjeta-debito','electron',false,0,'sin datos de contacto');
 
 ALTER SEQUENCE entidadCrediticia_seq RESTART WITH 10;

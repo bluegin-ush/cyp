@@ -68,15 +68,15 @@ INSERT INTO entidadCrediticia(id,tipo, nombre, archivo, cuit, contacto) VALUES
 --  52	VISA AUTOMATICO     (1)
 --  53	T.D.F. AUTOMATICO   (3)
 
-(1,'tarjeta-credito','tarjeta de credito visa - débito automático',true,0,'sin datos de contacto'),
-(2,'tarjeta-credito','tarjeta de credito master card - débito automático',true,0,'sin datos de contacto'),
-(3,'tarjeta-credito','tarjeta de credito tdf - débito automático',true,0,'sin datos de contacto'),
-(4,'tarjeta-credito','tarjeta de credito visa',false,0,'sin datos de contacto'),
-(5,'tarjeta-credito','tarjeta de credito master card',false,0,'sin datos de contacto'),
-(6,'tarjeta-credito','tarjeta de credito american express',false,0,'sin datos de contacto'),
-(7,'tarjeta-credito','tarjeta de credito tdf',false,0,'sin datos de contacto'),
-(8,'tarjeta-debito','tarjeta de débito maestro',false,0,'sin datos de contacto'),
-(9,'tarjeta-debito','tarjeta de débito visa electron',false,0,'sin datos de contacto');
+(1,'tarjeta-credito','visa',true,0,'sin datos de contacto'),
+(2,'tarjeta-credito','master card',true,0,'sin datos de contacto'),
+(3,'tarjeta-credito','tdf',true,0,'sin datos de contacto'),
+(4,'tarjeta-credito','visa',false,0,'sin datos de contacto'),
+(5,'tarjeta-credito','master card',false,0,'sin datos de contacto'),
+(6,'tarjeta-credito','american express',false,0,'sin datos de contacto'),
+(7,'tarjeta-credito','tdf',false,0,'sin datos de contacto'),
+(8,'tarjeta-debito','maestro',false,0,'sin datos de contacto'),
+(9,'tarjeta-debito','electron',false,0,'sin datos de contacto');
 
 ALTER SEQUENCE entidadCrediticia_seq RESTART WITH 10;
 

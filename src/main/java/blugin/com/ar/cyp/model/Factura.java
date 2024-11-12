@@ -15,6 +15,7 @@ import java.util.List;
 
 @Entity
 @NamedQuery(name = "Factura.buscarEntreFechas", query = "SELECT f FROM Factura f WHERE f.fecha >= :fechaInicio AND f.fecha <= :fechaFin")
+@NamedQuery(name = "Factura.buscarEntreFechasXSocio", query = "SELECT f FROM Factura f WHERE f.socio.id = :socioId AND f.fecha >= :fechaInicio AND f.fecha <= :fechaFin")
 public class Factura extends PanacheEntity {
 
     private static final Logger log = LoggerFactory.getLogger(Factura.class);

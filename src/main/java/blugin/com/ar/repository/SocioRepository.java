@@ -4,6 +4,7 @@ import blugin.com.ar.cyp.model.*;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @ApplicationScoped
@@ -30,4 +31,7 @@ public class SocioRepository implements PanacheRepository<Socio> {
         }
     }
 
+    public List<Socio> todosConEntidadYServicio() {
+        return find("(entidadCrediticia is not null) and (servicios is not empty)").list();
+    }
 }

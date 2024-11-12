@@ -24,4 +24,10 @@ public class FacturaRepository implements PanacheRepository<Factura> {
         LocalDateTime fechaFinTime = fechaFin.atTime(LocalTime.MAX);
         return find("#Factura.buscarEntreFechas", Parameters.with("fechaInicio", fechaInicioTime).and("fechaFin", fechaFinTime)).list();
     }
+
+    public List<Factura> buscarFacturasEntreFechasPorSocio(Long socioId, LocalDateTime fechaInicio, LocalDateTime fechaFin) {
+
+        return find("#Factura.buscarEntreFechasXSocio",
+                Parameters.with("socioId", socioId).and("fechaInicio", fechaInicio).and("fechaFin", fechaFin)).list();
+    }
 }

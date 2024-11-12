@@ -1,7 +1,9 @@
-falta ver
+FALTA ==
 
-sacar del perfil docker el import.
-	Se debe hacer manual la creación
+
+LISTO ==
+ sacar del perfil docker el import.
+   Se debe hacer manual la creación
 		acceder al pgadmin y correr el script datos.iniciales.sql
 
 Se modificó el SOCIO
