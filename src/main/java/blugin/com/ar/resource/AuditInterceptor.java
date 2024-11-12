@@ -15,28 +15,7 @@ import java.time.LocalDateTime;
 @ApplicationScoped
 public class AuditInterceptor {
 
-    /*@Inject
-    ResourceInfo resourceInfo;
 
-    public void auditRequest(ContainerRequestContext requestContext, String body) {
-        Auditoria auditoria = new Auditoria();
-        auditoria.fecha = LocalDateTime.now();
-        auditoria.usuario = requestContext.getHeaderString("Authorization");
-        auditoria.metodo = requestContext.getMethod();
-        auditoria.ruta = requestContext.getUriInfo().getPath();
-        auditoria.headers = requestContext.getHeaders().toString();
-        auditoria.queryParams = requestContext.getUriInfo().getQueryParameters().toString();
-        auditoria.cuerpo = body;
-        auditoria.entrada = true;
-        
-        // Persistir la entidad
-        auditoria.persist();
-    }
-
-    public void auditResponse(ContainerResponseContext responseContext, String body) {
-
-    }
-    */
     @Transactional
     public void audit(Boolean request, String method, String path, String user, String headers, String queryParams, String body) {
 

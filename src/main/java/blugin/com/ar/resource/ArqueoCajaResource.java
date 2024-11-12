@@ -72,6 +72,34 @@ public class ArqueoCajaResource {
         arqueoDTO.ingresosPorTipo = ingresosPorTipo;
         arqueoDTO.salidasPorTipo = salidasPorTipo;
 
+        arqueoDTO.pagos = pagos;
+        arqueoDTO.salidas = salidas;
+
         return Response.ok(arqueoDTO).build();
     }
+
+    /*@GET
+    @Path("/detalle")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response realizarArqueoDetalle(@QueryParam("desde") LocalDate desde,
+                                   @QueryParam("hasta") LocalDate hasta) {
+        if(desde == null){
+            desde = LocalDate.now();
+        }
+
+        if(hasta == null){
+            hasta = LocalDate.now();
+        }
+
+        LocalDateTime inicio = desde.atStartOfDay();
+        LocalDateTime fin = hasta.atTime(LocalTime.MAX);
+
+        // Consultar pagos recibidos en el periodo
+        List<Pago> pagos = Pago.find("fecha >= ?1 and fecha <= ?2", inicio, fin).list();
+
+        // Consultar salidas de efectivo en el periodo
+        List<Salida> salidas = Salida.find("fecha >= ?1 and fecha <= ?2", inicio, fin).list();
+
+        return Response.ok(QUE?).build();
+    }*/
 }

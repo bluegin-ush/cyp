@@ -5,6 +5,7 @@ import blugin.com.ar.dto.FacturaDTO;
 import blugin.com.ar.dto.FacturaMapper;
 import blugin.com.ar.dto.NotaDeCreditoDTO;
 import blugin.com.ar.repository.FacturaRepository;
+import blugin.com.ar.repository.LoteFacturaRepository;
 import blugin.com.ar.repository.SocioRepository;
 import blugin.com.ar.service.FacturaService;
 import jakarta.inject.Inject;
@@ -41,6 +42,9 @@ public class Facturar {
 
     @Inject
     FacturaService facturaService;
+
+    @Inject
+    LoteFacturaRepository loteFacturaRepository;
 
     @GET
     public Response obtenerFacturas(@QueryParam("desde") @DefaultValue("2024-01-01")LocalDate desde ,
@@ -129,11 +133,23 @@ public class Facturar {
         //
         BigDecimal totalCancelado = notaDTO.total;
 
+/*
+        DEPRECATED
+
+        BigDecimal totalPagos = new BigDecimal(0);
+        for(Pago pago: factura.pagos){
+            totalPagos = totalPagos.add(pago.monto);
+        }
+
+        if(notaDTO.total.compareTo(totalPagos) > 0){
+            throw new Exception("La monto toal de la nota de crédito supera los pagos.El o los totales de las notadas de creditos superaría el monto total de la factura");
+        }
         //
         for(NotaDeCredito notaDeCredito: factura.notasDeCredito){
             totalCancelado = totalCancelado.add(notaDeCredito.total);
         }
 
+ */
         //Si el total cancelado supera el facturado, lanzamos una excepción porque no se podría
         if(totalCancelado.compareTo(factura.total) == 1){
             throw new Exception("El o los totales de las notadas de creditos superaría el monto total de la factura");
@@ -225,6 +241,54 @@ public class Facturar {
     @POST
     @Path("/lote/{mes}/{anio}")
     @Transactional
+    public Response generarLote(List<Long> sociosIds,
+                                @PathParam("mes") int mes,
+                                @PathParam("anio") int anio) {
+
+
+        LoteFactura lote = LoteFactura.find("mes = ?1 and anio = ?2", mes, anio).firstResult();
+
+        if (lote == null) {
+            lote = new LoteFactura(mes, anio);
+            lote.mes = mes;
+            lote.anio = anio;
+            lote.fechaGeneracion = LocalDateTime.now();
+            lote.progreso = 0;
+            lote.estado = EstadoLote.EN_CONSTRUCCION;
+
+            List<Socio> sociosActivos = (sociosIds==null || sociosIds.isEmpty())
+                    //Si no me pasan socios, obtengo todos
+                    ? socioRepository.todosConEntidadYServicio()
+
+                    //uso los socios que me pasaron
+                    : Socio.list("id in ?1 and activo = true", sociosIds);
+
+            loteFacturaRepository.persist(lote);
+
+            // Inicia el proceso asincrónico
+            facturaService.generarFacturasAsync(lote, sociosActivos);
+
+        }else if (lote.estado.equals(EstadoLote.EN_PROCESO)){
+
+            // Inicia el proceso asincrónico
+            facturaService.generarFacturasAsync(lote);
+
+        } else if (lote.estado.equals(EstadoLote.FALLIDO)){
+
+            //
+            return Response.status(Response.Status.CONFLICT).entity("El lote se procesó con errors").build();
+        } else {
+
+            //NADA
+
+        }
+
+        return Response.ok(lote).build();
+    }
+
+    @POST
+    @Path("/lote1/{mes}/{anio}")
+    @Transactional
     public Response generarFacturasPorLote(@PathParam("mes") int mes, @PathParam("anio") int anio, List<Long> sociosIds, @QueryParam("prueba")Boolean prueba) {
 
         // Verificar si ya existe un lote generado para este mes y año
@@ -262,33 +326,37 @@ public class Facturar {
                     totalFactura = totalFactura.add(servicio.costo);
                 }
 
-                // Crear una nueva factura
-                Factura factura = new Factura();
-                factura.fecha = LocalDateTime.now();
-                factura.socio = socio;
-                factura.tipo = Factura.Tipo.C; // Factura tipo C por defecto
-                factura.items =  items;
-                factura.total = totalFactura;
-                factura.estado = EstadoFactura.EMITIDA; // Estado inicial
+                //verificamos que tenga una factura con servicios y monto mayor a 0
+                if(totalFactura.compareTo(BigDecimal.ZERO)>0) {
 
-                //actualizamos el estado de la ctacte del socio
-                factura.socio.ctacte = factura.socio.ctacte.add(totalFactura);
+                    // Crear una nueva factura
+                    Factura factura = new Factura();
+                    factura.fecha = LocalDateTime.now();
+                    factura.socio = socio;
+                    factura.tipo = Factura.Tipo.C; // Factura tipo C por defecto
+                    factura.items = items;
+                    factura.total = totalFactura;
+                    factura.estado = EstadoFactura.EMITIDA; // Estado inicial
 
-                // Relacionar los items con la factura
-                for (Item item : items) {
-                    item.factura = factura;
+                    //actualizamos el estado de la ctacte del socio
+                    factura.socio.ctacte = factura.socio.ctacte.add(totalFactura);
+
+                    // Relacionar los items con la factura
+                    for (Item item : items) {
+                        item.factura = factura;
+                    }
+
+                    // Facturar en afip
+                    if (prueba == null || !prueba) {
+                        factura = facturaService.facturar(factura);
+                    }
+
+                    //
+                    loteFactura.agregarFactura(factura);
+
+
+                    facturasGeneradas.add(factura);
                 }
-
-                // Facturar en afip
-                if(prueba==null || !prueba){
-                    factura = facturaService.facturar(factura);
-                }
-
-                //
-                loteFactura.agregarFactura(factura);
-
-
-                facturasGeneradas.add(factura);
             }
 
             // Persistir el lote, si no es prueba!

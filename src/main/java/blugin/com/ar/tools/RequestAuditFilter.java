@@ -49,7 +49,7 @@ public class RequestAuditFilter implements ContainerRequestFilter {
         String path = requestContext.getUriInfo().getPath();
         String user = requestContext.getHeaderString("Authorization"); // Ejemplo de captura de usuario
 
-        if(!path.equals("/auditoria")) {
+        if(!path.contains("/auditoria")) {
             auditInterceptor.audit(true, method, path, user, headers, queryParams, body);
         }
 

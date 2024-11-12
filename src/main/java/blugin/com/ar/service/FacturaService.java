@@ -1,10 +1,11 @@
 package blugin.com.ar.service;
 
-import blugin.com.ar.cyp.model.Factura;
-import blugin.com.ar.cyp.model.NotaDeCredito;
+import blugin.com.ar.cyp.model.*;
 import blugin.com.ar.dto.FacturaQR;
 import blugin.com.ar.fe.*;
 import blugin.com.ar.repository.ConfiguracionRepository;
+import blugin.com.ar.repository.FacturaRepository;
+import blugin.com.ar.repository.LoteFacturaRepository;
 import blugin.com.ar.wsfe.CbteAsoc;
 import blugin.com.ar.wsfe.FEAuthRequest;
 import blugin.com.ar.wsfe.wrappers.*;
@@ -17,14 +18,20 @@ import jakarta.xml.ws.soap.SOAPFaultException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jakarta.transaction.Transactional;
+import jakarta.ejb.Asynchronous;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
 
 @ApplicationScoped
 public class FacturaService {
@@ -54,6 +61,12 @@ public class FacturaService {
 
     @Inject
     AuthTokenAndSign authTokenAndSign;
+
+    @Inject
+    LoteFacturaRepository loteFacturaRepository;
+
+    @Inject
+    FacturaRepository facturaRepository;
 
     public FacturaService(){
 
@@ -269,4 +282,107 @@ public class FacturaService {
         return WSFEClient.obtenerAuthRequest(token, sign, cuitEmisor);
 
     }
+
+    @Asynchronous
+    @Transactional
+    public CompletionStage<Void> generarFacturasAsync(LoteFactura lote) {
+
+        int i=0;
+        boolean seProdujoError=false;
+
+        //
+        for(Factura factura: lote.facturas) {
+
+            try {
+                // Emitimos lafactura
+                facturar(factura);
+
+                //
+                lote.idFacturasEmitidas.add(factura.id);
+
+                // Actualizar progreso
+                lote.progreso = (i++) * 100 / lote.facturas.size();
+                loteFacturaRepository.persist(lote);
+
+            } catch (Exception e) {
+
+                //registramos el error
+                log.error("Al generar la factura %s", factura.id);
+                lote.idFacturasErroneas.add(factura.id);
+
+                seProdujoError=true;
+            }
+
+        }
+
+
+
+        // Marcar lote como completado
+        if(seProdujoError){
+            lote.estado = EstadoLote.FALLIDO;
+        }else{
+            lote.estado = EstadoLote.COMPLETADO;
+        }
+        loteFacturaRepository.persist(lote);
+
+        return CompletableFuture.completedFuture(null);
+    }
+
+
+
+    @Asynchronous
+    @Transactional
+    public CompletionStage<Void> generarFacturasAsync(LoteFactura lote, List<Socio> sociosActivos) {
+
+        for (Socio socio : sociosActivos) {
+
+            BigDecimal totalFactura = BigDecimal.ZERO;
+            List<Item> items = new ArrayList<>();
+
+            // Obtener los servicios asociados al socio
+            for (Servicio servicio : socio.servicios) {
+                Item item = new Item();
+                item.concepto = servicio.descripcion;
+                item.cantidad = 1;
+                item.precio = servicio.costo;
+                items.add(item);
+
+                // Sumar el costo del servicio al total de la factura
+                totalFactura = totalFactura.add(servicio.costo);
+            }
+
+            //verificamos que tenga una factura con servicios y monto mayor a 0
+            if(totalFactura.compareTo(BigDecimal.ZERO)>0) {
+
+                // Crear una nueva factura
+                Factura factura = new Factura();
+                factura.fecha = LocalDateTime.now();
+                factura.socio = socio;
+                factura.tipo = Factura.Tipo.C; // Factura tipo C por defecto
+                factura.items = items;
+                factura.total = totalFactura;
+                factura.estado = EstadoFactura.PROCESO; // Estado inicial
+
+                //actualizamos el estado de la ctacte del socio
+                factura.socio.ctacte = factura.socio.ctacte.add(totalFactura);
+
+                // Relacionar los items con la factura
+                for (Item item : items) {
+                    item.factura = factura;
+                }
+
+                lote.agregarFactura(factura);
+
+                facturaRepository.persist(factura);
+            }
+        }
+        //
+        lote.estado   = EstadoLote.EN_PROCESO;
+        loteFacturaRepository.persist(lote);
+
+        return generarFacturasAsync(lote);
+
+        //return CompletableFuture.completedFuture(null);
+    }
+
 }

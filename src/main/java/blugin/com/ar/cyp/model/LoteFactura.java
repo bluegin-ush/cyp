@@ -18,9 +18,14 @@ public class LoteFactura extends PanacheEntity {
     public int mes;
     public int anio;
     public LocalDateTime fechaGeneracion;
+    public EstadoLote estado;
+    public int progreso;
 
     @OneToMany(mappedBy = "loteFactura", cascade = CascadeType.ALL)
     public List<Factura> facturas;
+
+    public List<Long> idFacturasEmitidas;
+    public List<Long> idFacturasErroneas;
 
     public LoteFactura() {}
 
@@ -28,6 +33,8 @@ public class LoteFactura extends PanacheEntity {
         this.mes = mes;
         this.anio = anio;
         this.fechaGeneracion = LocalDateTime.now();
+        idFacturasEmitidas = new ArrayList<>();
+        idFacturasErroneas = new ArrayList<>();
     }
 
     public void agregarFactura(Factura factura) {

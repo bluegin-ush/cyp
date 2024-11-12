@@ -82,6 +82,11 @@
             <artifactId>quarkus-smallrye-openapi</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>jakarta.ejb</groupId>
+            <artifactId>jakarta.ejb-api</artifactId>
+            <version>4.0.1</version> <scope>provided</scope>
+        </dependency>
         <!--AFIP-->
         <!-- Jakarta SOAP (SAAJ) API -->
         <dependency>

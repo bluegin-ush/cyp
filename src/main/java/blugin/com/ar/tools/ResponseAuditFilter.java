@@ -41,7 +41,7 @@ public class ResponseAuditFilter implements ContainerResponseFilter {
             body = "error al obtener el body: " + ioe.getMessage();
         }
 
-        if(!path.equals("/auditoria")) {
+        if(!path.contains("/auditoria")) {
             auditInterceptor.audit(false, method, path, user, estado, null, body);
         }
 
