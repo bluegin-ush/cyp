@@ -71,22 +71,6 @@ public class FacturaService {
 
     public void cargarConfiguraciones(){
 
-        //System.out.println("============== DocumentBuilderFactory configurado a Xerces ==============");
-        DocumentBuilderFactory doc = javax.xml.parsers.DocumentBuilderFactory.newInstance();
-        //System.out.println("============== DocumentBuilderFactory instnaciado a "+ doc.getClass().getName()+"==============");
-        try {
-            MessageFactory messageFactory = MessageFactory.newInstance();
-
-            SOAPMessage soapMessage = messageFactory.createMessage();
-
-            //System.out.println("============== Implementación de SOAPMessage: " + soapMessage.getClass().getName() + "==============");
-
-        } catch (SOAPException e) {
-            System.out.println("========= ERROR ===== "+e.getMessage());;
-        }
-
-        // Imprimir la implementación utilizada
-        //System.out.println("valores:");
         Map<String,String> configuraciones = configuracionRepository.obtenerTodasLasConfiguraciones();
 
         String modo = configuraciones.get("modo");
@@ -128,14 +112,16 @@ public class FacturaService {
      * @return
      * @throws Exception
      */
+    private FEAuthRequest autorizacion = null;
 
     public Factura facturar(Factura factura) throws Exception {
 
-        if(volverACargarConfiguraciones()){
+        if(volverACargarConfiguraciones() || autorizacion == null || (authTokenAndSign.isThresholdExceeded(threshold))){
+            log.info("CARGANDO CONFIGURACIONES");
             cargarConfiguraciones();
+            log.info("ESTABECIENDO AUTORIZACION");
+            autorizacion = obtenerAutorizacion();
         }
-
-        FEAuthRequest autorizacion = obtenerAutorizacion();
 
         long nroComprobanteSiguiente = WSFEClient.ultimoComprobante(autorizacion, puntoDeVenta, TiposComprobante.FACTURA_C.codigo()) + 1;
 
@@ -298,6 +284,7 @@ public class FacturaService {
 
             try {
                 // Emitimos lafactura
+                log.info(String.format("Emitiendo la factura del socio [%s]",factura.socio));
                 facturar(factura);
 
                 //

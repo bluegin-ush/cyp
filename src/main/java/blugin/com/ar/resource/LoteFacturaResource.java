@@ -72,7 +72,9 @@ public class LoteFacturaResource {
 
             List<Socio> sociosActivos = (sociosIds == null || sociosIds.isEmpty())
                     //Si no me pasan socios, obtengo todos
-                    ? socioRepository.todosConEntidadYServicio()
+                    //? socioRepository.todosConEntidadYServicio()
+                    //tengo que procesar todos los socios que tienen servicios asociado
+                    ? socioRepository.todosConServicio()
 
                     //uso los socios que me pasaron
                     : Socio.list("id in ?1 and activo = true", sociosIds);

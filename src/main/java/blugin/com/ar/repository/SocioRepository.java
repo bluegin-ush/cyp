@@ -32,6 +32,10 @@ public class SocioRepository implements PanacheRepository<Socio> {
     }
 
     public List<Socio> todosConEntidadYServicio() {
-        return find("(entidadCrediticia is not null) and (servicios is not empty)").list();
+        return find("activo and (entidadCrediticia is not null) and (servicios is not empty)").list();
+    }
+
+    public List<Socio> todosConServicio() {
+        return find("activo and (servicios is not empty)").list();
     }
 }
