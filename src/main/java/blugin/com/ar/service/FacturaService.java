@@ -300,7 +300,7 @@ public class FacturaService {
             } catch (Exception e) {
 
                 //registramos el error
-                log.error("Al generar la factura %s", factura.id);
+                log.error(String.format("Al generar la factura %s - msg: %s", factura.id, e.getMessage()));
                 lote.idFacturasErroneas.add(factura.id);
 
                 seProdujoError=true;
