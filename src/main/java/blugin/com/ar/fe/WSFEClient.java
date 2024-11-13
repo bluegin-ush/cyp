@@ -29,7 +29,7 @@ public class WSFEClient {
                                                         BigDecimal importe,
                                                         CbteAsoc asociacion) throws Exception {
 
-        System.out.println("Comenzado proceso de emisión...");
+        //System.out.println("Comenzado proceso de emisión...");
         FacturaDatosAFIP facturaDatosAFIP = new FacturaDatosAFIP();
 
         Tributos otrosTributos = new Tributos();
@@ -66,7 +66,7 @@ public class WSFEClient {
             throw errorFuncional.get();
         }
 
-        System.out.printf("CbteTipo: %s - Cuit: %s - CantReg: %s - Reproceso: %s - PtoVta: %s - FchProceso: %s - Resultado: %s\n",
+        /*System.out.printf("CbteTipo: %s - Cuit: %s - CantReg: %s - Reproceso: %s - PtoVta: %s - FchProceso: %s - Resultado: %s\n",
                 response.getFeCabResp().getCbteTipo(),
                 response.getFeCabResp().getCuit(),
                 response.getFeCabResp().getCantReg(),
@@ -74,10 +74,10 @@ public class WSFEClient {
                 response.getFeCabResp().getPtoVta(),
                 response.getFeCabResp().getFchProceso(),
                 response.getFeCabResp().getResultado());
-
+        */
         //Resultado = A=APROBADO, R=RECHAZADO, P=PARCIAL
 
-        for(FECAEDetResponse detalle: response.getFeDetResp().getFECAEDetResponse()){
+        /*for(FECAEDetResponse detalle: response.getFeDetResp().getFECAEDetResponse()){
             System.out.printf("CAE: %s - FchVto: %s - Resultado: %s - DocTipo: %s - DocNro: %s - CbteFch: %s - CbteDesde: %s - CbteHasta: %s - Concepto: %s\n",
                     detalle.getCAE(),
                     detalle.getCAEFchVto(),
@@ -88,7 +88,7 @@ public class WSFEClient {
                     detalle.getCbteDesde(),
                     detalle.getCbteHasta(),
                     detalle.getConcepto());
-        }
+        }*/
 
         facturaDatosAFIP.cae = response.getFeDetResp().getFECAEDetResponse().get(0).getCAE();
         facturaDatosAFIP.vto = response.getFeDetResp().getFECAEDetResponse().get(0).getCAEFchVto();
@@ -232,9 +232,9 @@ public class WSFEClient {
         ServiceSoap service = new Service().getServiceSoap();
         DocTipoResponse tipo = service.feParamGetTiposDoc(auth);
 
-        for(DocTipo doc : tipo.getResultGet().getDocTipo()){
+        /*for(DocTipo doc : tipo.getResultGet().getDocTipo()){
             System.out.printf("%s - %s - %s - %s\n",doc.getId(), doc.getDesc(), doc.getFchDesde(), doc.getFchHasta());
-        }
+        }*/
     }
 
     public static void tiposComprobante(String token, String sign, long cuit) {
@@ -247,9 +247,9 @@ public class WSFEClient {
         ServiceSoap service = new Service().getServiceSoap();
         CbteTipoResponse tipo = service.feParamGetTiposCbte(auth);
 
-        for(CbteTipo cbte : tipo.getResultGet().getCbteTipo()){
+        /*for(CbteTipo cbte : tipo.getResultGet().getCbteTipo()){
             System.out.printf("%s - %s - %s - %s\n",cbte.getId(), cbte.getDesc(), cbte.getFchDesde(), cbte.getFchHasta());
-        }
+        }*/
     }
 
     public static void tiposConceptos(String token, String sign, long cuit) {
@@ -262,9 +262,9 @@ public class WSFEClient {
         ServiceSoap service = new Service().getServiceSoap();
         ConceptoTipoResponse tipo = service.feParamGetTiposConcepto(auth);
 
-        for(ConceptoTipo concepto : tipo.getResultGet().getConceptoTipo()){
+        /*for(ConceptoTipo concepto : tipo.getResultGet().getConceptoTipo()){
             System.out.printf("%s - %s - %s - %s\n",concepto.getId(), concepto.getDesc(), concepto.getFchDesde(), concepto.getFchHasta());
-        }
+        }*/
     }
 
     public static void tiposMonedas(String token, String sign, long cuit) {
@@ -277,9 +277,9 @@ public class WSFEClient {
         ServiceSoap service = new Service().getServiceSoap();
         MonedaResponse mon = service.feParamGetTiposMonedas(auth);
 
-        for(Moneda moneda : mon.getResultGet().getMoneda()){
+        /*for(Moneda moneda : mon.getResultGet().getMoneda()){
             System.out.printf("%s - %s - %s - %s\n",moneda.getId(), moneda.getDesc(), moneda.getFchDesde(), moneda.getFchHasta());
-        }
+        }*/
     }
 
     public static void ultimoComprobante(String token, String sign, long cuit, int tipo) {
@@ -292,7 +292,7 @@ public class WSFEClient {
         ServiceSoap service = new Service().getServiceSoap();
         FERecuperaLastCbteResponse comprobante = service.feCompUltimoAutorizado(auth, Comprobante.puntoVentaDefault(), tipo);
 
-        System.out.printf("%s - %s \n",comprobante.getCbteTipo(), comprobante.getCbteNro());
+        //System.out.printf("%s - %s \n",comprobante.getCbteTipo(), comprobante.getCbteNro());
 
     }
 
@@ -311,7 +311,7 @@ public class WSFEClient {
         //
         FERecuperaLastCbteResponse comprobante = service.feCompUltimoAutorizado(auth, puntoDeVenta, tipo);
 
-        System.out.printf("Obteniendo último comprobante: tipo:%s - nro:%s \n",comprobante.getCbteTipo(), comprobante.getCbteNro());
+        //System.out.printf("Obteniendo último comprobante: tipo:%s - nro:%s \n",comprobante.getCbteTipo(), comprobante.getCbteNro());
 
         return comprobante.getCbteNro();
     }

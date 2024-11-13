@@ -1,7 +1,7 @@
 package blugin.com.ar.cyp.model;
 
 public enum EstadoFactura {
-        PROCESO("proceso"),
+        PRE_EMITADA("pre-emitida"),
         EMITIDA("emitida"),
         PAGADA("pagada"),
         CANCELADA("cancelada"),

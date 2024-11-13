@@ -3,6 +3,7 @@ package blugin.com.ar.cyp.model;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +22,7 @@ public class LoteFactura extends PanacheEntity {
     public EstadoLote estado;
     public int progreso;
 
-    @OneToMany(mappedBy = "loteFactura", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "loteFactura", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     public List<Factura> facturas;
 
     public List<Long> idFacturasEmitidas;

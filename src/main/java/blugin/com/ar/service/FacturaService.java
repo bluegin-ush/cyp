@@ -18,14 +18,9 @@ import jakarta.xml.ws.soap.SOAPFaultException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import jakarta.transaction.Transactional;
-import jakarta.ejb.Asynchronous;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.IOException;
@@ -70,37 +65,37 @@ public class FacturaService {
 
     public FacturaService(){
 
-        System.out.println("Cargando valores por defecto!!");
+        //System.out.println("Cargando valores por defecto!!");
 
     }
 
     public void cargarConfiguraciones(){
 
-        System.out.println("============== DocumentBuilderFactory configurado a Xerces ==============");
+        //System.out.println("============== DocumentBuilderFactory configurado a Xerces ==============");
         DocumentBuilderFactory doc = javax.xml.parsers.DocumentBuilderFactory.newInstance();
-        System.out.println("============== DocumentBuilderFactory instnaciado a "+ doc.getClass().getName()+"==============");
+        //System.out.println("============== DocumentBuilderFactory instnaciado a "+ doc.getClass().getName()+"==============");
         try {
             MessageFactory messageFactory = MessageFactory.newInstance();
 
             SOAPMessage soapMessage = messageFactory.createMessage();
 
-            System.out.println("============== Implementación de SOAPMessage: " + soapMessage.getClass().getName() + "==============");
+            //System.out.println("============== Implementación de SOAPMessage: " + soapMessage.getClass().getName() + "==============");
 
         } catch (SOAPException e) {
             System.out.println("========= ERROR ===== "+e.getMessage());;
         }
 
         // Imprimir la implementación utilizada
-        System.out.println("valores:");
+        //System.out.println("valores:");
         Map<String,String> configuraciones = configuracionRepository.obtenerTodasLasConfiguraciones();
 
         String modo = configuraciones.get("modo");
 
-        System.out.printf("configuraciones cargadas a partir del modo: %s\n",modo);
+        //System.out.printf("configuraciones cargadas a partir del modo: %s\n",modo);
         configuraciones.forEach((clave, valor) -> {
             if(clave.contains(modo)) {
                 String claveModo = clave.split("-")[1];
-                System.out.println("Clave: " + claveModo + " Valor: " + valor);
+                //System.out.println("Clave: " + claveModo + " Valor: " + valor);
                 switch (claveModo) {
                     case "endpoint" -> endpoint = valor;
                     case "certPath" -> certPath = valor;
@@ -133,9 +128,12 @@ public class FacturaService {
      * @return
      * @throws Exception
      */
+
     public Factura facturar(Factura factura) throws Exception {
 
-        cargarConfiguraciones();
+        if(volverACargarConfiguraciones()){
+            cargarConfiguraciones();
+        }
 
         FEAuthRequest autorizacion = obtenerAutorizacion();
 
@@ -158,6 +156,15 @@ public class FacturaService {
         factura.qr = generarQR(factura, persona);
 
         return factura;
+    }
+
+    private boolean volverACargarConfiguraciones() {
+
+        Map<String,String> configuraciones = configuracionRepository.obtenerTodasLasConfiguraciones();
+
+        String recargar = configuraciones.get("recargar-configuraciones");
+
+        return Boolean.valueOf(recargar);
     }
 
     private String generarQR(Factura factura, Persona persona) throws IOException {
@@ -191,7 +198,10 @@ public class FacturaService {
 
     public NotaDeCredito cancelar(NotaDeCredito notaDeCredito) throws Exception {
 
-        cargarConfiguraciones();
+        if(volverACargarConfiguraciones()){
+            cargarConfiguraciones();
+        }
+
 
         FEAuthRequest autorizacion = obtenerAutorizacion();
 
@@ -254,14 +264,6 @@ public class FacturaService {
                     //authTokenAndSign.saveAuthToken(authTokens);
                 }
 
-                /*try{
-                    authTokens.put("token", authTokenAndSign.getToken());
-                    authTokens.put("sign", authTokenAndSign.getSign());
-                }catch (Exception eInPut){
-                    log.error("En establecer las preferencias");
-                    e.printStackTrace();
-                }
-                */
                 e.printStackTrace();
             }
 
@@ -272,8 +274,8 @@ public class FacturaService {
         String token    = authTokenAndSign.getToken();
         String sign     = authTokenAndSign.getSign();
 
-        System.out.println("Ticket de Acceso: " + token);
-        System.out.println("Firma de Acceso: " + sign);
+        //System.out.println("Ticket de Acceso: " + token);
+        //System.out.println("Firma de Acceso: " + sign);
 
         //WSFEClient.ping();
         if(token==null){
@@ -283,14 +285,15 @@ public class FacturaService {
 
     }
 
-    @Asynchronous
-    @Transactional
-    public CompletionStage<Void> generarFacturasAsync(LoteFactura lote) {
+    //@Asynchronous
+
+    public void facturarEnLote(LoteFactura lote) {
 
         int i=0;
         boolean seProdujoError=false;
 
         //
+
         for(Factura factura: lote.facturas) {
 
             try {
@@ -298,10 +301,13 @@ public class FacturaService {
                 facturar(factura);
 
                 //
+                factura.estado = EstadoFactura.EMITIDA; // Estado inicial
+
+                //
                 lote.idFacturasEmitidas.add(factura.id);
 
                 // Actualizar progreso
-                lote.progreso = (i++) * 100 / lote.facturas.size();
+                lote.progreso = ((lote.idFacturasEmitidas.size() + lote.idFacturasErroneas.size() ) / lote.facturas.size())*100;
                 loteFacturaRepository.persist(lote);
 
             } catch (Exception e) {
@@ -325,14 +331,12 @@ public class FacturaService {
         }
         loteFacturaRepository.persist(lote);
 
-        return CompletableFuture.completedFuture(null);
     }
 
 
 
-    @Asynchronous
-    @Transactional
-    public CompletionStage<Void> generarFacturasAsync(LoteFactura lote, List<Socio> sociosActivos) {
+    //@Asynchronous
+    public void preFacturar(LoteFactura lote, List<Socio> sociosActivos) {
 
         for (Socio socio : sociosActivos) {
 
@@ -361,7 +365,7 @@ public class FacturaService {
                 factura.tipo = Factura.Tipo.C; // Factura tipo C por defecto
                 factura.items = items;
                 factura.total = totalFactura;
-                factura.estado = EstadoFactura.PROCESO; // Estado inicial
+                factura.estado = EstadoFactura.PRE_EMITADA; // Estado inicial
 
                 //actualizamos el estado de la ctacte del socio
                 factura.socio.ctacte = factura.socio.ctacte.add(totalFactura);
@@ -376,13 +380,11 @@ public class FacturaService {
                 facturaRepository.persist(factura);
             }
         }
+
         //
         lote.estado   = EstadoLote.EN_PROCESO;
         loteFacturaRepository.persist(lote);
 
-        return generarFacturasAsync(lote);
-
-        //return CompletableFuture.completedFuture(null);
     }
 
 }

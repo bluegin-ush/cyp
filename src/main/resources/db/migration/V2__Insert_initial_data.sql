@@ -27,14 +27,15 @@ INSERT INTO configuracion (id,clave, valor) VALUES
 (20,'prod-expiration',  '12'),
 (21,'prod-dn',          'SERIALNUMBER=CUIT 30675803702, CN=cyp'),
 (22,'prod-cuitEmisor',  '30675803702'),
-(23,'prod-puntoDeVenta','3');
+(23,'prod-puntoDeVenta','3'),
 (24,'prod-ingresosBrutos','116842/8'),
 (25,'prod-razonSocial','ASOCIACION CAZA Y PESCA USHUAIA'),
 (26,'prod-domicilioComercial','Av. Maipú 822'),
 (27,'prod-fechaInicioActividad','01/09/1960'),
+(28,'recargar-configuraciones','false');
 
 
-ALTER SEQUENCE configuracion_seq RESTART WITH 28;
+ALTER SEQUENCE configuracion_seq RESTART WITH 29;
 
 --
 INSERT INTO servicio (id, codigo, descripcion, costo) VALUES
@@ -52,7 +53,7 @@ INSERT INTO servicio (id, codigo, descripcion, costo) VALUES
 (12, '993', 'Control Remoto', 0),
 (13, '997', 'Roturas Varias', 0),
 (14, '000', 'Cuota Inscripción', 0),
-(15, '001', 'Cuota Social', 0),
+(15, '001', 'Cuota Social', 15000),
 (16, '1022', 'Estacionamiento', 0);
 
 -- Actualizar la secuencia para que el próximo ID sea el siguiente disponible

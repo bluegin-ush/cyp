@@ -8,6 +8,7 @@ import blugin.com.ar.repository.FacturaRepository;
 import blugin.com.ar.repository.LoteFacturaRepository;
 import blugin.com.ar.repository.SocioRepository;
 import blugin.com.ar.service.FacturaService;
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
@@ -24,6 +25,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -42,9 +44,6 @@ public class Facturar {
 
     @Inject
     FacturaService facturaService;
-
-    @Inject
-    LoteFacturaRepository loteFacturaRepository;
 
     @GET
     public Response obtenerFacturas(@QueryParam("desde") @DefaultValue("2024-01-01")LocalDate desde ,
@@ -238,228 +237,6 @@ public class Facturar {
         }
     }
 
-    @POST
-    @Path("/lote/{mes}/{anio}")
-    @Transactional
-    public Response generarLote(List<Long> sociosIds,
-                                @PathParam("mes") int mes,
-                                @PathParam("anio") int anio) {
-
-
-        LoteFactura lote = LoteFactura.find("mes = ?1 and anio = ?2", mes, anio).firstResult();
-
-        if (lote == null) {
-            lote = new LoteFactura(mes, anio);
-            lote.mes = mes;
-            lote.anio = anio;
-            lote.fechaGeneracion = LocalDateTime.now();
-            lote.progreso = 0;
-            lote.estado = EstadoLote.EN_CONSTRUCCION;
-
-            List<Socio> sociosActivos = (sociosIds==null || sociosIds.isEmpty())
-                    //Si no me pasan socios, obtengo todos
-                    ? socioRepository.todosConEntidadYServicio()
-
-                    //uso los socios que me pasaron
-                    : Socio.list("id in ?1 and activo = true", sociosIds);
-
-            loteFacturaRepository.persist(lote);
-
-            // Inicia el proceso asincrónico
-            facturaService.generarFacturasAsync(lote, sociosActivos);
-
-        }else if (lote.estado.equals(EstadoLote.EN_PROCESO)){
-
-            // Inicia el proceso asincrónico
-            facturaService.generarFacturasAsync(lote);
-
-        } else if (lote.estado.equals(EstadoLote.FALLIDO)){
-
-            //
-            return Response.status(Response.Status.CONFLICT).entity("El lote se procesó con errors").build();
-        } else {
-
-            //NADA
-
-        }
-
-        return Response.ok(lote).build();
-    }
-
-    @POST
-    @Path("/lote1/{mes}/{anio}")
-    @Transactional
-    public Response generarFacturasPorLote(@PathParam("mes") int mes, @PathParam("anio") int anio, List<Long> sociosIds, @QueryParam("prueba")Boolean prueba) {
-
-        // Verificar si ya existe un lote generado para este mes y año
-        LoteFactura loteExistente = LoteFactura.find("mes = ?1 and anio = ?2", mes, anio).firstResult();
-        if (loteExistente != null) {
-            int size = (loteExistente.facturas != null)?loteExistente.facturas.size():0;
-            return Response.status(Response.Status.CONFLICT)
-                    .entity(String.format("Ya se ha generado un lote (con %s facturas) para este mes y año.",size))
-                    .build();
-        }
-
-        // Crear un nuevo lote de facturas
-        LoteFactura loteFactura = new LoteFactura(mes, anio);
-
-        List<Socio> sociosActivos = (sociosIds==null || sociosIds.isEmpty())
-                ? Socio.list("activo", true)
-                : Socio.list("id in ?1 and activo = true", sociosIds);
-
-        List<Factura> facturasGeneradas = new ArrayList<>();
-
-        try {
-            for (Socio socio : sociosActivos) {
-                BigDecimal totalFactura = BigDecimal.ZERO;
-                List<Item> items = new ArrayList<>();
-
-                // Obtener los servicios asociados al socio
-                for (Servicio servicio : socio.servicios) {
-                    Item item = new Item();
-                    item.concepto = servicio.descripcion;
-                    item.cantidad = 1; // Asumimos cantidad 1 por servicio
-                    item.precio = servicio.costo;
-                    items.add(item);
-
-                    // Sumar el costo del servicio al total de la factura
-                    totalFactura = totalFactura.add(servicio.costo);
-                }
-
-                //verificamos que tenga una factura con servicios y monto mayor a 0
-                if(totalFactura.compareTo(BigDecimal.ZERO)>0) {
-
-                    // Crear una nueva factura
-                    Factura factura = new Factura();
-                    factura.fecha = LocalDateTime.now();
-                    factura.socio = socio;
-                    factura.tipo = Factura.Tipo.C; // Factura tipo C por defecto
-                    factura.items = items;
-                    factura.total = totalFactura;
-                    factura.estado = EstadoFactura.EMITIDA; // Estado inicial
-
-                    //actualizamos el estado de la ctacte del socio
-                    factura.socio.ctacte = factura.socio.ctacte.add(totalFactura);
-
-                    // Relacionar los items con la factura
-                    for (Item item : items) {
-                        item.factura = factura;
-                    }
-
-                    // Facturar en afip
-                    if (prueba == null || !prueba) {
-                        factura = facturaService.facturar(factura);
-                    }
-
-                    //
-                    loteFactura.agregarFactura(factura);
-
-
-                    facturasGeneradas.add(factura);
-                }
-            }
-
-            // Persistir el lote, si no es prueba!
-            if(prueba==null || !prueba){
-                loteFactura.persist();
-            }
-
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return Response.serverError().entity(e).build();
-        }
-
-        return Response.ok(facturasGeneradas).build();
-    }
-
-    @POST
-    @Path("/lote2/{mes}/{anio}")
-    @Produces(MediaType.SERVER_SENT_EVENTS) // Especifica que el retorno será SSE
-    public Multi<String> generarFacturasPorLote2(
-            @PathParam("mes") int mes,
-            @PathParam("anio") int anio,
-            @QueryParam("prueba") Boolean prueba) {
-
-        // Verificar si ya existe un lote generado para este mes y año
-        LoteFactura loteExistente = LoteFactura.find("mes = ?1 and anio = ?2", mes, anio).firstResult();
-        if (loteExistente != null) {
-            int size = (loteExistente.facturas != null)?loteExistente.facturas.size():0;
-            return Multi.createFrom().item(String.format("Ya se ha generado un lote (con %s facturas) para este mes y año.",size));
-        }
-
-        // Crear un nuevo lote de facturas
-        LoteFactura loteFactura = new LoteFactura(mes, anio);
-        List<Socio> sociosActivos = Socio.list("activo", true);
-        List<Factura> facturasGeneradas = new ArrayList<>();
-
-        int totalSocios = sociosActivos.size();
-
-        // Crear un flujo (Multi) que procese las facturas una a una
-        return Multi.createFrom().items(
-                IntStream.range(0, totalSocios) // Creamos un IntStream para obtener los índices
-                        .mapToObj(index -> { // Mapear cada índice a un socio
-                            Socio socio = sociosActivos.get(index);
-                            try {
-                                BigDecimal totalFactura = BigDecimal.ZERO;
-                                List<Item> items = new ArrayList<>();
-
-                                // Obtener los servicios asociados al socio
-                                for (Servicio servicio : socio.servicios) {
-                                    Item item = new Item();
-                                    item.concepto = servicio.descripcion;
-                                    item.cantidad = 1; // Asumimos cantidad 1 por servicio
-                                    item.precio = servicio.costo;
-                                    items.add(item);
-
-                                    // Sumar el costo del servicio al total de la factura
-                                    totalFactura = totalFactura.add(servicio.costo);
-                                }
-
-                                // Crear una nueva factura
-                                Factura factura = new Factura();
-                                factura.fecha = LocalDateTime.now();
-                                factura.socio = socio;
-                                factura.tipo = Factura.Tipo.C; // Factura tipo C por defecto
-                                factura.items = items;
-                                factura.total = totalFactura;
-                                factura.estado = EstadoFactura.EMITIDA; // Estado inicial
-
-                                // Actualizamos el estado de la ctacte del socio
-                                factura.socio.ctacte = factura.socio.ctacte.add(totalFactura);
-
-                                // Relacionar los items con la factura
-                                for (Item item : items) {
-                                    item.factura = factura;
-                                }
-
-                                // Facturar en afip si no es prueba
-                                if (prueba == null || !prueba) {
-                                    factura = facturaService.facturar(factura);
-                                }
-
-                                // Agregar la factura al lote
-                                loteFactura.agregarFactura(factura);
-
-                                // Enviar un mensaje con el progreso
-                                int currentSocioIndex = index + 1; // Incrementamos el índice
-                                return "Factura generada para el socio: " + socio.nombre
-                                        +"factura total: " + factura.total
-                                        +" [" + currentSocioIndex + "/" + totalSocios + "]";
-
-
-                            } catch (Exception e) {
-                                log.error("Error al generar factura para socio: " + socio.nombre, e);
-                                return "Error al generar factura para el socio: " + socio.nombre + " (" + (index + 1) + " de " + totalSocios + ")";
-                            }
-                        })
-        ).onCompletion().invoke(() -> {
-            // Persistir el lote, si no es prueba
-            if (prueba == null || !prueba) {
-                loteFactura.persist();
-            }
-        });
-
-    }
 
     @GET
     @Path("/entidad/{entidadId}/{mes}/{anio}")

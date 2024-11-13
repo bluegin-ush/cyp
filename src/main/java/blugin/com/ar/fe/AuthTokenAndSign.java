@@ -23,7 +23,16 @@ public class AuthTokenAndSign {
     public void saveAuthToken(Map<String, String> auth) {
         saveValue(TOKEN_KEY, auth.get(TOKEN_KEY));
         saveValue(SIGN_KEY, auth.get(SIGN_KEY));
-        saveValue(TOKEN_TIMESTAMP_KEY, String.valueOf(Instant.now().toEpochMilli()));
+        String timeStamp = String.valueOf(Instant.now().toEpochMilli());
+        saveValue(TOKEN_TIMESTAMP_KEY, timeStamp);
+        System.out.println("============================");
+        System.out.println("============================");
+        System.out.println("guardando valores");
+        System.out.printf("TOKEN_KEY=%s", auth.get(TOKEN_KEY));
+        System.out.printf("SIGN_KEY=%s", auth.get(SIGN_KEY));
+        System.out.printf("TOKEN_TIMESTAMP_KEY=%s", timeStamp);
+        System.out.println("============================");
+        System.out.println("============================");
     }
 
     @Transactional
