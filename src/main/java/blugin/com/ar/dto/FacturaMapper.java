@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 public class FacturaMapper {
@@ -47,6 +48,8 @@ public class FacturaMapper {
             for (Pago pago : factura.pagos) {
                 pago.factura = factura;
             }
+        }else{
+            factura.pagos = new ArrayList<>();
         }
         
         return factura;

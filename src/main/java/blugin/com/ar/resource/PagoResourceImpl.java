@@ -42,7 +42,21 @@ public class PagoResourceImpl {
 
         if (socio != null) {
             // Actualizar la cuenta corriente (ctacte) del socio
-            socio.ctacte = socio.ctacte.add(pagoDto.monto);
+            if(MedioDePago.fromNombre(pagoDto.medioDePago).equals(MedioDePago.CTACTE)){
+
+                //verificamos si es posible
+                if(socio.ctacte.subtract(pagoDto.monto).compareTo(BigDecimal.ZERO)>=0) {
+                    //si es de su cuenta corriente se debe actualizar en función del monto
+                    socio.ctacte = socio.ctacte.subtract(pagoDto.monto);
+                }else {
+                    return Response.status(Response.Status.CONFLICT).entity("El monto del pago supera el saldo de la cuenta corriente").build();
+                }
+
+            }else {
+
+                //cualquier pago q no sea mediante su ctacte se debe actualizar adicionando el monto
+                socio.ctacte = socio.ctacte.add(pagoDto.monto);
+            }
 
             Pago pago = new Pago();
             pago.factura = factura;

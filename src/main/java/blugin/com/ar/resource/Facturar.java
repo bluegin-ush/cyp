@@ -20,6 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
+import java.sql.Time;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
@@ -174,26 +176,74 @@ public class Facturar {
         // Asignamos el socio a la factura
         factura.socio = socio;
 
-        //actualizamos la ctacte
-        socio.ctacte = socio.ctacte.subtract(factura.total);
-
-        BigDecimal totalPagos = new BigDecimal(factura.total.intValue());
-
-        // Verificamos si hay pagos
+        //verificamos si viene con pagos
         if (factura.pagos != null && !factura.pagos.isEmpty()) {
-            // Actualizamos la cuenta corriente (ctacte) del socio
+
+            //
+            BigDecimal totalPagos = new BigDecimal(factura.total.intValue());
+
+            //recorremos los pagos
             for (Pago p : factura.pagos) {
-                socio.ctacte = socio.ctacte.add(p.monto);
+
+                if(p.medioDePago.equals(MedioDePago.CTACTE)) {
+
+                    //verificamos si es posible utilizar la ctacte
+                    if (socio.ctacte.subtract(p.monto).compareTo(BigDecimal.ZERO) < 0) {
+
+                        //no alcanza el salfo, si tiene algo lo usamos
+                        if (socio.ctacte.compareTo(BigDecimal.ZERO) > 0) {
+                            //le asigno el disponible
+                            p.monto = socio.ctacte;
+                        } else {
+                            //no tiene nada, actualizo el pago con cta cte a cero.
+                            p.monto = BigDecimal.ZERO;
+                        }
+
+
+                    }
+                }
+
+                // sumo el pago
                 totalPagos = totalPagos.subtract(p.monto);
+
             }
+
+            //estalecemos el estado de la factura
+            if (totalPagos.compareTo(BigDecimal.ZERO)<=0){
+                factura.estado = EstadoFactura.PAGADA;
+            }else {
+                factura.estado = EstadoFactura.EMITIDA;
+            }
+
+
+        }else{
+            //no viene con pagos
+
+            //actualizamos la ctacte
+            socio.ctacte = socio.ctacte.subtract(factura.total);
+
+            //alcanzó el saldo de la cuenta?
+            if(socio.ctacte.compareTo(BigDecimal.ZERO) >= 0){
+
+                //generar pago
+                Pago pago = new Pago();
+                pago.factura = factura;
+                pago.monto = factura.total;
+                pago.fecha = LocalDateTime.now();
+                pago.medioDePago = MedioDePago.CTACTE;
+
+                factura.pagos.add(pago);
+
+                //
+                factura.estado = EstadoFactura.PAGADA;
+            }else {
+                //marcamos la factura como que ha sido emitida
+                factura.estado = EstadoFactura.EMITIDA;
+            }
+
         }
 
-        //estalecemos el estado de la factura
-        if (totalPagos.compareTo(BigDecimal.ZERO)<=0){
-            factura.estado = EstadoFactura.PAGADA;
-        }else {
-            factura.estado = EstadoFactura.EMITIDA;
-        }
+
 
         try {
             factura = facturaService.facturar(factura);

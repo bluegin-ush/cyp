@@ -20,8 +20,8 @@ public class Pago extends PanacheEntity {
     @JsonBackReference
     public Factura factura;
 
-    //public String concepto;
     public LocalDateTime fecha;
+
     public BigDecimal monto;
 
     @Enumerated(EnumType.STRING)

@@ -4,7 +4,8 @@ public enum MedioDePago {
         EFECTIVO("efectivo"),
         TARJETA_CREDITO("tarjeta-credito"),
         TARJETA_DEBITO("tarjeta-debito"),
-        TRANSFERENCIA_BANCARIA("transferencia-bancaria");
+        TRANSFERENCIA_BANCARIA("transferencia-bancaria"),
+        CTACTE("ctacte");
 
         private final String nombre;
 
