@@ -55,6 +55,7 @@ public class AuthTokenAndSign {
     public boolean isThresholdExceeded(Duration threshold) {
         Instant tokenTimestamp = getTokenTimestamp();
         if (tokenTimestamp == null) {
+            System.out.println("tokenTimestamp == null");
             return true;
         }
         Instant now = Instant.now();

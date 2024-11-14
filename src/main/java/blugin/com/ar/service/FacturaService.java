@@ -11,6 +11,7 @@ import blugin.com.ar.wsfe.FEAuthRequest;
 import blugin.com.ar.wsfe.wrappers.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import jakarta.xml.soap.MessageFactory;
 import jakarta.xml.soap.SOAPException;
 import jakarta.xml.soap.SOAPMessage;
@@ -116,8 +117,10 @@ public class FacturaService {
 
     public Factura facturar(Factura factura) throws Exception {
 
-        if(volverACargarConfiguraciones() || autorizacion == null || (authTokenAndSign.isThresholdExceeded(threshold))){
-            log.info("CARGANDO CONFIGURACIONES");
+        Boolean expiro = (authTokenAndSign.isThresholdExceeded(threshold));
+
+        if(volverACargarConfiguraciones() || autorizacion == null || expiro){
+            log.info(String.format("CARGANDO CONFIGURACIONES [autorizacion=%s - expiro=%s]",autorizacion,expiro));
             cargarConfiguraciones();
             log.info("ESTABECIENDO AUTORIZACION");
             autorizacion = obtenerAutorizacion();
@@ -150,6 +153,7 @@ public class FacturaService {
 
         String recargar = configuraciones.get("recargar-configuraciones");
 
+        log.info(String.format("recargar-configuraciones = ",recargar));
         return Boolean.valueOf(recargar);
     }
 
@@ -272,19 +276,23 @@ public class FacturaService {
     }
 
     //@Asynchronous
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
+    public void facturarEnLote(Long loteId, int desde, int hasta) {
 
-    public void facturarEnLote(LoteFactura lote) {
+        LoteFactura lote = loteFacturaRepository.findById(loteId);
 
-        int i=0;
         boolean seProdujoError=false;
 
+        //for(Factura factura: lote.facturas) {
         //
+        for(int i=desde; i<hasta; i++){
+            log.info(String.format("Por emitir la factura [%d]",i));
+            Factura factura = lote.facturas.get(i);
 
-        for(Factura factura: lote.facturas) {
-
+            if(factura.estado == EstadoFactura.PRE_EMITADA)
             try {
                 // Emitimos lafactura
-                log.info(String.format("Emitiendo la factura del socio [%s]",factura.socio));
+                log.info(String.format("Emitiendo la factura del socio [%s]",i, factura.socio));
                 facturar(factura);
 
                 //
@@ -295,12 +303,12 @@ public class FacturaService {
 
                 // Actualizar progreso
                 lote.progreso = ((lote.idFacturasEmitidas.size() + lote.idFacturasErroneas.size() ) / lote.facturas.size())*100;
-                loteFacturaRepository.persist(lote);
+                //loteFacturaRepository.persist(lote);
 
             } catch (Exception e) {
 
                 //registramos el error
-                log.error(String.format("Al generar la factura %s - msg: %s", factura.id, e.getMessage()));
+                log.error(String.format("Al generar la facturaId %s - msg: %s", factura.id, e.getMessage()));
                 lote.idFacturasErroneas.add(factura.id);
 
                 seProdujoError=true;

@@ -53,7 +53,7 @@ public class WSFEClient {
                 : Optional.empty();
 
         if (errorTecnico.isPresent()) {
-            System.out.printf("ERROR: %s\n",errorTecnico.get().getMessage());
+            System.out.printf("ERROR TECNICO: %s\n",errorTecnico.get().getMessage());
             throw errorTecnico.get();
         }
 
@@ -62,7 +62,7 @@ public class WSFEClient {
                 ? Optional.of(new Exception(response.getFeDetResp().getFECAEDetResponse().get(0).getObservaciones().getObs().get(0).getMsg()))
                 : Optional.empty();
         if (errorFuncional.isPresent()) {
-            System.out.printf("ERROR: %s\n",errorFuncional.get().getMessage());
+            System.out.printf("ERROR FUNCIONAL: %s\n",errorFuncional.get().getMessage());
             throw errorFuncional.get();
         }
 

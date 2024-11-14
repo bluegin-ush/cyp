@@ -12,6 +12,8 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -90,10 +92,12 @@ public class LoteFacturaResource {
 
     }
 
+    private static final Logger log = LoggerFactory.getLogger(LoteFacturaResource.class);
+
     @POST
     @Path("/facturar/{loteId}")
-    @Transactional
-    public Response facturarLote(@PathParam("loteId") Long id) {
+    //@Transactional
+    public Response facturarLote(@PathParam("loteId") Long id) throws InterruptedException {
 
         LoteFactura lote = LoteFactura.findById(id);
 
@@ -105,8 +109,33 @@ public class LoteFacturaResource {
 
             if (lote.estado.equals(EstadoLote.EN_PROCESO)) {
 
+                log.info("Cantidad de facturas a procesar: "+lote.facturas.size());
                 //
-                facturaService.facturarEnLote(lote);
+                int tamano = 10;
+                int paginas = lote.facturas.size() / tamano;
+                int resto =  lote.facturas.size() % tamano;
+
+                log.info("Páginas a procesar: " + paginas);
+                log.info("Resto de facturas a procesar: " + resto);
+
+                //pagino la facturación
+                for (int pagina=0; pagina < paginas; pagina++) {
+
+                    int desde = pagina * tamano;
+                    int hasta = (desde + tamano);
+
+                    log.info("procesamos pagina: "+pagina+" - desde:" + desde + " - hasta: "+hasta);
+                    facturaService.facturarEnLote(lote.id, desde, hasta);
+                    //log.info("ESPERAMOS 5 seg...");
+                    //Thread.sleep(5000);
+
+                }
+
+                //facturo el resto que me quedó
+                int desde = paginas * tamano;
+                int hasta = desde + resto ;
+                log.info("procesamos el resto, desde:" + desde + " - hasta: "+ hasta);
+                facturaService.facturarEnLote(lote.id, desde, hasta);
 
                 //
                 return Response.accepted(lote).build();
