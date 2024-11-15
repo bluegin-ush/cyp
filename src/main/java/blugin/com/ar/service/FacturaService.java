@@ -415,10 +415,45 @@ public class FacturaService {
         return factura;
     }
 
-    public Factura facturarConSaldo(Factura factura) {
-/*
 
- */
+    public Factura facturarConSaldo(Factura factura) {
+
+        Socio socio = factura.socio;
+        BigDecimal totalPagos = BigDecimal.ZERO;
+
+        // Procesar pagos existentes
+        for (Pago p : factura.pagos) {
+            if (!p.medioDePago.equals(MedioDePago.CTACTE)) {
+                totalPagos = totalPagos.add(p.monto);
+            }
+        }
+
+        // Usar saldo si corresponde
+        if (factura.pagos.isEmpty()) {
+            if (socio.ctacte.compareTo(factura.total) >= 0) {
+                totalPagos = factura.total;
+                socio.ctacte = socio.ctacte.subtract(factura.total);
+                factura.pagos.add(new Pago()); //factura.total, MedioDePago.CTACTE
+            } else {
+                totalPagos = socio.ctacte;
+                factura.pagos.add(new Pago()); //socio.ctacte, MedioDePago.CTACTE
+                socio.ctacte = BigDecimal.ZERO;
+            }
+        }
+
+        // Actualizar saldo del socio
+        socio.ctacte = socio.ctacte.add(totalPagos).subtract(factura.total);
+
+        // Determinar estado de la factura
+        if (totalPagos.compareTo(factura.total) >= 0) {
+            factura.estado = EstadoFactura.PAGADA;
+        } else {
+            factura.estado = EstadoFactura.EMITIDA;
+        }
+
+        return factura;
+
+        /*
         //
         Socio socio = factura.socio;
 
@@ -549,5 +584,8 @@ public class FacturaService {
             socio.ctacte = socio.ctacte.subtract(factura.total);
         }
         return factura;
+        */
     }
+
+
 }
