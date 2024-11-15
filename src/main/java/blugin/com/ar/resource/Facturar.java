@@ -4,6 +4,7 @@ import blugin.com.ar.cyp.model.*;
 import blugin.com.ar.dto.FacturaDTO;
 import blugin.com.ar.dto.FacturaMapper;
 import blugin.com.ar.dto.NotaDeCreditoDTO;
+import blugin.com.ar.repository.ConfiguracionRepository;
 import blugin.com.ar.repository.FacturaRepository;
 import blugin.com.ar.repository.LoteFacturaRepository;
 import blugin.com.ar.repository.SocioRepository;
@@ -46,6 +47,9 @@ public class Facturar {
 
     @Inject
     FacturaService facturaService;
+
+    @Inject
+    ConfiguracionRepository configuracionRepository;
 
     @GET
     public Response obtenerFacturas(@QueryParam("desde") @DefaultValue("2024-01-01")LocalDate desde ,
@@ -176,73 +180,14 @@ public class Facturar {
         // Asignamos el socio a la factura
         factura.socio = socio;
 
-        //verificamos si viene con pagos
-        if (factura.pagos != null && !factura.pagos.isEmpty()) {
+        //
+        Boolean usaSaldo = configuracionRepository.obtenerUtilizaSaldoParaPagarFactura();
 
-            //
-            BigDecimal totalPagos = new BigDecimal(factura.total.intValue());
-
-            //recorremos los pagos
-            for (Pago p : factura.pagos) {
-
-                if(p.medioDePago.equals(MedioDePago.CTACTE)) {
-
-                    //verificamos si es posible utilizar la ctacte
-                    if (socio.ctacte.subtract(p.monto).compareTo(BigDecimal.ZERO) < 0) {
-
-                        //no alcanza el salfo, si tiene algo lo usamos
-                        if (socio.ctacte.compareTo(BigDecimal.ZERO) > 0) {
-                            //le asigno el disponible
-                            p.monto = socio.ctacte;
-                        } else {
-                            //no tiene nada, actualizo el pago con cta cte a cero.
-                            p.monto = BigDecimal.ZERO;
-                        }
-
-
-                    }
-                }
-
-                // sumo el pago
-                totalPagos = totalPagos.subtract(p.monto);
-
-            }
-
-            //estalecemos el estado de la factura
-            if (totalPagos.compareTo(BigDecimal.ZERO)<=0){
-                factura.estado = EstadoFactura.PAGADA;
-            }else {
-                factura.estado = EstadoFactura.EMITIDA;
-            }
-
-
+        if( !usaSaldo ) {
+           factura = facturaService.facturarSinSaldo(factura);
         }else{
-            //no viene con pagos
-
-            //actualizamos la ctacte
-            socio.ctacte = socio.ctacte.subtract(factura.total);
-
-            //alcanzó el saldo de la cuenta?
-            if(socio.ctacte.compareTo(BigDecimal.ZERO) >= 0){
-
-                //generar pago
-                Pago pago = new Pago();
-                pago.factura = factura;
-                pago.monto = factura.total;
-                pago.fecha = LocalDateTime.now();
-                pago.medioDePago = MedioDePago.CTACTE;
-
-                factura.pagos.add(pago);
-
-                //
-                factura.estado = EstadoFactura.PAGADA;
-            }else {
-                //marcamos la factura como que ha sido emitida
-                factura.estado = EstadoFactura.EMITIDA;
-            }
-
+           factura = facturaService.facturarConSaldo(factura);
         }
-
 
 
         try {

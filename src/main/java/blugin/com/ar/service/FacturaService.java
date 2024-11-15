@@ -382,4 +382,172 @@ public class FacturaService {
 
     }
 
+    public Factura facturarSinSaldo(Factura factura) {
+
+        //
+        Socio socio = factura.socio;
+
+        //
+        BigDecimal totalPagos = BigDecimal.ZERO;
+
+        //recorremos los pagos
+        for (Pago p : factura.pagos) {
+
+            //sumamos todos los que no sean de la ctacte
+            if (!p.medioDePago.equals(MedioDePago.CTACTE)) {
+
+                totalPagos = totalPagos.add(p.monto);
+
+            }
+        }
+
+        socio.ctacte = socio.ctacte
+                .subtract(factura.total)
+                .add(totalPagos);
+
+        //cancela el monto de la factura?
+        if (factura.total.subtract(totalPagos).compareTo(BigDecimal.ZERO) <= 0) {
+            factura.estado = EstadoFactura.PAGADA;
+        }else {
+            factura.estado = EstadoFactura.EMITIDA;
+        }
+
+        return factura;
+    }
+
+    public Factura facturarConSaldo(Factura factura) {
+/*
+
+ */
+        //
+        Socio socio = factura.socio;
+
+        //verificamos si viene con pagos
+        if (factura.pagos != null && !factura.pagos.isEmpty()) {
+
+            //
+            BigDecimal totalPagos = new BigDecimal(factura.total.intValue());
+
+            //recorremos los pagos
+            for (Pago p : factura.pagos) {
+
+                if (p.medioDePago.equals(MedioDePago.CTACTE)) {
+
+                    //verificamos si es posible utilizar la ctacte
+                    if (socio.ctacte.subtract(p.monto).compareTo(BigDecimal.ZERO) < 0) {
+
+                        //no alcanza el saldo, si tiene algo lo usamos
+                        if (socio.ctacte.compareTo(BigDecimal.ZERO) > 0) {
+                            //le asigno el disponible
+                            p.monto = socio.ctacte;
+                        } else {
+                            //no tiene nada, actualizo el pago con cta cte a cero.
+                            p.monto = BigDecimal.ZERO;
+                        }
+
+
+                    }
+
+                    //es posible => actualizo la ctacte
+                    socio.ctacte = socio.ctacte.subtract(p.monto);
+
+
+                }
+
+                totalPagos = totalPagos.subtract(p.monto);
+
+            }
+
+            //estalecemos el estado de la factura
+            if (totalPagos.compareTo(BigDecimal.ZERO) <= 0) {
+
+                //los  pagos completaron el monto de la factura
+                factura.estado = EstadoFactura.PAGADA;
+
+                //actualizamos la ctacte
+                socio.ctacte = socio.ctacte.subtract(totalPagos);
+
+            } else {
+                //tengo saldo y me falto llegar al monto?
+                if ((socio.ctacte.compareTo(BigDecimal.ZERO) > 0) && (totalPagos.compareTo(BigDecimal.ZERO) > 0)) {
+                    //puedo usar el saldo para cancelar?
+                    if (socio.ctacte.compareTo(totalPagos) >= 0) {
+
+                        //pago completo
+                        Pago pago = new Pago();
+                        pago.factura = factura;
+                        pago.monto = totalPagos;
+                        pago.fecha = LocalDateTime.now();
+                        pago.medioDePago = MedioDePago.CTACTE;
+
+                        factura.pagos.add(pago);
+
+                        //factura pagada
+                        factura.estado = EstadoFactura.PAGADA;
+                        socio.ctacte = socio.ctacte.subtract(totalPagos);
+
+                    } else {
+                        //pago parcial
+                        Pago pago = new Pago();
+                        pago.factura = factura;
+                        pago.monto = socio.ctacte;
+                        pago.fecha = LocalDateTime.now();
+                        pago.medioDePago = MedioDePago.CTACTE;
+
+                        factura.pagos.add(pago);
+
+                        //factura parcial
+                        factura.estado = EstadoFactura.EMITIDA;
+                        socio.ctacte = socio.ctacte.subtract(pago.monto); //debería quedar en 0
+                    }
+                }
+            }
+
+
+        } else { //no viene con pagos
+
+            //verifico si tengo saldo para crear un pago desde ctacte
+            if (socio.ctacte.compareTo(BigDecimal.ZERO) > 0) {
+
+                //puedo usar el saldo para cancelar?
+                if (socio.ctacte.compareTo(factura.total) >= 0) {
+
+                    //pago completo
+                    Pago pago = new Pago();
+                    pago.factura = factura;
+                    pago.monto = factura.total;
+                    pago.fecha = LocalDateTime.now();
+                    pago.medioDePago = MedioDePago.CTACTE;
+
+                    factura.pagos.add(pago);
+
+                    //factura pagada
+                    factura.estado = EstadoFactura.PAGADA;
+
+                } else {
+                    //pago parcial
+                    Pago pago = new Pago();
+                    pago.factura = factura;
+                    pago.monto = socio.ctacte;
+                    pago.fecha = LocalDateTime.now();
+                    pago.medioDePago = MedioDePago.CTACTE;
+
+                    factura.pagos.add(pago);
+
+                    //factura parcial
+                    factura.estado = EstadoFactura.EMITIDA;
+
+                }
+
+            } else {
+
+                //marcamos la factura como que ha sido emitida
+                factura.estado = EstadoFactura.EMITIDA;
+            }
+
+            //actualizamos la ctacte
+            socio.ctacte = socio.ctacte.subtract(factura.total);
+        }
+        return factura;
+    }
 }

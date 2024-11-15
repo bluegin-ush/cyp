@@ -17,4 +17,14 @@ public class ConfiguracionRepository implements PanacheRepository<Configuracion>
                         config -> config.valor   // Valor del Map
                 ));
     }
+
+    public Boolean obtenerUtilizaSaldoParaPagarFactura(){
+
+        //
+        Configuracion c = find("clave","utiliza-saldo-para-facturar").singleResult();
+
+        boolean modo = Boolean.valueOf(c.valor);
+
+        return modo;
+    }
 }

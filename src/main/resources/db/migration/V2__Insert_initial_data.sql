@@ -32,10 +32,11 @@ INSERT INTO configuracion (id,clave, valor) VALUES
 (25,'prod-razonSocial','ASOCIACION CAZA Y PESCA USHUAIA'),
 (26,'prod-domicilioComercial','Av. Maipú 822'),
 (27,'prod-fechaInicioActividad','01/09/1960'),
-(28,'recargar-configuraciones','false');
+(28,'recargar-configuraciones','false'),
+(29,'utiliza-saldo-para-facturar','false');
 
 
-ALTER SEQUENCE configuracion_seq RESTART WITH 29;
+ALTER SEQUENCE configuracion_seq RESTART WITH 30;
 
 --
 INSERT INTO servicio (id, codigo, descripcion, costo) VALUES
