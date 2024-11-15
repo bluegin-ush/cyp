@@ -419,39 +419,62 @@ public class FacturaService {
     public Factura facturarConSaldo(Factura factura) {
 
         Socio socio = factura.socio;
-        BigDecimal totalPagos = BigDecimal.ZERO;
 
-        // Procesar pagos existentes
-        for (Pago p : factura.pagos) {
-            if (!p.medioDePago.equals(MedioDePago.CTACTE)) {
-                totalPagos = totalPagos.add(p.monto);
+        BigDecimal totalPendiente = factura.total;
+
+        // Sumar montos de los pagos iniciales
+        for (Pago pago : factura.pagos) {
+            if (pago.medioDePago == MedioDePago.CTACTE) {
+                if (socio.ctacte.compareTo(pago.monto) < 0) {
+                    throw new IllegalArgumentException("Saldo insuficiente en cuenta corriente.");
+                }
+                // Descontar del saldo de la ctacte
+                socio.ctacte = socio.ctacte.subtract(pago.monto);
+            }
+            totalPendiente = totalPendiente.subtract(pago.monto);
+        }
+
+        // Si todavía hay total pendiente, usar saldo de ctacte
+        if (totalPendiente.compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal usadoDeCtacte = totalPendiente.min(socio.ctacte.max(BigDecimal.ZERO));
+            if (usadoDeCtacte.compareTo(BigDecimal.ZERO) > 0) {
+                socio.ctacte = socio.ctacte.subtract(usadoDeCtacte);
+
+                // Registrar el pago parcial desde ctacte
+                Pago pagoCtacte = new Pago();
+                pagoCtacte.factura = factura;
+                pagoCtacte.monto = usadoDeCtacte;
+                pagoCtacte.medioDePago = MedioDePago.CTACTE;
+                factura.pagos.add(pagoCtacte);
+
+                totalPendiente = totalPendiente.subtract(usadoDeCtacte);
             }
         }
 
-        // Usar saldo si corresponde
-        if (factura.pagos.isEmpty()) {
-            if (socio.ctacte.compareTo(factura.total) >= 0) {
-                totalPagos = factura.total;
-                socio.ctacte = socio.ctacte.subtract(factura.total);
-                factura.pagos.add(new Pago()); //factura.total, MedioDePago.CTACTE
-            } else {
-                totalPagos = socio.ctacte;
-                factura.pagos.add(new Pago()); //socio.ctacte, MedioDePago.CTACTE
-                socio.ctacte = BigDecimal.ZERO;
-            }
+        // Si todavía queda saldo pendiente, registrar como deuda en ctacte
+        if (totalPendiente.compareTo(BigDecimal.ZERO) > 0) {
+            socio.ctacte = socio.ctacte.subtract(totalPendiente);
+
+            // Registrar el pago parcial como deuda
+            Pago deudaCtacte = new Pago();
+            deudaCtacte.factura = factura;
+            deudaCtacte.monto = totalPendiente;
+            deudaCtacte.medioDePago = MedioDePago.CTACTE;
+            factura.pagos.add(deudaCtacte);
+
+            totalPendiente = BigDecimal.ZERO;
         }
 
-        // Actualizar saldo del socio
-        socio.ctacte = socio.ctacte.add(totalPagos).subtract(factura.total);
-
-        // Determinar estado de la factura
-        if (totalPagos.compareTo(factura.total) >= 0) {
+        // Actualizar el estado de la factura
+        if (totalPendiente.compareTo(BigDecimal.ZERO) == 0) {
             factura.estado = EstadoFactura.PAGADA;
         } else {
             factura.estado = EstadoFactura.EMITIDA;
         }
 
         return factura;
+    }
+
 
         /*
         //
@@ -585,7 +608,7 @@ public class FacturaService {
         }
         return factura;
         */
-    }
+
 
 
 }
