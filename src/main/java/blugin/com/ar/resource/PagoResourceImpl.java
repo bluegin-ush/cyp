@@ -68,8 +68,6 @@ public class PagoResourceImpl {
             }
             pago.fecha = pagoDto.fecha;
 
-            //TODO verificar de la misma manera que FACTURAR!!!!
-
             //verificar si se cancela el total de la factura
             BigDecimal totalPagos = new BigDecimal(factura.total.intValue());
 

@@ -329,8 +329,6 @@ public class FacturaService {
     }
 
 
-
-    //@Asynchronous
     public void preFacturar(LoteFactura lote, List<Socio> sociosActivos) {
 
         for (Socio socio : sociosActivos) {

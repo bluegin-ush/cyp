@@ -54,20 +54,22 @@ public class LoteFacturaResource {
         return Response.ok("Lote eliminado con éxito").build();
     }
 
+    @GET
+    @Path("/existe-en-mes-actual")
+    public Response existeLoteMesActual() {
+        boolean existe = loteFacturaRepository.existeLoteEnMesActual();
+
+        return Response.ok().entity(existe).build();
+    }
+
     @POST
-    @Path("/crear/{mes}/{anio}")
+    @Path("/crear")
     @Transactional
-    public Response generarLote(List<Long> sociosIds,
-                                @PathParam("mes") int mes,
-                                @PathParam("anio") int anio) {
+    public Response generarLote(List<Long> sociosIds) {
 
 
-        LoteFactura lote = LoteFactura.find("mes = ?1 and anio = ?2", mes, anio).firstResult();
 
-        if (lote == null) {
-            lote = new LoteFactura(mes, anio);
-            lote.mes = mes;
-            lote.anio = anio;
+        LoteFactura lote = new LoteFactura();
             lote.fechaGeneracion = LocalDateTime.now();
             lote.progreso = 0;
             lote.estado = EstadoLote.EN_CONSTRUCCION;
@@ -79,14 +81,13 @@ public class LoteFacturaResource {
                     ? socioRepository.todosConServicio()
 
                     //uso los socios que me pasaron
-                    : Socio.list("id in ?1 and activo = true", sociosIds);
+                    : socioRepository.todosLosSociosValidados(sociosIds);
 
-            loteFacturaRepository.persist(lote);
 
-            // Inicia el proceso asincrónico
+            //loteFacturaRepository.persist(lote);
+
+            // Inicia el proceso
             facturaService.preFacturar(lote, sociosActivos);
-
-        }
 
         return Response.accepted(lote).build();
 

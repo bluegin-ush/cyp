@@ -38,4 +38,8 @@ public class SocioRepository implements PanacheRepository<Socio> {
     public List<Socio> todosConServicio() {
         return find("activo and (servicios is not empty)").list();
     }
+
+    public List<Socio> todosLosSociosValidados(List<Long> sociosIds) {
+        return find("id in ?1 and activo and (servicios is not empty)", sociosIds ).list();
+    }
 }

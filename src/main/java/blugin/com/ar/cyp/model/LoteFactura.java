@@ -16,8 +16,8 @@ import java.util.List;
 public class LoteFactura extends PanacheEntity {
 
     private static final Logger log = LoggerFactory.getLogger(LoteFactura.class);
-    public int mes;
-    public int anio;
+    //public int mes;
+    //public int anio;
     public LocalDateTime fechaGeneracion;
     public EstadoLote estado;
     public int progreso;
@@ -28,15 +28,19 @@ public class LoteFactura extends PanacheEntity {
     public List<Long> idFacturasEmitidas;
     public List<Long> idFacturasErroneas;
 
-    public LoteFactura() {}
+    public LoteFactura() {
+        this.fechaGeneracion = LocalDateTime.now();
+        idFacturasEmitidas = new ArrayList<>();
+        idFacturasErroneas = new ArrayList<>();
+    }
 
-    public LoteFactura(int mes, int anio) {
+    /*public LoteFactura(int mes, int anio) {
         this.mes = mes;
         this.anio = anio;
         this.fechaGeneracion = LocalDateTime.now();
         idFacturasEmitidas = new ArrayList<>();
         idFacturasErroneas = new ArrayList<>();
-    }
+    }*/
 
     public void agregarFactura(Factura factura) {
         if(facturas == null){
