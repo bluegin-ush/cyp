@@ -2,6 +2,7 @@ package blugin.com.ar.resource;
 
 import blugin.com.ar.cyp.model.*;
 import blugin.com.ar.dto.PagoDTO;
+import blugin.com.ar.repository.ConfiguracionRepository;
 import blugin.com.ar.repository.FacturaRepository;
 import blugin.com.ar.repository.PagoRepository;
 import blugin.com.ar.repository.SocioRepository;
@@ -32,6 +33,9 @@ public class PagoResourceImpl {
     @Inject
     FacturaRepository facturaRepository;
 
+    @Inject
+    ConfiguracionRepository configuracionRepository;
+
     @POST
     @Transactional
     public Response crearPago(PagoDTO pagoDto) {
@@ -43,8 +47,13 @@ public class PagoResourceImpl {
         if (socio != null) {
             // Actualizar la cuenta corriente (ctacte) del socio
             if(MedioDePago.fromNombre(pagoDto.medioDePago).equals(MedioDePago.CTACTE)){
+                //
+                Boolean usaSaldo = configuracionRepository.obtenerUtilizaSaldoParaPagarFactura();
 
-                //verificamos si es posible
+                if( !usaSaldo ) {
+                    return Response.status(Response.Status.CONFLICT).entity("El sistema se encuentra configurado para no utilizar el saldo del socio").build();
+                }
+                    //verificamos si es posible
                 if(socio.ctacte.subtract(pagoDto.monto).compareTo(BigDecimal.ZERO)>=0) {
                     //si es de su cuenta corriente se debe actualizar en función del monto
                     socio.ctacte = socio.ctacte.subtract(pagoDto.monto);
