@@ -62,6 +62,18 @@ public class LoteFacturaResource {
         return Response.ok().entity(existe).build();
     }
 
+    @GET
+    @Path("/en-mes-actual")
+    public Response lotesEnMesActual() {
+        List<LoteFactura> lotes = loteFacturaRepository.lotesDelMesActual();
+
+        if (lotes.isEmpty()) {
+            return Response.status(Response.Status.NO_CONTENT).entity("No existen lotes").build();
+        } else {
+            return Response.ok().entity(lotes).build();
+        }
+    }
+
     @POST
     @Path("/crear")
     @Transactional

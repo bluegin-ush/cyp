@@ -17,4 +17,11 @@ public class LoteFacturaRepository implements PanacheRepository<LoteFactura> {
 
         return find("fechaGeneracion >= ?1 and fechaGeneracion <= ?2", inicioMes, finMes).count() > 0;
     }
+
+    public List<LoteFactura> lotesDelMesActual() {
+        LocalDateTime inicioMes = LocalDateTime.now().withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime finMes = inicioMes.plusMonths(1).minusNanos(1);
+
+        return find("fechaGeneracion >= ?1 and fechaGeneracion <= ?2", inicioMes, finMes).list();
+    }
 }
