@@ -22,6 +22,7 @@ public class FacturaDTO {
 
     public String estado;
     public String qr;
+    public Long nroComprobante;
 
     public FacturaDTO(){
 
@@ -30,7 +31,7 @@ public class FacturaDTO {
     // Constructor que toma la entidad Factura
     public FacturaDTO(Factura factura) {
         this.facturaId = factura.id;
-        //this.numero = factura.numero;
+        this.nroComprobante = factura.nroComprobante;
 
         this.fecha = factura.fecha;
         this.tipo = factura.tipo.name();

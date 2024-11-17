@@ -49,6 +49,14 @@ public class NotaDeCreditoResource {// extends PanacheRepositoryResource<NotaDeC
 
     @GET
     public Response getNotas() {
+
         return Response.ok(notaDeCreditoRepository.listAll()).build();
+    }
+
+    @GET
+    @Path("/{notaId}")
+    public Response getNota(@PathParam("notaId")Long notaId) {
+
+        return Response.ok(notaDeCreditoRepository.findById(notaId)).build();
     }
 }

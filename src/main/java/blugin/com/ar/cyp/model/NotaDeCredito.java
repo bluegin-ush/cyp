@@ -26,7 +26,13 @@ public class NotaDeCredito extends PanacheEntity {
     @JsonBackReference
     public Factura factura;
 
-    public long getFacturaId(){
+    public Long getFacturaId(){
+
         return factura.id;
     }
+
+    public Long getFacturaNroComprobante(){
+        return factura.nroComprobante;
+    }
+
 }
