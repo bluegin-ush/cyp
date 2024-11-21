@@ -64,7 +64,12 @@ public class PagoResourceImpl {
             }else {
 
                 //cualquier pago q no sea mediante su ctacte se debe actualizar adicionando el monto
-                socio.ctacte = socio.ctacte.add(pagoDto.monto);
+                if(socio.ctacte.compareTo(BigDecimal.ZERO)<=0) {
+                    //sólo si la cuenta está en 0 o es negativa.
+                    socio.ctacte = socio.ctacte.add(pagoDto.monto);
+                }else {
+                    log.warn("El socio tiene un saldo positivo, se debe realizar un pago que lo utilice.");
+                }
             }
 
             Pago pago = new Pago();

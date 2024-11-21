@@ -19,6 +19,7 @@ import java.util.Map;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 @Path("/socio")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -39,7 +40,16 @@ public class SocioResource {// implements PanacheRepositoryResource<SocioReposit
 
     @GET
     public List<Socio> getAllSocios() {
-        return socioRepository.listAll();
+
+        //
+        List<Socio> socios = socioRepository.listAll();
+
+        //
+        for (Socio s : socios){
+            s.tieneDeuda = facturaRepository.findImpagasBySocioId(s.id).size()>0;
+        }
+
+        return socios;
     }
 
     @GET

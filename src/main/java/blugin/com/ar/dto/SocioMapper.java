@@ -26,6 +26,7 @@ public class SocioMapper {
         dto.tarjetaVto = socio.tarjetaVto;
         dto.activo = socio.activo;
         dto.ctacte = socio.ctacte;
+        dto.tieneDeuda = socio.tieneDeuda;
 
         if (socio.entidadCrediticia != null) {
             dto.entidadCrediticia = EntidadCrediticiaMapper.toDTO(socio.entidadCrediticia);
@@ -53,6 +54,7 @@ public class SocioMapper {
         socio.tarjetaVto = dto.tarjetaVto;
         socio.activo = dto.activo;
         socio.ctacte = dto.ctacte;
+        socio.tieneDeuda = dto.tieneDeuda;
 
         if (dto.entidadCrediticia != null) {
             socio.entidadCrediticia = EntidadCrediticiaMapper.toEntity(dto.entidadCrediticia);

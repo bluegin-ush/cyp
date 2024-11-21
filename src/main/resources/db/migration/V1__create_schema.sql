@@ -21,7 +21,7 @@ create table Factura (total numeric(38,2), vtoCae date, archivo_id bigint, fecha
 create table Item (cantidad integer, precio numeric(38,2), factura_id bigint, id bigint not null, concepto varchar(255), primary key (id));
 create table LoteFactura (estado smallint check (estado between 0 and 3), progreso integer not null, fechaGeneracion timestamp(6), id bigint not null, idFacturasEmitidas bigint array, idFacturasErroneas bigint array, primary key (id));
 create table NotaDeCredito (total numeric(38,2), vtoCae date, factura_id bigint, fecha timestamp(6), id bigint not null, nroComprobante bigint, cae varchar(255), motivo varchar(255), primary key (id));
-create table Pago (monto numeric(38,2), factura_id bigint, fecha timestamp(6), id bigint not null, medioDePago varchar(255) check (medioDePago in ('EFECTIVO','TARJETA_CREDITO','TARJETA_DEBITO','TRANSFERENCIA_BANCARIA')), primary key (id));
+create table Pago (monto numeric(38,2), factura_id bigint, fecha timestamp(6), id bigint not null, medioDePago varchar(255) check (medioDePago in ('EFECTIVO','TARJETA_CREDITO','TARJETA_DEBITO','TRANSFERENCIA_BANCARIA','CTACTE')), primary key (id));
 create table Person (birth date, status smallint check (status between 0 and 1), id bigint not null, name varchar(255), primary key (id));
 create table Registro (fecha date, id bigint not null, socio_id bigint, motivo varchar(255), tipo varchar(255) check (tipo in ('ALTA','BAJA')), primary key (id));
 create table Salida (monto numeric(38,2), fecha timestamp(6), id bigint not null, descripcion varchar(255), tipo varchar(255) check (tipo in ('EFECTIVO','TRANSFERENCIA','DEBITO')), primary key (id));

@@ -396,13 +396,38 @@ public class FacturaService {
 
                 totalPagos = totalPagos.add(p.monto);
 
+            }else{
+                log.warn("Se encuentra establecido el modo 'usar-saldo=false'. Se descarta el pago con ctacte");
             }
         }
 
-        socio.ctacte = socio.ctacte
-                .subtract(factura.total)
-                .add(totalPagos);
+        //sólo actualiza el saldo si es <= 0, caso contrario se actualiza si hay exedente en el pago
+        // Si el total de los pagos ha excedido la factura, no se hace un pago automático, solo se actualiza la ctacte
+        BigDecimal totalPendiente = factura.total.subtract(totalPagos);
 
+        if (totalPendiente.compareTo(BigDecimal.ZERO) < 0) {
+            // Si el pago excede la factura, se genera un crédito en la cuenta corriente
+            BigDecimal excedente = totalPendiente.negate(); // Total excedente (positivo)
+            socio.ctacte = socio.ctacte.add(excedente);
+
+            totalPendiente = BigDecimal.ZERO; // No hay deuda restante
+        }
+
+        // Si aún queda saldo pendiente y la cuenta corriente tiene saldo suficiente, solo se refleja el saldo
+        if (totalPendiente.compareTo(BigDecimal.ZERO) > 0) {
+            if (socio.ctacte.compareTo(BigDecimal.ZERO) <= 0) {
+                socio.ctacte = socio.ctacte.subtract(totalPendiente);
+            }else {
+                log.warn("El socio tiene un saldo positivo, se debe realizar un pago que lo utilice.");
+            }
+
+        }
+        /*socio.ctacte = socio.ctacte
+                .subtract(factura.total)
+                .add(totalPagos);*/
+
+        log.info("El total de la factura es de: "+factura.total);
+        log.info("El total de pagos es de: "+totalPagos);
         //cancela el monto de la factura?
         if (factura.total.subtract(totalPagos).compareTo(BigDecimal.ZERO) <= 0) {
             factura.estado = EstadoFactura.PAGADA;
@@ -417,61 +442,62 @@ public class FacturaService {
     public Factura facturarConSaldo(Factura factura) {
 
         Socio socio = factura.socio;
-
         BigDecimal totalPendiente = factura.total;
 
-        // Sumar montos de los pagos iniciales
+        // Iterar sobre los pagos para procesarlos
         for (Pago pago : factura.pagos) {
             if (pago.medioDePago == MedioDePago.CTACTE) {
+                // Si el pago es con CTACTE, intentamos cubrirlo con el saldo de la cuenta corriente
                 if (socio.ctacte.compareTo(pago.monto) < 0) {
-                    throw new IllegalArgumentException("Saldo insuficiente en cuenta corriente.");
+                    // Si el saldo de la cuenta corriente es insuficiente, lanzamos una excepción
+                    throw new IllegalArgumentException("Saldo insuficiente en cuenta corriente para cubrir el pago.");
                 }
-                // Descontar del saldo de la ctacte
+
+                // Descontamos del saldo de la cuenta corriente
                 socio.ctacte = socio.ctacte.subtract(pago.monto);
             }
+
+            // Reducir el monto pendiente en función del pago
             totalPendiente = totalPendiente.subtract(pago.monto);
         }
 
-        // Si todavía hay total pendiente, usar saldo de ctacte
+        // Si el total de los pagos ha excedido la factura, no se hace un pago automático, solo se actualiza la ctacte
+        if (totalPendiente.compareTo(BigDecimal.ZERO) < 0) {
+            // Si el pago excede la factura, se genera un crédito en la cuenta corriente
+            BigDecimal excedente = totalPendiente.negate(); // Total excedente (positivo)
+            socio.ctacte = socio.ctacte.add(excedente);
+
+            totalPendiente = BigDecimal.ZERO; // No hay deuda restante
+        }
+
+        // Si aún queda saldo pendiente y la cuenta corriente tiene saldo suficiente, solo se refleja el saldo
         if (totalPendiente.compareTo(BigDecimal.ZERO) > 0) {
-            BigDecimal usadoDeCtacte = totalPendiente.min(socio.ctacte.max(BigDecimal.ZERO));
-            if (usadoDeCtacte.compareTo(BigDecimal.ZERO) > 0) {
-                socio.ctacte = socio.ctacte.subtract(usadoDeCtacte);
-
-                // Registrar el pago parcial desde ctacte
-                Pago pagoCtacte = new Pago();
-                pagoCtacte.factura = factura;
-                pagoCtacte.monto = usadoDeCtacte;
-                pagoCtacte.medioDePago = MedioDePago.CTACTE;
-                factura.pagos.add(pagoCtacte);
-
-                totalPendiente = totalPendiente.subtract(usadoDeCtacte);
+            if (socio.ctacte.compareTo(BigDecimal.ZERO) <= 0) {
+                socio.ctacte = socio.ctacte.subtract(totalPendiente);
+            }else {
+                log.warn("El socio tiene un saldo positivo, se debe realizar un pago que lo utilice.");
             }
+
         }
 
-        // Si todavía queda saldo pendiente, registrar como deuda en ctacte
-        if (totalPendiente.compareTo(BigDecimal.ZERO) > 0) {
-            socio.ctacte = socio.ctacte.subtract(totalPendiente);
-
-            // Registrar el pago parcial como deuda
-            Pago deudaCtacte = new Pago();
-            deudaCtacte.factura = factura;
-            deudaCtacte.monto = totalPendiente;
-            deudaCtacte.medioDePago = MedioDePago.CTACTE;
-            factura.pagos.add(deudaCtacte);
-
-            totalPendiente = BigDecimal.ZERO;
-        }
-
-        // Actualizar el estado de la factura
-        if (totalPendiente.compareTo(BigDecimal.ZERO) == 0) {
+        // Si al final el total pendiente es 0 o menor, se marca la factura como PAGADA
+        if (totalPendiente.compareTo(BigDecimal.ZERO) <= 0) {
             factura.estado = EstadoFactura.PAGADA;
         } else {
             factura.estado = EstadoFactura.EMITIDA;
         }
 
+        // Registrar el estado de la cuenta corriente actualizado
+        log.info("El saldo de la cuenta corriente del socio es ahora: " + socio.ctacte);
+        log.info("El total de la factura es: " + factura.total);
+        log.info("El total de pagos pendientes es: " + totalPendiente);
+
         return factura;
     }
+
+
+
+
 
 
         /*

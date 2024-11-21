@@ -34,12 +34,12 @@ public class ResponseAuditFilter implements ContainerResponseFilter {
         int status = responseContext.getStatus();
         String estado="estado:"+status;
         //
-        String body;
-        try {
+        String body = "";
+        /*try {
             body = getResponseBody(responseContext);
         }catch (IOException ioe){
             body = "error al obtener el body: " + ioe.getMessage();
-        }
+        }*/
 
         if(!path.contains("/auditoria")) {
             auditInterceptor.audit(false, method, path, user, estado, null, body);

@@ -102,6 +102,7 @@ public class Facturar {
             //factura.estado = EstadoFactura.CANCELADA;
             try{
                 factura.estado = asignarEstadoSegunTotales(factura, notaDTO);
+
             }catch (Exception e){
                 return Response.status(Response.Status.CONFLICT).entity("La nota de crédito excede el total de la factura").build();
             }
@@ -138,23 +139,6 @@ public class Facturar {
         //
         BigDecimal totalCancelado = notaDTO.total;
 
-/*
-        DEPRECATED
-
-        BigDecimal totalPagos = new BigDecimal(0);
-        for(Pago pago: factura.pagos){
-            totalPagos = totalPagos.add(pago.monto);
-        }
-
-        if(notaDTO.total.compareTo(totalPagos) > 0){
-            throw new Exception("La monto toal de la nota de crédito supera los pagos.El o los totales de las notadas de creditos superaría el monto total de la factura");
-        }
-        //
-        for(NotaDeCredito notaDeCredito: factura.notasDeCredito){
-            totalCancelado = totalCancelado.add(notaDeCredito.total);
-        }
-
- */
         //Si el total cancelado supera el facturado, lanzamos una excepción porque no se podría
         if(totalCancelado.compareTo(factura.total) == 1){
             throw new Exception("El o los totales de las notadas de creditos superaría el monto total de la factura");
@@ -216,6 +200,32 @@ public class Facturar {
 
             if (facturas.isEmpty()) {
                 return Response.status(Response.Status.NO_CONTENT).entity("No se encontraron facturas para el socio con ID: " + socioId).build();
+            }
+
+            // Convertir las entidades Factura a FacturaDTO para evitar el problema de lazy loading
+            List<FacturaDTO> facturaDTOs = facturas.stream()
+                    .map(FacturaDTO::new)
+                    .collect(Collectors.toList());
+
+            return Response.ok(facturaDTOs).build();
+
+
+        } else {
+            //
+            return Response.status(Response.Status.NOT_FOUND).entity("Socio no encontrado").build();
+        }
+    }
+
+    @GET
+    @Path("/socio/{socioId}/impagas")
+    public Response getFacturasImpagasBySocio(@PathParam("socioId") Long socioId) {
+        Socio socio = socioRepository.findById(socioId);
+        if (socio != null) {
+
+            List<Factura> facturas = facturaRepository.findImpagasBySocioId(socioId);
+
+            if (facturas.isEmpty()) {
+                return Response.status(Response.Status.NO_CONTENT).entity("No se encontraron facturas impagas para el socio con ID: " + socioId).build();
             }
 
             // Convertir las entidades Factura a FacturaDTO para evitar el problema de lazy loading

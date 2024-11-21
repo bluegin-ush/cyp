@@ -19,6 +19,15 @@ public class FacturaRepository implements PanacheRepository<Factura> {
         return find("select f from Factura f left join fetch f.items where f.socio.id = ?1", socioId).list();
     }
 
+    public List<Factura> findImpagasBySocioId(Long socioId) {
+        //return find("socio.id", socioId).list();
+        return find("select f from Factura f left join fetch f.items where f.socio.id = ?1 and f.estado in (?2, ?3)",
+                socioId,
+                EstadoFactura.EMITIDA,
+                EstadoFactura.PARCIALMENTE_CANCELADA)
+                .list();
+    }
+
     public List<Factura> buscarFacturasEntreFechas(LocalDate fechaInicio, LocalDate fechaFin) {
         LocalDateTime fechaInicioTime = fechaInicio.atStartOfDay();
         LocalDateTime fechaFinTime = fechaFin.atTime(LocalTime.MAX);
@@ -30,4 +39,6 @@ public class FacturaRepository implements PanacheRepository<Factura> {
         return find("#Factura.buscarEntreFechasXSocio",
                 Parameters.with("socioId", socioId).and("fechaInicio", fechaInicio).and("fechaFin", fechaFin)).list();
     }
+
+
 }

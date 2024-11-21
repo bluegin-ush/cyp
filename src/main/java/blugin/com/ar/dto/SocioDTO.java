@@ -34,19 +34,25 @@ public class SocioDTO{
 
     public List<FacturaDTO> facturas;
 
+    public Boolean tieneDeuda;
+
     public SocioDTO(){
+
         this.facturas = new ArrayList<>();
     }
 
     public List<FacturaDTO> getFacturas() {
+
         return facturas;
     }
 
     public void setFacturas(List<FacturaDTO> facturas) {
+
         this.facturas = facturas;
     }
 
     public void addFactura(FacturaDTO factura){
+
         this.facturas.add(factura);
     }
 }

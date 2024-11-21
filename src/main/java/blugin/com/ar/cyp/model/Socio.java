@@ -1,5 +1,6 @@
 package blugin.com.ar.cyp.model;
 
+import blugin.com.ar.dto.FacturaDTO;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.*;
 import org.slf4j.Logger;
@@ -62,34 +63,7 @@ public class Socio extends PanacheEntity {
         return registros;
     }
 
-    /*
-    public void setTarjetaCod(String tarjetaCod) {
-        //TODO validar que sean 3 dígitos
-        this.tarjetaCod = tarjetaCod;
-    }
-
-    public void setTarjetaNum(String tarjetaNum) {
-        //TODO validar que sean 16 dígitos
-        this.tarjetaNum = tarjetaNum;
-    }
-
-    public void setTarjetaVto(String tarjetaVto) {
-        //TODO validar que el vencimiento sea en el formato MM/YY
-        this.tarjetaVto = tarjetaVto;
-    }
-
-    public String getEntidadCrediticia() {
-
-        if(entidadCrediticia!= null){
-            return String.format("Entidad : %s - {%s-%s-%s}",entidadCrediticia.toString(), tarjetaNum, tarjetaVto, tarjetaCod );
-        }else{
-            return "sin-asociar";
-        }
-    }
-
-    public void setEntidadCrediticia(EntidadCrediticia entidadCrediticia) {
-        this.entidadCrediticia = entidadCrediticia;
-    }
-    */
+    @Transient
+   public Boolean tieneDeuda;
 
 }

@@ -28,7 +28,7 @@ public class CifradoSHA256 {
     }
 
     public static void main(String[] args) {
-        String password = "daniel";
+        String password = "123456";
         String hashedPassword = cifrarSHA256(password);
         System.out.println("Clave cifrada con SHA-256: " + hashedPassword);
         

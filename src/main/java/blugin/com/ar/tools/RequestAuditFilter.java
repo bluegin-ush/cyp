@@ -28,9 +28,10 @@ public class RequestAuditFilter implements ContainerRequestFilter {
     public void filter(ContainerRequestContext requestContext) {
 
         // Obtener Headers
-        String headers = requestContext.getHeaders().entrySet().stream()
+        /*String headers = requestContext.getHeaders().entrySet().stream()
                 .map(entry -> entry.getKey() + ": " + entry.getValue())
-                .collect(Collectors.joining(", "));
+                .collect(Collectors.joining(", "));*/
+        String headers = "";
 
         // Obtener Query Parameters
         String queryParams = requestContext.getUriInfo().getQueryParameters().entrySet().stream()
@@ -38,12 +39,12 @@ public class RequestAuditFilter implements ContainerRequestFilter {
                 .collect(Collectors.joining(", "));
 
         // Obtener el Body (si existe)
-        String body;
-        try {
+        String body = "";
+        /*try {
             body = getRequestBody(requestContext);
         }catch (IOException ioe){
             body = "error al obtener el body: " + ioe.getMessage();
-        }
+        }*/
 
         String method = requestContext.getMethod();
         String path = requestContext.getUriInfo().getPath();
