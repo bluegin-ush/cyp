@@ -1,6 +1,7 @@
 package blugin.com.ar.resource;
 
 import blugin.com.ar.cyp.model.EstadoLote;
+import blugin.com.ar.cyp.model.Factura;
 import blugin.com.ar.cyp.model.LoteFactura;
 import blugin.com.ar.cyp.model.Socio;
 import blugin.com.ar.repository.LoteFacturaRepository;
@@ -44,13 +45,19 @@ public class LoteFacturaResource {
         }
 
         // Verificar si el lote tiene facturas asociadas
-        if (loteFactura.estado.equals(EstadoLote.COMPLETADO)||loteFactura.estado.equals(EstadoLote.FALLIDO)) {
+        if (!loteFactura.estado.equals(EstadoLote.EN_CONSTRUCCION)) {
             return Response.status(Response.Status.CONFLICT)
                     .entity("No se puede eliminar el lote, tiene facturas creadas y asociadas").build();
         }
 
-        // Si no tiene facturas asociadas, proceder con la eliminación
+        //Se pre-facturó, hay que actualizar la ctacte de cada socio antes de eliminar las facturas.
+        for (Factura factura: loteFactura.facturas) {
+            //actualizamos la ctacte de cada socio
+            factura.socio.ctacte = factura.socio.ctacte.subtract(factura.total);
+        }
+        //eliminamos el lote (y en casacada sus facturas pre-emitidas)
         loteFactura.delete();
+
         return Response.ok("Lote eliminado con éxito").build();
     }
 

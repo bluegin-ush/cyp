@@ -281,7 +281,7 @@ public class FacturaService {
 
         LoteFactura lote = loteFacturaRepository.findById(loteId);
 
-        boolean seProdujoError=false;
+        //boolean seProdujoError=false;
 
         //for(Factura factura: lote.facturas) {
         //
@@ -311,19 +311,22 @@ public class FacturaService {
                 log.error(String.format("Al generar la facturaId %s - msg: %s", factura.id, e.getMessage()));
                 lote.idFacturasErroneas.add(factura.id);
 
-                seProdujoError=true;
+                //seProdujoError=true;
             }
 
         }
 
 
-
         // Marcar lote como completado
-        if(seProdujoError){
-            lote.estado = EstadoLote.FALLIDO;
-        }else{
+        if( (lote.idFacturasEmitidas.size() + lote.idFacturasErroneas.size())==lote.facturas.size() ) {
             lote.estado = EstadoLote.COMPLETADO;
+            /*if(seProdujoError){
+                lote.estado = EstadoLote.FALLIDO;
+            }else{
+                lote.estado = EstadoLote.COMPLETADO;
+            }*/
         }
+
         loteFacturaRepository.persist(lote);
 
     }
