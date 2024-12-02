@@ -47,14 +47,9 @@ public class LoteFacturaResource {
         // Verificar si el lote tiene facturas asociadas
         if (!loteFactura.estado.equals(EstadoLote.EN_CONSTRUCCION)) {
             return Response.status(Response.Status.CONFLICT)
-                    .entity("No se puede eliminar el lote, tiene facturas creadas y asociadas").build();
+                    .entity("No se puede eliminar el lote, tiene facturas asociadas").build();
         }
 
-        //Se pre-facturó, hay que actualizar la ctacte de cada socio antes de eliminar las facturas.
-        for (Factura factura: loteFactura.facturas) {
-            //actualizamos la ctacte de cada socio
-            factura.socio.ctacte = factura.socio.ctacte.subtract(factura.total);
-        }
         //eliminamos el lote (y en casacada sus facturas pre-emitidas)
         loteFactura.delete();
 
@@ -160,7 +155,7 @@ public class LoteFacturaResource {
                 //
                 return Response.accepted(lote).build();
 
-            } else if (lote.estado.equals(EstadoLote.FALLIDO) || (lote.estado.equals(EstadoLote.COMPLETADO)) ) {
+            } else if (lote.estado.equals(EstadoLote.COMPLETADO) ) {
 
                 //
                 return Response.status(Response.Status.OK).entity("El lote se procesó").entity(lote).build();

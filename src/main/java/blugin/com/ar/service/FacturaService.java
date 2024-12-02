@@ -295,15 +295,15 @@ public class FacturaService {
                 log.info(String.format("Emitiendo la factura del socio [%s]",i, factura.socio));
                 facturar(factura);
 
-                //
-                factura.estado = EstadoFactura.EMITIDA; // Estado inicial
+                // actualizamos el estado de la ctacte del socio
+                factura.socio.ctacte = factura.socio.ctacte.add(factura.total);
+
+                // Estado inicial
+                factura.estado = EstadoFactura.EMITIDA;
 
                 //
                 lote.idFacturasEmitidas.add(factura.id);
 
-                // Actualizar progreso
-                lote.progreso = ((lote.idFacturasEmitidas.size() + lote.idFacturasErroneas.size() ) / lote.facturas.size())*100;
-                //loteFacturaRepository.persist(lote);
 
             } catch (Exception e) {
 
@@ -314,17 +314,17 @@ public class FacturaService {
                 //seProdujoError=true;
             }
 
+            // Actualizar progreso
+            lote.progreso = ((lote.idFacturasEmitidas.size() + lote.idFacturasErroneas.size() ) / lote.facturas.size())*100;
+
+
         }
 
 
         // Marcar lote como completado
         if( (lote.idFacturasEmitidas.size() + lote.idFacturasErroneas.size())==lote.facturas.size() ) {
             lote.estado = EstadoLote.COMPLETADO;
-            /*if(seProdujoError){
-                lote.estado = EstadoLote.FALLIDO;
-            }else{
-                lote.estado = EstadoLote.COMPLETADO;
-            }*/
+            lote.progreso = 100;
         }
 
         loteFacturaRepository.persist(lote);
@@ -363,8 +363,9 @@ public class FacturaService {
                 factura.total = totalFactura;
                 factura.estado = EstadoFactura.PRE_EMITADA; // Estado inicial
 
-                //actualizamos el estado de la ctacte del socio
-                factura.socio.ctacte = factura.socio.ctacte.add(totalFactura);
+                // actualizamos el estado de la ctacte del socio
+                // EN RELAIDAD SE DEBE ACTUALIZAR AL EMITIR LA FACTURA, ESTA SE ECNUENTRA PREEMITIDA
+                // factura.socio.ctacte = factura.socio.ctacte.add(totalFactura);
 
                 // Relacionar los items con la factura
                 for (Item item : items) {
@@ -497,145 +498,4 @@ public class FacturaService {
 
         return factura;
     }
-
-
-
-
-
-
-        /*
-        //
-        Socio socio = factura.socio;
-
-        //verificamos si viene con pagos
-        if (factura.pagos != null && !factura.pagos.isEmpty()) {
-
-            //
-            BigDecimal totalPagos = new BigDecimal(factura.total.intValue());
-
-            //recorremos los pagos
-            for (Pago p : factura.pagos) {
-
-                if (p.medioDePago.equals(MedioDePago.CTACTE)) {
-
-                    //verificamos si es posible utilizar la ctacte
-                    if (socio.ctacte.subtract(p.monto).compareTo(BigDecimal.ZERO) < 0) {
-
-                        //no alcanza el saldo, si tiene algo lo usamos
-                        if (socio.ctacte.compareTo(BigDecimal.ZERO) > 0) {
-                            //le asigno el disponible
-                            p.monto = socio.ctacte;
-                        } else {
-                            //no tiene nada, actualizo el pago con cta cte a cero.
-                            p.monto = BigDecimal.ZERO;
-                        }
-
-
-                    }
-
-                    //es posible => actualizo la ctacte
-                    socio.ctacte = socio.ctacte.subtract(p.monto);
-
-
-                }
-
-                totalPagos = totalPagos.subtract(p.monto);
-
-            }
-
-            //estalecemos el estado de la factura
-            if (totalPagos.compareTo(BigDecimal.ZERO) <= 0) {
-
-                //los  pagos completaron el monto de la factura
-                factura.estado = EstadoFactura.PAGADA;
-
-                //actualizamos la ctacte
-                socio.ctacte = socio.ctacte.subtract(totalPagos);
-
-            } else {
-                //tengo saldo y me falto llegar al monto?
-                if ((socio.ctacte.compareTo(BigDecimal.ZERO) > 0) && (totalPagos.compareTo(BigDecimal.ZERO) > 0)) {
-                    //puedo usar el saldo para cancelar?
-                    if (socio.ctacte.compareTo(totalPagos) >= 0) {
-
-                        //pago completo
-                        Pago pago = new Pago();
-                        pago.factura = factura;
-                        pago.monto = totalPagos;
-                        pago.fecha = LocalDateTime.now();
-                        pago.medioDePago = MedioDePago.CTACTE;
-
-                        factura.pagos.add(pago);
-
-                        //factura pagada
-                        factura.estado = EstadoFactura.PAGADA;
-                        socio.ctacte = socio.ctacte.subtract(totalPagos);
-
-                    } else {
-                        //pago parcial
-                        Pago pago = new Pago();
-                        pago.factura = factura;
-                        pago.monto = socio.ctacte;
-                        pago.fecha = LocalDateTime.now();
-                        pago.medioDePago = MedioDePago.CTACTE;
-
-                        factura.pagos.add(pago);
-
-                        //factura parcial
-                        factura.estado = EstadoFactura.EMITIDA;
-                        socio.ctacte = socio.ctacte.subtract(pago.monto); //debería quedar en 0
-                    }
-                }
-            }
-
-
-        } else { //no viene con pagos
-
-            //verifico si tengo saldo para crear un pago desde ctacte
-            if (socio.ctacte.compareTo(BigDecimal.ZERO) > 0) {
-
-                //puedo usar el saldo para cancelar?
-                if (socio.ctacte.compareTo(factura.total) >= 0) {
-
-                    //pago completo
-                    Pago pago = new Pago();
-                    pago.factura = factura;
-                    pago.monto = factura.total;
-                    pago.fecha = LocalDateTime.now();
-                    pago.medioDePago = MedioDePago.CTACTE;
-
-                    factura.pagos.add(pago);
-
-                    //factura pagada
-                    factura.estado = EstadoFactura.PAGADA;
-
-                } else {
-                    //pago parcial
-                    Pago pago = new Pago();
-                    pago.factura = factura;
-                    pago.monto = socio.ctacte;
-                    pago.fecha = LocalDateTime.now();
-                    pago.medioDePago = MedioDePago.CTACTE;
-
-                    factura.pagos.add(pago);
-
-                    //factura parcial
-                    factura.estado = EstadoFactura.EMITIDA;
-
-                }
-
-            } else {
-
-                //marcamos la factura como que ha sido emitida
-                factura.estado = EstadoFactura.EMITIDA;
-            }
-
-            //actualizamos la ctacte
-            socio.ctacte = socio.ctacte.subtract(factura.total);
-        }
-        return factura;
-        */
-
-
-
 }
