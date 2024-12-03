@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -127,28 +128,21 @@ public class ArchivoResource {
         // Crear el archivo en la entidad Archivo
         Archivo archivo = new Archivo();
 
-        // Generar el archivo en formato texto
-        StringBuilder archivoTexto = new StringBuilder();
-        archivoTexto.append("Archivo de facturas para la entidad: ").append(entidadCrediticia.nombre).append("\n");
-        archivoTexto.append("Fecha de generación: ").append(LocalDateTime.now()).append("\n\n");
-        archivoTexto.append("Facturas:\n");
-
+        //
+        BigDecimal importeTotal = BigDecimal.ZERO;
         for (Factura factura : facturas) {
-            archivoTexto.append("Factura ID: ").append(factura.id)
-                    .append(" | Socio: ").append(factura.socio.nombre).append(" ").append(factura.socio.apellido)
-                    .append(" | Total: ").append(factura.total).append("\n");
             factura.setArchivo(archivo);
-            archivo.agregarFactura(factura);
+            importeTotal = importeTotal.add(factura.total);
         }
 
-
+        archivo.facturas = facturas;
         archivo.entidadCrediticia = entidadCrediticia;
+        archivo.importeTotal = importeTotal;
+
+        archivo.archivo = archivoService.generarContenidoArchivo(archivo);
+
         archivo.fechaGeneracion = LocalDateTime.now();
         archivo.estado = EstadoArchivo.GENERADO;
-        archivo.archivo = archivoTexto.toString();  // Guardar el archivo en formato texto
-        archivo.facturas = facturas;
-
-        // Persistir el archivo
         archivo.persist();
 
         return Response.ok(archivo).build();
