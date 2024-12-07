@@ -14,6 +14,8 @@ import java.util.List;
 @ApplicationScoped
 public class ArchivoService {
 
+    String NUMERO_ENTIDAD_STR = "0014161855";
+    Long NUMERO_ENTIDAD_LONG = Long.parseLong(NUMERO_ENTIDAD_STR);
 
     public String generarContenidoArchivo(Archivo archivo) {
 
@@ -38,7 +40,7 @@ public class ArchivoService {
         // Generar el archivo en formato texto
         StringBuilder archivoTexto = new StringBuilder();
 
-        long NUMERO_ENTIDAD = Long.parseLong("0014161855");
+
 
         // CABECERA
         // Tipo de registro
@@ -46,7 +48,8 @@ public class ArchivoService {
         // Constante
         archivoTexto.append("DEBLIQC ");
         // Número del Establecimiento que generó el archivo
-        archivoTexto.append(String.format("%010d", NUMERO_ENTIDAD));
+        //archivoTexto.append(String.format("%010d", NUMERO_ENTIDAD_LONG));
+        archivoTexto.append(NUMERO_ENTIDAD_STR);
         // Constante
         archivoTexto.append("900000    ");
         // Fecha de generación del archivo (AAAAMMDD)
@@ -81,6 +84,7 @@ public class ArchivoService {
             archivoTexto.append(String.format("%015d", factura.getSaldo().multiply(new BigDecimal("100")).longValue()));
             // Identificador del débito
             //TODO: mejorar por un valor del tipo secuencia.
+            //IDENTIFICADOR DEL DEBITO
             archivoTexto.append(String.format("%015d", factura.id));
             // Código de alta de Identificador
             archivoTexto.append("E");
@@ -98,7 +102,8 @@ public class ArchivoService {
         // Constante
         archivoTexto.append("DEBLIQD ");
         // Nro. de Establecimiento que recibe el archivo
-        archivoTexto.append(String.format("%010d", NUMERO_ENTIDAD));
+        //archivoTexto.append(String.format("%010d", NUMERO_ENTIDAD));
+        archivoTexto.append(NUMERO_ENTIDAD_STR);
         // Constante
         archivoTexto.append("900000    ");
         // Fecha de generación del archivo (AAAAMMDD)
@@ -186,6 +191,16 @@ public class ArchivoService {
         System.out.println("C10: " + c10);
         System.out.println("C11: " + c11);
 
+        BigDecimal sumaImportes = BigDecimal.ZERO;
+        int aceptadas = 0;
+        int rechazadas = 0;
+        int noSonMias = 0;
+
+        Boolean esConsumo = Boolean.FALSE;
+        Boolean esMiEstablecimiento = Boolean.FALSE;
+        BigDecimal importe =BigDecimal.ZERO;
+        Long facturaId = 0L;
+        Boolean esAceptada = Boolean.FALSE;
 
         for (int i=1; i<lineasArchivo.size()-1; i++){
             salida.append("MEDIAS LINEA --->").append(lineasArchivo.get(i)).append("\n");
@@ -206,10 +221,14 @@ public class ArchivoService {
             //	0005: Consumos en Pesos
             //	6000: Devolución
             String m8 = linea.substring(11, 15);
+           esConsumo = m8.equals("0005");
+
             //9 Uso reservado X 16 1
             String m9 = linea.substring(15, 16);
             //10 Número de Establecimiento X 17 10
             String m10 = linea.substring(16, 26);
+           esMiEstablecimiento = m10.equals(NUMERO_ENTIDAD_STR);
+
             //11 Número de Tarjeta X 27 16
             String m11 = linea.substring(26, 42);
             //12 Número de Cupón X 43 8 Para establecimientos de seguros (rubro 6300)
@@ -220,12 +239,17 @@ public class ArchivoService {
             String m14 = linea.substring(56, 62);
             //15 Importe SN 63 15 2
             String m15 = linea.substring(62, 77);
+           importe = BigDecimal.valueOf(Double.valueOf(m15)/100);
+
             //16 Cuotas X 78 2
             String m16 = linea.substring(77, 79);
             //17 Uso reservado X 80 15
             String m17 = linea.substring(79, 94);
             //18 Identificador X 95 15
+            // IDENTIFICADOR DEL DEBITO - factura.id
             String m18 = linea.substring(94, 109);
+           facturaId = Long.parseLong(m18);
+
             //19 Marca Primer Débito X 110 1
             String m19 = linea.substring(109, 110);
             //20 Número de Cuenta X 111 10
@@ -241,6 +265,8 @@ public class ArchivoService {
             String m25 = linea.substring(129, 130);
             //26 Rechazo Código Motivo 1 N 131 2
             String m26 = linea.substring(130, 132);
+           esAceptada = m26.equals("00");
+
             //27 Rechazo Descripción Código Motivo 1 X 133 29
             String m27 = linea.substring(132, 161);
             //28 Rechazo Código Motivo 2 N 162 2
@@ -265,7 +291,7 @@ public class ArchivoService {
             String m37 = linea.substring(299, 300);
 
             // Mostrar la información en pantalla
-            System.out.println("m2: " + m2);
+            /*System.out.println("m2: " + m2);
             System.out.println("m5: " + m5);
             System.out.println("m6: " + m6);
             System.out.println("m7: " + m7);
@@ -297,11 +323,27 @@ public class ArchivoService {
             System.out.println("m34: " + m34);
             System.out.println("m35: " + m35);
             System.out.println("m36: " + m36);
-            System.out.println("m37: " + m37);
+            System.out.println("m37: " + m37);*/
 
-            break;
-            //System.out.println("C10: " + c10);
+            /*Boolean esConsumo
+            Boolean esMiEstablecimiento
+            BigDecimal importe
+            Long facturaId
+            Boolean esAceptada*/
+
+            if (esMiEstablecimiento){
+                System.out.println("IDENTIFICACION="+facturaId);
+                if(esAceptada){
+                    aceptadas++;
+                    sumaImportes = sumaImportes.add(importe);
+                }else {
+                    rechazadas++;
+                }
+            }else{
+                noSonMias++;
+            }
         }
+
         salida.append("ULTIMA LINEA --->").append(lineasArchivo.get(lineasArchivo.size()-1));
         // Extraer la información del pie
         linea = lineasArchivo.get(lineasArchivo.size()-1);
@@ -320,15 +362,18 @@ public class ArchivoService {
         String p7 = linea.substring(37, 41);
         //8 Cantidad de Registros N 42 7
         String p8 = linea.substring(41, 48);
+
         //9 Importe Total N 49 15 2
         String p9 = linea.substring(48, 63);
+       BigDecimal importeTotal = BigDecimal.valueOf(Double.valueOf(p9)/100);
+
         //10 Libre X 64 236
         String p10 = linea.substring(63, 299);
         //11 Cosntante '*' X 300 1
         String p11 = linea.substring(299, 300);
 
         // Mostrar la información en pantalla
-        System.out.println("p2: " + p2);
+        /*System.out.println("p2: " + p2);
         System.out.println("p3: " + p3);
         System.out.println("p4: " + p4);
         System.out.println("p5: " + p5);
@@ -336,8 +381,16 @@ public class ArchivoService {
         System.out.println("p7: " + p7);
         System.out.println("p8: " + p8);
         System.out.println("p9: " + p9);
-        System.out.println("C10: " + c10);
-        System.out.println("C10: " + c11);
+        System.out.println("p10: " + p10);
+        System.out.println("p11: " + p11);*/
+
+        System.out.println("IMPORTE TOTAL= "+importeTotal);
+        System.out.println("IMPORTEs proc= "+sumaImportes);
+        System.out.println("RECHAZADAS   = "+rechazadas);
+        System.out.println("ACEPTADAS    = "+aceptadas);
+        System.out.println("DESCARTADAS  = "+noSonMias);
+        System.out.println("CANT-REGIST. = "+p8);
+
         return salida.toString();
 
     }
