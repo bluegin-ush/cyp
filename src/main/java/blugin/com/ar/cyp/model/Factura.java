@@ -87,4 +87,16 @@ public class Factura extends PanacheEntity {
             return null;
         }
     }
+
+    public BigDecimal getSaldo(){
+        if (pagos==null){
+            return total;
+        }else{
+            return total.subtract(
+                    pagos.stream()
+                    .map(p -> p.monto)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add)
+            );
+        }
+    }
 }

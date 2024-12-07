@@ -117,8 +117,15 @@ public class ArchivoResource {
         }
 
         // Buscar las facturas
-        List<Factura> facturas = Factura.list("id in ?1 and socio.entidadCrediticia.id = ?2 and estado = ?3",
-                facturasIds, entidadId, EstadoFactura.EMITIDA);
+        List<Factura> facturas =
+                (facturasIds==null || facturasIds.isEmpty())
+                    // todas las posibles
+                        ? Factura.list("socio.entidadCrediticia.id = ?1 and estado = ?2",
+                            entidadId, EstadoFactura.EMITIDA)
+                    // solo las que me pasan
+                        : Factura.list("id in ?1 and socio.entidadCrediticia.id = ?2 and estado = ?3",
+                            facturasIds, entidadId, EstadoFactura.EMITIDA);
+
         if (facturas.isEmpty()) {
             return Response.status(Response.Status.NO_CONTENT)
                     .entity("No se encontraron facturas emitidas para la entidad crediticia en la lista proporcionada.")
@@ -130,18 +137,20 @@ public class ArchivoResource {
 
         //
         BigDecimal importeTotal = BigDecimal.ZERO;
+        BigDecimal pagosParciales = BigDecimal.ZERO;
+
         for (Factura factura : facturas) {
             factura.setArchivo(archivo);
-            importeTotal = importeTotal.add(factura.total);
+            importeTotal = importeTotal.add(factura.getSaldo());
         }
 
         archivo.facturas = facturas;
         archivo.entidadCrediticia = entidadCrediticia;
         archivo.importeTotal = importeTotal;
+        archivo.fechaGeneracion = LocalDateTime.now();
 
         archivo.archivo = archivoService.generarContenidoArchivo(archivo);
 
-        archivo.fechaGeneracion = LocalDateTime.now();
         archivo.estado = EstadoArchivo.GENERADO;
         archivo.persist();
 

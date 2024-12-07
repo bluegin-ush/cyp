@@ -62,9 +62,9 @@ public class ArchivoService {
         // Tipo de registro
         archivoTexto.append("0");
         // Constante
-        archivoTexto.append("DEBLIQD ");
+        archivoTexto.append("DEBLIQC ");
         // Número del Establecimiento que generó el archivo
-        archivoTexto.append(String.format("%10s", NUMERO_ENTIDAD));
+        archivoTexto.append(String.format("%010d", NUMERO_ENTIDAD));
         // Constante
         archivoTexto.append("900000    ");
         // Fecha de generación del archivo (AAAAMMDD)
@@ -74,11 +74,11 @@ public class ArchivoService {
         // Tipo de Archivo. Débitos a liquidar
         archivoTexto.append("0");
         // Estado archivo - Constante espacios
-        archivoTexto.append("  ");
+        archivoTexto.append(String.format("%2s",""));
         // Reservado - Constante espacios
-        archivoTexto.append("                                        ");
+        archivoTexto.append(String.format("%55s",""));
         // Marca de fin de registro
-        archivoTexto.append("*");
+        archivoTexto.append("*").append("\n");
 
         // DETALLE
         // Obtener la lista de facturas del archivo
@@ -87,23 +87,27 @@ public class ArchivoService {
             archivoTexto.append("1");
             // Número de Tarjeta
             archivoTexto.append(String.format("%16s", factura.socio.tarjetaNum));
+            // Reservado - Constante 3 espacios
+            archivoTexto.append(String.format("%3s",""));
             // Referencia o número de comprobante o Nro. Secuencial ascendente único por archivo
-            archivoTexto.append(String.format("%015d", factura.nroComprobante));
+            archivoTexto.append(String.format("%08d", factura.nroComprobante));
             // Fecha de origen o vencimiento del débito Formato AAAAMMDD
             archivoTexto.append(factura.fecha.format(DateTimeFormatter.ofPattern("yyyyMMdd")));
+            // Transacción - Constante 0005
+            archivoTexto.append("0005");
             // Importe
-            archivoTexto.append(String.format("%015.2f", factura.total));
+            archivoTexto.append(String.format("%015d", factura.getSaldo().multiply(new BigDecimal("100")).longValue()));
             // Identificador del débito
             //TODO: mejorar por un valor del tipo secuencia.
-            archivoTexto.append(String.format("%-15s", factura.id));
+            archivoTexto.append(String.format("%015d", factura.id));
             // Código de alta de Identificador
             archivoTexto.append("E");
-            // Estado del registro - Constante espacios
-            archivoTexto.append("  ");
+            // Estado archivo - Constante espacios
+            archivoTexto.append(String.format("%2s",""));
             // Reservado - Constante espacios
-            archivoTexto.append("                        ");
+            archivoTexto.append(String.format("%26s",""));
             // Marca de fin de registro
-            archivoTexto.append("*");
+            archivoTexto.append("*").append("\n");
         }
 
         // PIE
@@ -112,15 +116,20 @@ public class ArchivoService {
         // Constante
         archivoTexto.append("DEBLIQD ");
         // Nro. de Establecimiento que recibe el archivo
-        archivoTexto.append(String.format("%10s", NUMERO_ENTIDAD));
+        archivoTexto.append(String.format("%010d", NUMERO_ENTIDAD));
         // Constante
         archivoTexto.append("900000    ");
+        // Fecha de generación del archivo (AAAAMMDD)
+        archivoTexto.append(archivo.fechaGeneracion.format(DateTimeFormatter.ofPattern("yyyyMMdd")));
+        // Hora de generación del archivo (HHMM)
+        archivoTexto.append(archivo.fechaGeneracion.format(DateTimeFormatter.ofPattern("HHmm")));
         // Cantidad total registros detalle
-        archivoTexto.append(String.format("%08d", archivo.facturas.size()));
+        archivoTexto.append(String.format("%07d", archivo.facturas.size()));
         // Sumatoria Importes registros detalle
-        archivoTexto.append(String.format("%015d", archivo.importeTotal));
+        archivoTexto.append(String.format("%015d", archivo.importeTotal.multiply(new BigDecimal("100")).longValue()));
         // Reservado - Constante espacios
-        archivoTexto.append("                                        ");
+        archivoTexto.append(String.format("%36s",""));
+
         // Marca de fin de registro
         archivoTexto.append("*");
 
