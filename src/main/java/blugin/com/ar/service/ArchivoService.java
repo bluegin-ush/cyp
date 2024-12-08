@@ -131,13 +131,15 @@ public class ArchivoService {
     public String procesarArchivo(EntidadCrediticia entidad, List<String> lineasArchivo) {
 
         // generar el contenido del archivo según el tipo de entidad
-        //TODO VERIFICAR SI TODAS SON PROCESADAS POR EL MISMO ENTE
+        //TODO
         if (entidad.id == 1){
             //"visa"
+            //TODO verificar si se ya se procesó. - usar la primer linea.
             return procesarArchivoVisa(lineasArchivo);
 
         } else if (entidad.id == 2) {
             //"master"
+            //TODO verificar si se ya se procesó. - usar la primer linea.
             return procesarArchivoMaster(lineasArchivo);
 
         } else {
@@ -154,7 +156,7 @@ public class ArchivoService {
     private String procesarArchivoVisa(List<String> lineasArchivo) {
         StringBuilder salida = new StringBuilder();
 
-        salida.append("PRIMERA LINEA --->").append(lineasArchivo.get(0)).append("\n");
+        //salida.append("PRIMERA LINEA --->").append(lineasArchivo.get(0)).append("\n");
         String linea = lineasArchivo.get(0);
 
         // Extraer la información de la cabecera
@@ -342,7 +344,7 @@ public class ArchivoService {
             salida
                     .append("factura: ").append(String.format("% 8d",facturaId.longValue())).append(" - ")
                     .append("importe: ").append(String.format("% 10.2f",importe.doubleValue())).append(" - ")
-                    .append("tarjeta: ").append(String.format("[%s]",tarjeta.charAt(0)=='4'?"V":"M")).append(String.format("%18s",tarjeta)).append(" - ")
+                    .append("tarjeta: ").append(String.format("[%s]",tarjeta.charAt(0)=='4'?"V":"?")).append(String.format("%18s",tarjeta)).append(" - ")
                     .append("estado: ").append(estado)
                     .append("\n");
 
@@ -361,7 +363,7 @@ public class ArchivoService {
             }
         }
 
-        salida.append("ULTIMA LINEA --->").append(lineasArchivo.get(lineasArchivo.size()-1));
+        //salida.append("ULTIMA LINEA --->").append(lineasArchivo.get(lineasArchivo.size()-1));
         // Extraer la información del pie
         linea = lineasArchivo.get(lineasArchivo.size()-1);
         //1 Registro Cabecera Rendición de Débitos Automáticos X 1 300
