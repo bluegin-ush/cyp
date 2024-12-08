@@ -131,6 +131,7 @@ public class ArchivoService {
     public String procesarArchivo(EntidadCrediticia entidad, List<String> lineasArchivo) {
 
         // generar el contenido del archivo según el tipo de entidad
+        //TODO VERIFICAR SI TODAS SON PROCESADAS POR EL MISMO ENTE
         if (entidad.id == 1){
             //"visa"
             return procesarArchivoVisa(lineasArchivo);
@@ -201,9 +202,10 @@ public class ArchivoService {
         BigDecimal importe =BigDecimal.ZERO;
         Long facturaId = 0L;
         Boolean esAceptada = Boolean.FALSE;
+        String tarjeta = "";
 
         for (int i=1; i<lineasArchivo.size()-1; i++){
-            salida.append("MEDIAS LINEA --->").append(lineasArchivo.get(i)).append("\n");
+            //salida.append("MEDIAS LINEA --->").append(lineasArchivo.get(i)).append("\n");
             linea = lineasArchivo.get(i);
             // Extraer la información de los movimientos
             //1 Registro Detalle de Rendición de Débitos Automáticos X 1 300
@@ -231,6 +233,8 @@ public class ArchivoService {
 
             //11 Número de Tarjeta X 27 16
             String m11 = linea.substring(26, 42);
+           tarjeta = m11;
+
             //12 Número de Cupón X 43 8 Para establecimientos de seguros (rubro 6300)
             String m12 = linea.substring(42, 50);
             //13 Fecha de Origen DDMMAA) X 51 6
@@ -330,14 +334,27 @@ public class ArchivoService {
             BigDecimal importe
             Long facturaId
             Boolean esAceptada*/
+            String estado = !esMiEstablecimiento? "descartada!!!"
+                :(esAceptada)
+                    ? "aceptada"
+                    : String.format("rechazada [cod: %s - %s][cod: %s - %s][linea:%s]",m26.trim(), m27.trim(), m28.trim(), m29.trim(), i);
+
+            salida
+                    .append("factura: ").append(String.format("% 8d",facturaId.longValue())).append(" - ")
+                    .append("importe: ").append(String.format("% 10.2f",importe.doubleValue())).append(" - ")
+                    .append("tarjeta: ").append(String.format("[%s]",tarjeta.charAt(0)=='4'?"V":"M")).append(String.format("%18s",tarjeta)).append(" - ")
+                    .append("estado: ").append(estado)
+                    .append("\n");
 
             if (esMiEstablecimiento){
-                System.out.println("IDENTIFICACION="+facturaId);
+                //System.out.println("IDENTIFICACION="+facturaId);
                 if(esAceptada){
                     aceptadas++;
                     sumaImportes = sumaImportes.add(importe);
                 }else {
                     rechazadas++;
+                    //System.out.println("Se rechaza un movimiento");
+                    //System.out.printf("(%s) %s - (%s) %s\n",m26, m27,m28,m29);
                 }
             }else{
                 noSonMias++;
