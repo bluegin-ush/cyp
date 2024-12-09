@@ -296,7 +296,7 @@ public class FacturaService {
                 facturar(factura);
 
                 // actualizamos el estado de la ctacte del socio
-                factura.socio.ctacte = factura.socio.ctacte.add(factura.total);
+                factura.socio.ctacte = factura.socio.ctacte.subtract(factura.total);
 
                 // Estado inicial
                 factura.estado = EstadoFactura.EMITIDA;
