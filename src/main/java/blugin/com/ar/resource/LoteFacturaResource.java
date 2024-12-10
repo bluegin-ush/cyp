@@ -13,11 +13,14 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.faulttolerance.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @ResourceProperties(paged = false)
 @Path("/factura-lote")
@@ -103,6 +106,10 @@ public class LoteFacturaResource {
             // Inicia el proceso
             facturaService.preFacturar(lote, sociosActivos);
 
+            for(Factura f: lote.facturas){
+                log.info("FacturaId: "+f.id);
+            }
+
         return Response.accepted(lote).build();
 
     }
@@ -111,6 +118,8 @@ public class LoteFacturaResource {
 
     @POST
     @Path("/facturar/{loteId}")
+    //@Timeout(value = 30, unit = TimeUnit.SECONDS)
+    //@Fallback(fallbackMethod = "operacionFallback")
     //@Transactional
     public Response facturarLote(@PathParam("loteId") Long id) throws InterruptedException {
 

@@ -122,7 +122,7 @@ public class FacturaService {
         if(volverACargarConfiguraciones() || autorizacion == null || expiro){
             log.info(String.format("CARGANDO CONFIGURACIONES [autorizacion=%s - expiro=%s]",autorizacion,expiro));
             cargarConfiguraciones();
-            log.info("ESTABECIENDO AUTORIZACION");
+            log.info("ESTABLECIENDO AUTORIZACION");
             autorizacion = obtenerAutorizacion();
         }
 
@@ -153,7 +153,7 @@ public class FacturaService {
 
         String recargar = configuraciones.get("recargar-configuraciones");
 
-        log.info(String.format("recargar-configuraciones = ",recargar));
+        log.info(String.format("recargar-configuraciones = %s",recargar));
         return Boolean.valueOf(recargar);
     }
 
@@ -281,39 +281,42 @@ public class FacturaService {
 
         LoteFactura lote = loteFacturaRepository.findById(loteId);
 
-        //boolean seProdujoError=false;
-
-        //for(Factura factura: lote.facturas) {
         //
         for(int i=desde; i<hasta; i++){
+
             log.info(String.format("Por emitir la factura [%d]",i));
+
             Factura factura = lote.facturas.get(i);
 
-            if(factura.estado == EstadoFactura.PRE_EMITADA)
-            try {
-                // Emitimos lafactura
-                log.info(String.format("Emitiendo la factura del socio [%s]",i, factura.socio));
-                facturar(factura);
+            if(factura.estado == EstadoFactura.PRE_EMITADA) {
 
-                // actualizamos el estado de la ctacte del socio
-                factura.socio.ctacte = factura.socio.ctacte.subtract(factura.total);
+                try {
+                    // Emitimos lafactura
+                    log.info(String.format("Emitiendo la factura [%d] del socio [%s]", factura.id, factura.socio));
 
-                // Estado inicial
-                factura.estado = EstadoFactura.EMITIDA;
+                    facturar(factura);
 
-                //
-                lote.idFacturasEmitidas.add(factura.id);
+                    // actualizamos el estado de la ctacte del socio
+                    factura.socio.ctacte = factura.socio.ctacte.subtract(factura.total);
+
+                    // Estado inicial
+                    factura.estado = EstadoFactura.EMITIDA;
+
+                    //
+                    lote.idFacturasEmitidas.add(factura.id);
 
 
-            } catch (Exception e) {
+                } catch (Exception e) {
 
-                //registramos el error
-                log.error(String.format("Al generar la facturaId %s - msg: %s", factura.id, e.getMessage()));
-                lote.idFacturasErroneas.add(factura.id);
+                    //registramos el error
+                    log.error(String.format("Al generar la facturaId %s - msg: %s", factura.id, e.getMessage()));
+                    lote.idFacturasErroneas.add(factura.id);
 
-                //seProdujoError=true;
+                    //seProdujoError=true;
+                }
+            }else{
+                log.info(String.format("Factura [%d] emitida",factura.id));
             }
-
             // Actualizar progreso
             lote.progreso = ((lote.idFacturasEmitidas.size() + lote.idFacturasErroneas.size() ) / lote.facturas.size())*100;
 
