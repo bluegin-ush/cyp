@@ -48,9 +48,13 @@ public class LoteFacturaResource {
         }
 
         // Verificar si el lote tiene facturas asociadas
-        if (!loteFactura.estado.equals(EstadoLote.EN_CONSTRUCCION)) {
+        //if (!loteFactura.estado.equals(EstadoLote.EN_CONSTRUCCION)) {
+
+        //TODO, borrar facturas pre-emitidas????
+        //Si hay alguna factura emitida ya no podemos eliminar el lote.
+        if (loteFactura.idFacturasEmitidas.size()>0) {
             return Response.status(Response.Status.CONFLICT)
-                    .entity("No se puede eliminar el lote, tiene facturas asociadas").build();
+                    .entity("No se puede eliminar el lote, tiene facturas emitidas").build();
         }
 
         //eliminamos el lote (y en casacada sus facturas pre-emitidas)
