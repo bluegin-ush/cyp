@@ -236,6 +236,7 @@ public class ArchivoResource {
                 String salida = archivoService.procesarArchivo(archivo, lineasArchivo);
 
                 //guardamos los datos en el archivo
+                archivo.estado = EstadoArchivo.PROCESADO;
                 archivo.persist();
 
                 //enviamos la salida

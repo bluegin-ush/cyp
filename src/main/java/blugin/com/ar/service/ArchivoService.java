@@ -1,12 +1,11 @@
 package blugin.com.ar.service;
 
-import blugin.com.ar.cyp.model.Archivo;
-import blugin.com.ar.cyp.model.EntidadCrediticia;
-import blugin.com.ar.cyp.model.Factura;
+import blugin.com.ar.cyp.model.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.Response;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -356,17 +355,48 @@ public class ArchivoService {
                         .append("estado: ").append(estado)
                         .append("\n");
 
-                archivo.agregarFacturaRechazada(facturaId);
+                archivo.idFacturasRechazadas.add(facturaId);
+            }else{
+                //verificamos si la facutra ha sido procesada
+                if (!archivo.idFacturasProcesadas.contains(facturaId)) {
+                    //procesar la factura
+                    //buscar la factura y agregar el pago
+                    Factura factura = Factura.findById(facturaId);
+
+                    if (factura != null) {
+                        Pago pago = new Pago();
+                        pago.factura = factura;
+                        pago.medioDePago = MedioDePago.TARJETA_CREDITO;
+                        pago.monto = importe;
+
+                        //TODO usar la fecha que viene en el archivo
+                        pago.fecha = LocalDateTime.now();
+
+                        factura.socio.ctacte = factura.socio.ctacte.add(importe);
+
+                        pago.persist();
+
+                        //
+                        archivo.idFacturasProcesadas.add(facturaId);
+                    }else{
+                        errores.append("factura: ").append(String.format("% 8d",facturaId.longValue())).append(" - ")
+                                .append("importe: ").append(String.format("% 10.2f",importe.doubleValue())).append(" - ")
+                                .append("tarjeta: ").append(String.format("[%s]",tarjeta.charAt(0)=='4'?"V":"?")).append(String.format("%18s",tarjeta)).append(" - ")
+                                .append("estado: factura no encontrada")
+                                .append("\n");
+                    }
+
+
+                }
             }
             if (esMiEstablecimiento){
-                //System.out.println("IDENTIFICACION="+facturaId);
+
                 if(esAceptada){
                     aceptadas++;
                     sumaImportes = sumaImportes.add(importe);
                 }else {
                     rechazadas++;
-                    //System.out.println("Se rechaza un movimiento");
-                    //System.out.printf("(%s) %s - (%s) %s\n",m26, m27,m28,m29);
+
                 }
             }else{
                 noSonMias++;
@@ -411,14 +441,15 @@ public class ArchivoService {
         System.out.println("p8: " + p8);
         System.out.println("p9: " + p9);
         System.out.println("p10: " + p10);
-        System.out.println("p11: " + p11);*/
+        System.out.println("p11: " + p11);
 
         System.out.println("IMPORTE TOTAL= "+importeTotal);
         System.out.println("IMPORTEs proc= "+sumaImportes);
         System.out.println("RECHAZADAS   = "+rechazadas);
         System.out.println("ACEPTADAS    = "+aceptadas);
         System.out.println("DESCARTADAS  = "+noSonMias);
-        System.out.println("CANT-REGIST. = "+p8);
+        System.out.println("CANT-REGIST. = "+p8); */
+
 
         archivo.detalleErrores = errores.toString();
 

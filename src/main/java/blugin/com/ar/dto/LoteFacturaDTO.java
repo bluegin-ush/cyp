@@ -12,6 +12,7 @@ public class LoteFacturaDTO {
     public String estado;
     public int progreso;
     //public List<Long> facturasIds;
+    public int cantidadFacturas;
     public List<Long> idFacturasEmitidas;
     public List<Long> idFacturasErroneas;
 
@@ -24,6 +25,7 @@ public class LoteFacturaDTO {
         this.fechaGeneracion = loteFactura.fechaGeneracion;
         this.estado = loteFactura.estado.name();
         this.progreso = loteFactura.progreso;
+        this.cantidadFacturas = loteFactura.facturas.size();
         //this.facturasIds = loteFactura.facturas.stream()
         //        .map(f -> f.id)
         //        .collect(Collectors.toList());

@@ -29,23 +29,21 @@ public class Archivo extends PanacheEntity {
 
     public List<Long> idFacturasRechazadas;
 
+    public List<Long> idFacturasProcesadas;
+
     @OneToMany(mappedBy = "archivo", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     public List<Factura> facturas;
 
     public BigDecimal importeTotal;
 
+    public Archivo(){
+        facturas = new ArrayList<>();
+        idFacturasRechazadas = new ArrayList<>();
+        idFacturasProcesadas = new ArrayList<>();
+    }
     public void agregarFactura(Factura factura) {
-        if(facturas == null){
-            facturas = new ArrayList<>();
-        }
         facturas.add(factura);
         factura.setArchivo(this);
     }
 
-    public void agregarFacturaRechazada(Long facturaId) {
-        if(idFacturasRechazadas == null){
-            idFacturasRechazadas = new ArrayList<>();
-        }
-        idFacturasRechazadas.add(facturaId);
-    }
 }

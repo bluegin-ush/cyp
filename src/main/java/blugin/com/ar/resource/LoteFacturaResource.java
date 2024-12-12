@@ -115,8 +115,10 @@ public class LoteFacturaResource {
             // Inicia el proceso
             facturaService.preFacturar(lote, sociosActivos);
 
-            for(Factura f: lote.facturas){
-                log.info("FacturaId: "+f.id);
+            if(lote.facturas!=null) {
+                for (Factura f : lote.facturas) {
+                    log.info("FacturaId: " + f.id);
+                }
             }
 
         return Response.accepted(lote).build();
@@ -130,63 +132,66 @@ public class LoteFacturaResource {
     //@Timeout(value = 30, unit = TimeUnit.SECONDS)
     //@Fallback(fallbackMethod = "operacionFallback")
     //@Transactional
-    public Response facturarLote(@PathParam("loteId") Long id) throws InterruptedException {
+    public Response facturarLote(@PathParam("loteId") Long id){
 
-        LoteFactura lote = LoteFactura.findById(id);
+        try {
+            LoteFactura lote = LoteFactura.findById(id);
 
-        if(lote == null){
+            if (lote == null) {
 
-            return Response.status(Response.Status.NOT_FOUND).entity("El lote no se encuentra").build();
-
-        } else {
-
-            if (lote.estado.equals(EstadoLote.EN_PROCESO)) {
-
-                log.info("Cantidad de facturas a procesar: "+lote.facturas.size());
-                //
-                int tamano = 10;
-                int paginas = lote.facturas.size() / tamano;
-                int resto =  lote.facturas.size() % tamano;
-
-                log.info("Páginas a procesar: " + paginas);
-                log.info("Resto de facturas a procesar: " + resto);
-
-                //pagino la facturación
-                for (int pagina=0; pagina < paginas; pagina++) {
-
-                    int desde = pagina * tamano;
-                    int hasta = (desde + tamano);
-
-                    log.info("procesamos pagina: "+pagina+" - desde:" + desde + " - hasta: "+hasta);
-                    facturaService.facturarEnLote(lote.id, desde, hasta);
-                    //log.info("ESPERAMOS 5 seg...");
-                    //Thread.sleep(5000);
-
-                }
-
-                //facturo el resto que me quedó
-                int desde = paginas * tamano;
-                int hasta = desde + resto ;
-                log.info("procesamos el resto, desde:" + desde + " - hasta: "+ hasta);
-                facturaService.facturarEnLote(lote.id, desde, hasta);
-
-                //
-                return Response.accepted(lote).build();
-
-            } else if (lote.estado.equals(EstadoLote.COMPLETADO) ) {
-
-                //
-                return Response.status(Response.Status.OK).entity("El lote se procesó").entity(lote).build();
+                return Response.status(Response.Status.NOT_FOUND).entity("El lote no se encuentra").build();
 
             } else {
 
-                //
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("El lote se encuentra en un estado no esperado").build();
+                if (lote.estado.equals(EstadoLote.EN_PROCESO)) {
+
+                    log.info("Cantidad de facturas a procesar: " + lote.facturas.size());
+                    //
+                    int tamano = 10;
+                    int paginas = lote.facturas.size() / tamano;
+                    int resto = lote.facturas.size() % tamano;
+
+                    log.info("Páginas a procesar: " + paginas);
+                    log.info("Resto de facturas a procesar: " + resto);
+
+                    //pagino la facturación
+                    for (int pagina = 0; pagina < paginas; pagina++) {
+
+                        int desde = pagina * tamano;
+                        int hasta = (desde + tamano);
+
+                        log.info("procesamos pagina: " + pagina + " - desde:" + desde + " - hasta: " + hasta);
+                        facturaService.facturarEnLote(lote.id, desde, hasta);
+                        //log.info("ESPERAMOS 5 seg...");
+                        //Thread.sleep(5000);
+
+                    }
+
+                    //facturo el resto que me quedó
+                    int desde = paginas * tamano;
+                    int hasta = desde + resto;
+                    log.info("procesamos el resto, desde:" + desde + " - hasta: " + hasta);
+                    facturaService.facturarEnLote(lote.id, desde, hasta);
+
+                    //
+                    return Response.accepted(lote).build();
+
+                } else if (lote.estado.equals(EstadoLote.COMPLETADO)) {
+
+                    //
+                    return Response.status(Response.Status.OK).entity("El lote se procesó").entity(lote).build();
+
+                } else {
+
+                    //
+                    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("El lote se encuentra en un estado no esperado").build();
+
+                }
 
             }
-
+        }catch (Exception e){
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
         }
-
     }
 
     @GET

@@ -13,7 +13,7 @@ create sequence Salida_SEQ start with 1 increment by 50;
 create sequence Servicio_SEQ start with 1 increment by 50;
 create sequence Socio_SEQ start with 1 increment by 50;
 create sequence Usuario_SEQ start with 1 increment by 50;
-create table Archivo (importeTotal numeric(38,2), entidadCrediticia_id bigint, fechaGeneracion timestamp(6), id bigint not null, estado varchar(255) check (estado in ('GENERADO','ENVIADO','PROCESADO','ERROR')), archivo oid, detalleErrores oid, idFacturasRechazadas bigint array, primary key (id));
+create table Archivo (importeTotal numeric(38,2), entidadCrediticia_id bigint, fechaGeneracion timestamp(6), id bigint not null, estado varchar(255) check (estado in ('GENERADO','ENVIADO','PROCESADO','ERROR')), archivo oid, detalleErrores oid, idFacturasProcesadas bigint array, idFacturasRechazadas bigint array, primary key (id));
 create table Auditoria (entrada boolean, fecha timestamp(6), id bigint not null, cuerpo TEXT, headers TEXT, metodo varchar(255), queryParams varchar(255), ruta varchar(255), usuario varchar(255), primary key (id));
 create table Configuracion (id bigint not null, clave varchar(255), valor TEXT, primary key (id));
 create table EntidadCrediticia (archivo boolean, cuit bigint, id bigint not null, contacto varchar(255), nombre varchar(255), tipo varchar(255), primary key (id));
