@@ -129,9 +129,6 @@ public class LoteFacturaResource {
 
     @POST
     @Path("/facturar/{loteId}")
-    //@Timeout(value = 30, unit = TimeUnit.SECONDS)
-    //@Fallback(fallbackMethod = "operacionFallback")
-    //@Transactional
     public Response facturarLote(@PathParam("loteId") Long id){
 
         try {

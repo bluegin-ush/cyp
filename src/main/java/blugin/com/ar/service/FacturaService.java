@@ -277,10 +277,9 @@ public class FacturaService {
 
     //@Asynchronous
     @Transactional(Transactional.TxType.REQUIRES_NEW)
-    public void facturarEnLote(Long loteId, int desde, int hasta) {
+    public void facturarEnLote(long loteId, int desde, int hasta) throws Exception{
 
-        LoteFactura lote = loteFacturaRepository.findById(loteId);
-
+        LoteFactura lote = LoteFactura.findById(loteId);
         //
         for(int i=desde; i<hasta; i++){
 
@@ -329,7 +328,7 @@ public class FacturaService {
             lote.estado = EstadoLote.COMPLETADO;
             lote.progreso = 100;
         }
-
+        log.info("Guardando el lote (desde:{}} - hasta:{}}",desde,hasta);
         loteFacturaRepository.persist(lote);
 
     }
