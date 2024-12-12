@@ -4,6 +4,7 @@ import blugin.com.ar.cyp.model.EstadoLote;
 import blugin.com.ar.cyp.model.Factura;
 import blugin.com.ar.cyp.model.LoteFactura;
 import blugin.com.ar.cyp.model.Socio;
+import blugin.com.ar.dto.LoteFacturaDTO;
 import blugin.com.ar.repository.LoteFacturaRepository;
 import blugin.com.ar.repository.SocioRepository;
 import blugin.com.ar.service.FacturaService;
@@ -17,13 +18,17 @@ import org.eclipse.microprofile.faulttolerance.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @ResourceProperties(paged = false)
 @Path("/factura-lote")
+@Transactional
 public class LoteFacturaResource {
 
     @Inject
@@ -185,14 +190,29 @@ public class LoteFacturaResource {
     }
 
     @GET
-    public Response getLotes(){
+    public Response getLotes(@QueryParam("desde") LocalDate desde,
+                             @QueryParam("hasta") LocalDate hasta) {
+        if (desde == null) {
+            desde = LocalDate.now();
+        }
 
-        List<LoteFactura> lotes = LoteFactura.findAll().list();
+        if (hasta == null) {
+            hasta = LocalDate.now();
+        }
 
-        if(lotes == null) {
+        LocalDateTime inicio = desde.atStartOfDay();
+        LocalDateTime fin = hasta.atTime(LocalTime.MAX);
+
+        //
+        List<LoteFactura> lotes = LoteFactura.find("fechaGeneracion >= ?1 and fechaGeneracion <= ?2", inicio, fin).list();
+
+        if(lotes == null || lotes.isEmpty()) {
             return Response.noContent().build();
-        }else{
-            return Response.ok(lotes).build();
+        } else {
+            List<LoteFacturaDTO> lotesDTO = lotes.stream()
+                    .map(LoteFacturaDTO::new)
+                    .collect(Collectors.toList());
+            return Response.ok(lotesDTO).build();
         }
 
     }

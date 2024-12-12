@@ -318,7 +318,7 @@ public class FacturaService {
                 log.info(String.format("Factura [%d] emitida",factura.id));
             }
             // Actualizar progreso
-            lote.progreso = ((lote.idFacturasEmitidas.size() + lote.idFacturasErroneas.size() ) / lote.facturas.size())*100;
+            lote.progreso = ((lote.idFacturasEmitidas.size() + lote.idFacturasErroneas.size())*100) / lote.facturas.size();
 
 
         }

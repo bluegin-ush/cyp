@@ -1,8 +1,9 @@
 --admin:blugin.ush
-INSERT INTO usuario (id,nombre,usuario,clave) VALUES
-(1,'administrador','admin','c8b61d46c9a5f81d0aba1b6cf98a405c8d69b19c973d0db713a4e34f5aa83640'),
-(2,'silvia','silvia','8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92');
-ALTER SEQUENCE usuario_seq RESTART WITH 3;
+INSERT INTO usuario (id,nombre,usuario,clave,rol) VALUES
+(1,'administrador','admin','c8b61d46c9a5f81d0aba1b6cf98a405c8d69b19c973d0db713a4e34f5aa83640','admin'),
+(2,'silvia','silvia','8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92','usuario'),
+(3,'invitado','invitado','8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92','invitado');
+ALTER SEQUENCE usuario_seq RESTART WITH 4;
 
 INSERT INTO configuracion (id,clave, valor) VALUES
 (1,'desa-endpoint',    'https://wsaahomo.afip.gov.ar/ws/services/LoginCms'),

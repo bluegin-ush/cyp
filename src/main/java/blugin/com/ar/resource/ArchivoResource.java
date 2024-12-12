@@ -1,6 +1,8 @@
 package blugin.com.ar.resource;
 
 import blugin.com.ar.cyp.model.*;
+import blugin.com.ar.dto.ArchivoDTO;
+import blugin.com.ar.dto.LoteFacturaDTO;
 import blugin.com.ar.repository.ArchivoRepository;
 import blugin.com.ar.service.ArchivoService;
 import jakarta.inject.Inject;
@@ -23,6 +25,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 //@ResourceProperties(paged = false)
 @Path("/archivo")
@@ -103,7 +106,11 @@ public class ArchivoResource {
         //List<Archivo> archivos = archivoRepository.findAll().list();
 
         if (!archivos.isEmpty()) {
-            return Response.status(Response.Status.OK).entity(archivos).build();
+            List<ArchivoDTO> archivosDTO = archivos.stream()
+                    .map(ArchivoDTO::new)
+                    .collect(Collectors.toList());
+            return Response.status(Response.Status.OK).entity(archivosDTO).build();
+            //return Response.status(Response.Status.OK).entity(archivos).build();
         } else {
             return Response.status(Response.Status.NO_CONTENT).build();
         }
@@ -203,15 +210,15 @@ public class ArchivoResource {
     ArchivoService archivoService;
 
     @POST
-    @Path("/{entidadId}/procesar")
+    @Path("/{archivoId}/procesar")
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.TEXT_PLAIN)
-    public Response procesarArchivo(@PathParam("entidadId") Long entidadId, InputStream streamArchivoEntidad) {
+    public Response procesarArchivo(@PathParam("archivoId") Long archivoId, InputStream streamArchivoEntidad) {
 
-        EntidadCrediticia e = EntidadCrediticia.findById(entidadId);
+        Archivo archivo = Archivo.findById(archivoId);
 
-        if (e == null) {
-            return Response.status(Response.Status.NOT_FOUND).entity("La entidad no se encuentra").build();
+        if (archivo == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity("El archivo no se encuentra").build();
         }
 
 
@@ -225,8 +232,13 @@ public class ArchivoResource {
             }
 
             if (lineasArchivo.size() >= 3 ) {
-                String salida = archivoService.procesarArchivo(e, lineasArchivo);
 
+                String salida = archivoService.procesarArchivo(archivo, lineasArchivo);
+
+                //guardamos los datos en el archivo
+                archivo.persist();
+
+                //enviamos la salida
                 return Response.status(Response.Status.OK)
                         .entity(salida).build();
             } else {

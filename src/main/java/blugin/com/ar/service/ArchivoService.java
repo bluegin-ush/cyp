@@ -128,33 +128,34 @@ public class ArchivoService {
         return "NOT-IMPLEMENTED";
     }
 
-    public String procesarArchivo(EntidadCrediticia entidad, List<String> lineasArchivo) {
+    public String procesarArchivo(Archivo archivo, List<String> lineasArchivo) {
 
         // generar el contenido del archivo según el tipo de entidad
         //TODO
-        if (entidad.id == 1){
+        if (archivo.entidadCrediticia.id == 1){
             //"visa"
             //TODO verificar si se ya se procesó. - usar la primer linea.
-            return procesarArchivoVisa(lineasArchivo);
+            return procesarArchivoVisa(archivo, lineasArchivo);
 
-        } else if (entidad.id == 2) {
+        } else if (archivo.entidadCrediticia.id == 2) {
             //"master"
             //TODO verificar si se ya se procesó. - usar la primer linea.
-            return procesarArchivoMaster(lineasArchivo);
+            return procesarArchivoMaster(archivo,lineasArchivo);
 
         } else {
             //Otro no implementado
-            throw new RuntimeException(String.format("No existe implementación para procesar la entidad %s",entidad.nombre));
+            throw new RuntimeException(String.format("No existe implementación para procesar la entidad %s",archivo.entidadCrediticia));
         }
 
     }
 
-    private String procesarArchivoMaster(List<String> lineasArchivo) {
+    private String procesarArchivoMaster(Archivo archivo, List<String> lineasArchivo) {
         return "NOT-IMPLEMENTED";
     }
 
-    private String procesarArchivoVisa(List<String> lineasArchivo) {
+    private String procesarArchivoVisa(Archivo archivo, List<String> lineasArchivo) {
         StringBuilder salida = new StringBuilder();
+        StringBuilder errores = new StringBuilder();
 
         //salida.append("PRIMERA LINEA --->").append(lineasArchivo.get(0)).append("\n");
         String linea = lineasArchivo.get(0);
@@ -348,6 +349,15 @@ public class ArchivoService {
                     .append("estado: ").append(estado)
                     .append("\n");
 
+            if (!esAceptada){
+                errores.append("factura: ").append(String.format("% 8d",facturaId.longValue())).append(" - ")
+                        .append("importe: ").append(String.format("% 10.2f",importe.doubleValue())).append(" - ")
+                        .append("tarjeta: ").append(String.format("[%s]",tarjeta.charAt(0)=='4'?"V":"?")).append(String.format("%18s",tarjeta)).append(" - ")
+                        .append("estado: ").append(estado)
+                        .append("\n");
+
+                archivo.agregarFacturaRechazada(facturaId);
+            }
             if (esMiEstablecimiento){
                 //System.out.println("IDENTIFICACION="+facturaId);
                 if(esAceptada){
@@ -409,6 +419,8 @@ public class ArchivoService {
         System.out.println("ACEPTADAS    = "+aceptadas);
         System.out.println("DESCARTADAS  = "+noSonMias);
         System.out.println("CANT-REGIST. = "+p8);
+
+        archivo.detalleErrores = errores.toString();
 
         return salida.toString();
 

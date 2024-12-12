@@ -9,4 +9,5 @@ public class Usuario extends PanacheEntity {
     public String nombre;
     public String usuario;
     public String clave;
+    public String rol;
 }

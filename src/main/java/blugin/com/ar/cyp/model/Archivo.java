@@ -27,8 +27,7 @@ public class Archivo extends PanacheEntity {
     @Lob
     public String detalleErrores;
 
-    //puede autogenrarse con YYYYMMDD-Entidad.txt
-    //public String nombreArchivo;
+    public List<Long> idFacturasRechazadas;
 
     @OneToMany(mappedBy = "archivo", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     public List<Factura> facturas;
@@ -41,5 +40,12 @@ public class Archivo extends PanacheEntity {
         }
         facturas.add(factura);
         factura.setArchivo(this);
+    }
+
+    public void agregarFacturaRechazada(Long facturaId) {
+        if(idFacturasRechazadas == null){
+            idFacturasRechazadas = new ArrayList<>();
+        }
+        idFacturasRechazadas.add(facturaId);
     }
 }

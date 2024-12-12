@@ -13,7 +13,7 @@ create sequence Salida_SEQ start with 1 increment by 50;
 create sequence Servicio_SEQ start with 1 increment by 50;
 create sequence Socio_SEQ start with 1 increment by 50;
 create sequence Usuario_SEQ start with 1 increment by 50;
-create table Archivo (importeTotal numeric(38,2), entidadCrediticia_id bigint, fechaGeneracion timestamp(6), id bigint not null, estado varchar(255) check (estado in ('GENERADO','ENVIADO','PROCESADO','ERROR')), archivo oid, detalleErrores oid, primary key (id));
+create table Archivo (importeTotal numeric(38,2), entidadCrediticia_id bigint, fechaGeneracion timestamp(6), id bigint not null, estado varchar(255) check (estado in ('GENERADO','ENVIADO','PROCESADO','ERROR')), archivo oid, detalleErrores oid, idFacturasRechazadas bigint array, primary key (id));
 create table Auditoria (entrada boolean, fecha timestamp(6), id bigint not null, cuerpo TEXT, headers TEXT, metodo varchar(255), queryParams varchar(255), ruta varchar(255), usuario varchar(255), primary key (id));
 create table Configuracion (id bigint not null, clave varchar(255), valor TEXT, primary key (id));
 create table EntidadCrediticia (archivo boolean, cuit bigint, id bigint not null, contacto varchar(255), nombre varchar(255), tipo varchar(255), primary key (id));
@@ -28,7 +28,7 @@ create table Salida (monto numeric(38,2), fecha timestamp(6), id bigint not null
 create table Servicio (costo numeric(38,2), id bigint not null, codigo varchar(255) unique, descripcion varchar(255), primary key (id));
 create table Socio (activo boolean, ctacte numeric(38,2), entidadCrediticia_id bigint, id bigint not null, nro bigint, numDoc bigint, apellido varchar(255), correo varchar(255), domicilio varchar(255), nombre varchar(255), tarjetaNum varchar(255), tarjetaVto varchar(255), telefono varchar(255), tipoDoc varchar(255), primary key (id));
 create table socio_servicio (servicio_id bigint not null, socio_id bigint not null);
-create table Usuario (id bigint not null, clave varchar(255), nombre varchar(255), usuario varchar(255), primary key (id));
+create table Usuario (id bigint not null, clave varchar(255), nombre varchar(255), rol varchar(255), usuario varchar(255), primary key (id));
 alter table if exists Archivo add constraint FKshefelrwa175ai0k313c59pvl foreign key (entidadCrediticia_id) references EntidadCrediticia;
 alter table if exists Factura add constraint FKkko7t4higd0opc11vqho3ko8p foreign key (archivo_id) references Archivo;
 alter table if exists Factura add constraint FK8b016koc4pi9cajttqaq1h2uf foreign key (loteFactura_id) references LoteFactura;

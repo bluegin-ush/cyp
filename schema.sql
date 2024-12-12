@@ -13,7 +13,7 @@ create sequence Salida_SEQ start with 1 increment by 50;
 create sequence Servicio_SEQ start with 1 increment by 50;
 create sequence Socio_SEQ start with 1 increment by 50;
 create sequence Usuario_SEQ start with 1 increment by 50;
-create table Archivo (importeTotal numeric(38,2), entidadCrediticia_id bigint, fechaGeneracion timestamp(6), id bigint not null, estado varchar(255) check (estado in ('GENERADO','ENVIADO','PROCESADO','ERROR')), archivo oid, detalleErrores oid, primary key (id));
+create table Archivo (importeTotal numeric(38,2), entidadCrediticia_id bigint, fechaGeneracion timestamp(6), id bigint not null, estado varchar(255) check (estado in ('GENERADO','ENVIADO','PROCESADO','ERROR')), archivo oid, detalleErrores oid, idFacturasRechazadas bigint array, primary key (id));
 create table Auditoria (entrada boolean, fecha timestamp(6), id bigint not null, cuerpo TEXT, headers TEXT, metodo varchar(255), queryParams varchar(255), ruta varchar(255), usuario varchar(255), primary key (id));
 create table Configuracion (id bigint not null, clave varchar(255), valor TEXT, primary key (id));
 create table EntidadCrediticia (archivo boolean, cuit bigint, id bigint not null, contacto varchar(255), nombre varchar(255), tipo varchar(255), primary key (id));
@@ -28,7 +28,7 @@ create table Salida (monto numeric(38,2), fecha timestamp(6), id bigint not null
 create table Servicio (costo numeric(38,2), id bigint not null, codigo varchar(255) unique, descripcion varchar(255), primary key (id));
 create table Socio (activo boolean, ctacte numeric(38,2), entidadCrediticia_id bigint, id bigint not null, nro bigint, numDoc bigint, apellido varchar(255), correo varchar(255), domicilio varchar(255), nombre varchar(255), tarjetaNum varchar(255), tarjetaVto varchar(255), telefono varchar(255), tipoDoc varchar(255), primary key (id));
 create table socio_servicio (servicio_id bigint not null, socio_id bigint not null);
-create table Usuario (id bigint not null, clave varchar(255), nombre varchar(255), usuario varchar(255), primary key (id));
+create table Usuario (id bigint not null, clave varchar(255), nombre varchar(255), rol varchar(255), usuario varchar(255), primary key (id));
 alter table if exists Archivo add constraint FKshefelrwa175ai0k313c59pvl foreign key (entidadCrediticia_id) references EntidadCrediticia;
 alter table if exists Factura add constraint FKkko7t4higd0opc11vqho3ko8p foreign key (archivo_id) references Archivo;
 alter table if exists Factura add constraint FK8b016koc4pi9cajttqaq1h2uf foreign key (loteFactura_id) references LoteFactura;
@@ -40,8 +40,8 @@ alter table if exists Registro add constraint FKepng2nxka5baiwqhdxmhhirqe foreig
 alter table if exists Socio add constraint FK1md65er7r22by5kt8grul2w71 foreign key (entidadCrediticia_id) references EntidadCrediticia;
 alter table if exists socio_servicio add constraint FKnevkq5r6w0aahsd2qpfuuinm7 foreign key (servicio_id) references Servicio;
 alter table if exists socio_servicio add constraint FKh2y6pkspg3shu6404l0xrnbnt foreign key (socio_id) references Socio;
-INSERT INTO usuario (id,nombre,usuario,clave) VALUES  (1,'administrador','admin','8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92'),  (2,'daniel aguil','daniel','bd3dae5fb91f88a4f0978222dfd58f59a124257cb081486387cbae9df11fb879');
-ALTER SEQUENCE usuario_seq RESTART WITH 3;
+INSERT INTO usuario (id,nombre,usuario,clave,rol) VALUES (1,'administrador','admin','c8b61d46c9a5f81d0aba1b6cf98a405c8d69b19c973d0db713a4e34f5aa83640','admin'), (2,'silvia','silvia','8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92','usuario'), (3,'invitado','invitado','8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92','invitado');
+ALTER SEQUENCE usuario_seq RESTART WITH 4;
 INSERT INTO configuracion (id,clave, valor) VALUES (1,'desa-endpoint',    'https://wsaahomo.afip.gov.ar/ws/services/LoginCms'), (2,'desa-certPath',    'certificados/afip-cyp.pem'), (3,'desa-keyPath',     'certificados/clave-prueba'), (4,'desa-service',     'wsfe'), (5,'desa-threshold',   '12'), (6,'desa-expiration',  '12'), (7,'desa-dn',          'SERIALNUMBER=CUIT 20290833869, CN=cyp'), (8,'desa-cuitEmisor',  '20290833869'), (9,'desa-puntoDeVenta','1'), (10,'modo','desa'), (11,'prod-endpoint',    'https://'), (12,'prod-certPath',    'certificados/afip-cyp.pem'), (13,'prod-keyPath',     'certificados/clave-prueba'), (14,'prod-service',     ''), (15,'prod-threshold',   '12'), (16,'prod-expiration',  '12'), (17,'prod-dn',          'SERIALNUMBER=CUIT 20290833869, CN=cyp'), (18,'prod-cuitEmisor',  '2012345678'), (19,'prod-puntoDeVenta','10');
 ALTER SEQUENCE configuracion_seq RESTART WITH 20;
 INSERT INTO servicio (id, codigo, descripcion, costo) VALUES (1, '205', 'Parador - (viernes, sábado, domingo y feriados)', 0), (2, '2050', 'Parador - (lunes, martes, miércoles y jueves)', 0), (3, '207', 'Casa Bosque - (viernes, sábado, domingo y feriados)', 0), (4, '2070', 'Casa Bosque - (lunes, martes, miércoles y jueves)', 0), (5, '206', 'Contenedores - (viernes, sábado, domingo y feriados)', 0), (6, '2060', 'Contenedores - (lunes, martes, miércoles y jueves)', 0), (7, '208', 'Invitados', 0), (8, '101', 'Guardería Embarcaciones', 0), (9, '102', 'Guardería de Casillas', 0), (10, '201', 'Quincho', 0), (11, '998', 'Limpieza Quincho', 0), (12, '993', 'Control Remoto', 0), (13, '997', 'Roturas Varias', 0), (14, '000', 'Cuota Inscripción', 0), (15, '001', 'Cuota Social', 0), (16, '1022', 'Estacionamiento', 0);

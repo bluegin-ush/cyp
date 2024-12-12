@@ -56,7 +56,8 @@ public class UsuarioResource {
             existente.usuario = usuario.usuario;
         if (usuario.clave!=null)
             existente.clave = usuario.clave;
-
+        if (usuario.rol!=null)
+            existente.rol = usuario.clave;
         usuarioRepository.persist(existente);
         return existente;
     }

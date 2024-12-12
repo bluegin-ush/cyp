@@ -33,5 +33,9 @@ public class CifradoSHA256 {
         System.out.println("Clave cifrada con SHA-256: " + hashedPassword);
         
         // Este hashedPassword lo puedes usar en tu import.sql
+     }
+
+    public static void main2(String[] args) {
+        System.out.println( ( (5*100/ 20) ));
     }
 }
